@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.ndimage import gaussian_filter1d
 
 
 def from_csv(fp):
@@ -41,7 +42,7 @@ def get_trial_metrics(df):
 
 
 def get_performance_2ab(
-    df, min_trials_per_sess=None, roll_window=80, roll_step=40, delta_prob=None
+    df, min_trials_per_sess=None, roll_window=80, delta_prob=None, smooth=2
 ):
     """Get performance on two armed bandit task
 
@@ -89,10 +90,12 @@ def get_performance_2ab(
     perf = np.array([np.mean(arr) for arr in is_choice_high_per_session])
 
     sess_div_perf = is_choice_high_per_session.rolling(
-        window=roll_window, step=roll_step, closed="left", min_periods=5
-    ).mean()
+        window=roll_window, closed="right", min_periods=2
+    ).mean()[roll_window - 1 :: roll_window]
 
     sess_div_perf_arr = sess_div_perf.to_numpy()
+
+    sess_div_perf_arr = gaussian_filter1d(sess_div_perf_arr, axis=1, sigma=smooth)
 
     return sess_div_perf_arr
 
