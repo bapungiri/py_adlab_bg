@@ -100,7 +100,9 @@ def get_performance_2ab(
     return sess_div_perf_arr
 
 
-def get_port_bias_2ab(df):
+def get_port_bias_2ab(df, min_trials=250):
+
+    ntrials_by_session = get_trial_metrics(df)[0]
 
     delta_prob = df["rewprobfull1"] - df["rewprobfull2"]
     port_choice = df["port"].to_numpy()
