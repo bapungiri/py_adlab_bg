@@ -135,6 +135,7 @@ class GroupData:
         "path",
         "qlearning_2alpha_params_anirudh",
         "qlearning_2alpha_persev_anirudh",
+        "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
     )
 
     def __init__(self) -> None:
