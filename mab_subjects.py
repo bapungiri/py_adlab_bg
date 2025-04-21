@@ -133,7 +133,8 @@ unstruc = Unstruc()
 class GroupData:
     __slots__ = (
         "path",
-        "history_coef_anirudh",
+        "history_coef_alltrials_anirudh",
+        "history_coef_100trials_anirudh",
         "qlearning_2alpha_params_anirudh",
         "qlearning_2alpha_persev_anirudh",
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
