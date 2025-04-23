@@ -140,6 +140,7 @@ class GroupData:
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
+        "perf_100min150max_10bin",
     )
 
     def __init__(self) -> None:
