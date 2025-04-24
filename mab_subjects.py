@@ -141,6 +141,7 @@ class GroupData:
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
         "perf_100min150max_10bin",
+        "perf_100min150max_10bin_deltaprob_40",
     )
 
     def __init__(self) -> None:
