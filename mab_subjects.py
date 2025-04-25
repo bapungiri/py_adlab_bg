@@ -142,6 +142,8 @@ class GroupData:
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
+        "perf_100min150max_10bin_deltaprob_0min35max",
+        "switch_prob_seq",
     )
 
     def __init__(self) -> None:
