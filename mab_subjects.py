@@ -5,6 +5,7 @@ import neuropy
 from banditpy.core import MultiArmedBandit
 from typing import List
 import pandas as pd
+from dataclasses import dataclass
 
 
 class MABData:
@@ -30,6 +31,15 @@ class MABData:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
+
+
+# basedir = Path(r"D:\\Data\\mab")
+# BewilderbeastExp1 = MABData(
+#     basedir / r"anirudh_data\bewilderbeast\BewilderbeastExp1Structured"
+# )
+# BuffalordExp1 = MABData(basedir / r"anirudh_data\buffalord\BuffalordExp1Structured")
+
+# exp1 = [BewilderbeastExp1, BuffalordExp1]
 
 
 class Group:
@@ -86,6 +96,25 @@ class Struc(Group):
         )
         return pipelines
 
+    @property
+    def first_exposure(self):
+        "First exposure was structured env, had no prior experience with any type of env before this."
+        pipelines: List[MABData]
+        pipelines = (
+            self.BewilderbeastExp1
+            + self.BuffalordExp1
+            + self.GronckleExp1
+            + self.ToothlessExp1
+        )
+        return pipelines
+
+    @property
+    def second_exposure(self):
+        """Animals whose second experience is structured env."""
+        pipelines: List[MABData]
+        pipelines = self.GrumpExp2
+        return pipelines
+
 
 class Unstruc(Group):
     @property
@@ -125,6 +154,20 @@ class Unstruc(Group):
         )
         return pipelines
 
+    @property
+    def first_exposure(self):
+        """Animals who were not exposed to any other environments before this."""
+        pipelines: List[MABData]
+        pipelines = self.AggroExp1 + self.AuromaExp1 + self.BratExp1 + self.GrumpExp1
+        return pipelines
+
+    @property
+    def second_exposure(self):
+        """Animals whose second experience is unstructured env."""
+        pipelines: List[MABData]
+        pipelines = self.GronckleExp2 + self.ToothlessExp2
+        return pipelines
+
 
 struc = Struc()
 unstruc = Unstruc()
@@ -144,6 +187,7 @@ class GroupData:
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
         "switch_prob_seq",
+        "switch_prob_seq_first_exposure",
     )
 
     def __init__(self) -> None:
