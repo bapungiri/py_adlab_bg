@@ -183,9 +183,11 @@ class GroupData:
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
+        "switch_prob_by_trial_100trials_first_exposure",  # Trialwise switch prob
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
+        "perf_qlearning_switch_params",
         "switch_prob_seq",
         "switch_prob_seq_first_exposure",
     )
