@@ -187,6 +187,7 @@ class GroupData:
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
+        "perf_qlearning_assess_params",
         "perf_qlearning_switch_params",
         "switch_prob_seq",
         "switch_prob_seq_first_exposure",
