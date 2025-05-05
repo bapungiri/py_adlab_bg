@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../py_neural_data_analysis"
+		},
+		{
+			"path": "../NeuroPy"
+		},
+		{
+			"path": "../BanditPy"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../StatPlotAnnot"
+		}
+	],
+	"settings": {}
+}
