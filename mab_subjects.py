@@ -179,7 +179,7 @@ class GroupData:
         "history_coef_alltrials_anirudh",
         "history_coef_100trials_anirudh",
         "qlearning_2alpha_params_anirudh",
-        "qlearning_2alpha_persev_anirudh",
+        "qlearning_2alpha_persev",
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
