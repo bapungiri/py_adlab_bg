@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import numpy as np
 import neuropy
-from banditpy.core import MultiArmedBandit
+from banditpy.core import TwoArmedBandit
 from typing import List
 import pandas as pd
 from dataclasses import dataclass
@@ -27,7 +27,7 @@ class MABData:
             self.animal = neuropy.core.Animal.from_dict(d)
             self.name = self.animal.name + self.animal.day
 
-        self.mab = MultiArmedBandit.from_csv(fp.with_suffix(".csv"))
+        self.mab = TwoArmedBandit.from_csv(fp.with_suffix(".csv"))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
@@ -191,6 +191,8 @@ class GroupData:
         "perf_qlearning_switch_params",
         "switch_prob_seq",
         "switch_prob_seq_first_exposure",
+        "switch_prob_seq_with_simulated_FE",
+        "switch_prob_seq_with_simulated_switched_params_FE",
     )
 
     def __init__(self) -> None:
