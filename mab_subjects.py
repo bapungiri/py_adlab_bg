@@ -176,14 +176,15 @@ unstruc = Unstruc()
 class GroupData:
     __slots__ = (
         "path",
-        "history_coef_alltrials_anirudh",
-        "history_coef_100trials_anirudh",
+        "logreg_10past",
         "qlearning_2alpha_params_anirudh",
         "qlearning_2alpha_persev",
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
         "switch_prob_by_trial_100trials_first_exposure",  # Trialwise switch prob
+        "switch_prob_logreg_10past",  # Trialwise switch prob
+        "perf_logreg_10past",  # Trialwise switch prob
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
