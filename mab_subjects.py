@@ -185,6 +185,7 @@ class GroupData:
         "switch_prob_by_trial_100trials_first_exposure",  # Trialwise switch prob
         "switch_prob_logreg_10past",  # Trialwise switch prob
         "perf_logreg_10past",  # Trialwise switch prob
+        "perf_difficulty_level",
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
@@ -192,6 +193,7 @@ class GroupData:
         "perf_qlearning_switch_params",
         "switch_prob_seq",
         "switch_prob_seq_first_exposure",
+        "switch_prob_consecutive",
         "switch_prob_seq_with_simulated_FE",
         "switch_prob_seq_with_simulated_switched_params_FE",
     )
