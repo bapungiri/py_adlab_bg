@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import numpy as np
 import neuropy
-from banditpy.core import TwoArmedBandit
+from banditpy.core import Bandit2Arm
 from typing import List
 import pandas as pd
 from dataclasses import dataclass
@@ -27,7 +27,7 @@ class MABData:
             self.animal = neuropy.core.Animal.from_dict(d)
             self.name = self.animal.name + self.animal.day
 
-        self.mab = TwoArmedBandit.from_csv(fp.with_suffix(".csv"))
+        self.b2a = Bandit2Arm.from_csv(fp.with_suffix(".csv"))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
