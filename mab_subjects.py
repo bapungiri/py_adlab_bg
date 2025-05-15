@@ -191,8 +191,7 @@ class GroupData:
         "perf_100min150max_10bin_deltaprob_0min35max",
         "perf_qlearning_assess_params",
         "perf_qlearning_switch_params",
-        "switch_prob_seq",
-        "switch_prob_seq_first_exposure",
+        "switch_prob_seq",  # Switch prob like Beron2022 with difficulty level
         "switch_prob_consecutive",
         "switch_prob_seq_with_simulated_FE",
         "switch_prob_seq_with_simulated_switched_params_FE",
