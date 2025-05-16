@@ -185,7 +185,7 @@ class GroupData:
         "switch_prob_by_trial_100trials_first_exposure",  # Trialwise switch prob
         "switch_prob_logreg_10past",  # Trialwise switch prob
         "perf_logreg_10past",  # Trialwise switch prob
-        "perf_difficulty_level",
+        "perf_difficulty_level",  # Performance across difficulty levels
         "perf_100min150max_10bin",
         "perf_100min150max_10bin_deltaprob_40",
         "perf_100min150max_10bin_deltaprob_0min35max",
