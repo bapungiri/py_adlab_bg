@@ -195,6 +195,8 @@ class GroupData:
         "switch_prob_consecutive",
         "switch_prob_seq_with_simulated_FE",
         "switch_prob_seq_with_simulated_switched_params_FE",
+        "reward_rate_probability_matrix",  # Reward rate matrix as a function arm probs
+        "perf_probability_matrix",  # Performance matrix as a function of arm probs
     )
 
     def __init__(self) -> None:
