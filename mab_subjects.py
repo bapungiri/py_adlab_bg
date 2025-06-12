@@ -27,7 +27,25 @@ class MABData:
             self.animal = neuropy.core.Animal.from_dict(d)
             self.name = self.animal.name + self.animal.day
 
-        self.b2a = Bandit2Arm.from_csv(fp.with_suffix(".csv"))
+        if "model" in self.sub_name:
+            self.b2a = Bandit2Arm.from_csv(
+                fp.with_suffix(".csv"),
+                probs=["arm1_reward_prob", "arm2_reward_prob"],
+                choices="chosen_action",
+                rewards="reward",
+                session_ids="session_id",
+            )
+        else:
+            self.b2a = Bandit2Arm.from_csv(
+                fp.with_suffix(".csv"),
+                probs=["rewprobfull1", "rewprobfull2"],
+                choices="port",
+                rewards="reward",
+                session_ids="session",
+                starts="trialstart",
+                stops="trialend",
+                datetime="datetime",
+            )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
@@ -167,6 +185,19 @@ class Unstruc(Group):
         pipelines: List[MABData]
         pipelines = self.GronckleExp2 + self.ToothlessExp2
         return pipelines
+
+
+rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data")
+struc_models = sorted(rnn_basedir.glob("structured_2arm*"))
+unstruc_models = sorted(rnn_basedir.glob("unstructured_2arm*"))
+
+rnn_s_on_s = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in struc_models]
+rnn_s_on_u = [MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in struc_models]
+
+rnn_u_on_s = [MABData(_ / f"{_.stem}_structured", tag="u_on_s") for _ in unstruc_models]
+rnn_u_on_u = [
+    MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models
+]
 
 
 struc = Struc()
