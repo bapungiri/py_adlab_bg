@@ -41,7 +41,7 @@ class MABData:
                 probs=["rewprobfull1", "rewprobfull2"],
                 choices="port",
                 rewards="reward",
-                session_ids="session",
+                session_ids="session#",
                 starts="trialstart",
                 stops="trialend",
                 datetime="datetime",
@@ -187,7 +187,12 @@ class Unstruc(Group):
         return pipelines
 
 
-rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data")
+# Arm probabilities have 1 decimals precision e.g. 0.2, 0.7
+rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals1")
+
+# Arm probabilities have 2 decimals precision e.g. 0.25, 0.75
+# rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals2")
+
 struc_models = sorted(rnn_basedir.glob("structured_2arm*"))
 unstruc_models = sorted(rnn_basedir.glob("unstructured_2arm*"))
 
@@ -228,6 +233,10 @@ class GroupData:
         "switch_prob_seq_with_simulated_switched_params_FE",
         "reward_rate_probability_matrix",  # Reward rate matrix as a function arm probs
         "perf_probability_matrix",  # Performance matrix as a function of arm probs
+        "entropy_equal_probs",  # Entropy of equal probability arms in unstructured env
+        "rnn_perf",  # RNN performance s_on_s, s_on_u, u_on_s, u_on_u
+        "rnn_switch_prob",  # RNN switch prob s_on_s, s_on_u, u_on_s, u_on_u
+        "rnn_cond_switch_prob",  # RNN conditional switch prob s_on_s, s_on_u etc.
     )
 
     def __init__(self) -> None:
