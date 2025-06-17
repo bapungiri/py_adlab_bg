@@ -204,7 +204,7 @@ rnn_u_on_u = [
     MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models
 ]
 
-
+rnn_exps = rnn_u_on_u + rnn_u_on_s + rnn_s_on_s + rnn_s_on_u
 struc = Struc()
 unstruc = Unstruc()
 
@@ -237,6 +237,7 @@ class GroupData:
         "rnn_perf",  # RNN performance s_on_s, s_on_u, u_on_s, u_on_u
         "rnn_switch_prob",  # RNN switch prob s_on_s, s_on_u, u_on_s, u_on_u
         "rnn_cond_switch_prob",  # RNN conditional switch prob s_on_s, s_on_u etc.
+        "rnn_perf_probability_matrix",  # RNN perf. matrix as a function of arm probs
     )
 
     def __init__(self) -> None:
