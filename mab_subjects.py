@@ -188,13 +188,14 @@ class Unstruc(Group):
 
 
 # Arm probabilities have 1 decimals precision e.g. 0.2, 0.7
-rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals1")
+# rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals1")
+rnn_basedir1 = Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals\\tested_1decimals")
 
 # Arm probabilities have 2 decimals precision e.g. 0.25, 0.75
 # rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals2")
 
-struc_models = sorted(rnn_basedir.glob("structured_2arm*"))
-unstruc_models = sorted(rnn_basedir.glob("unstructured_2arm*"))
+struc_models = sorted(rnn_basedir1.glob("structured_2arm*"))
+unstruc_models = sorted(rnn_basedir1.glob("unstructured_2arm*"))
 
 rnn_s_on_s = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in struc_models]
 rnn_s_on_u = [MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in struc_models]
@@ -204,7 +205,29 @@ rnn_u_on_u = [
     MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models
 ]
 
-rnn_exps = rnn_u_on_u + rnn_u_on_s + rnn_s_on_s + rnn_s_on_u
+rnn_exps1 = rnn_u_on_u + rnn_u_on_s + rnn_s_on_s + rnn_s_on_u
+
+# ----- RNN Data with 1 decimal training/testing with impure probabilities --------
+rnn_basedir2 = Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals_0.16impure")
+
+struc_models2 = sorted(rnn_basedir2.glob("structured_2arm*"))
+unstruc_models2 = sorted(rnn_basedir2.glob("unstructured_2arm*"))
+
+rnn_s_on_s2 = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in struc_models2]
+rnn_s_on_u2 = [
+    MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in struc_models2
+]
+
+rnn_u_on_s2 = [
+    MABData(_ / f"{_.stem}_structured", tag="u_on_s") for _ in unstruc_models2
+]
+rnn_u_on_u2 = [
+    MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models2
+]
+
+rnn_exps2 = rnn_u_on_u2 + rnn_u_on_s2 + rnn_s_on_s2 + rnn_s_on_u2
+
+
 struc = Struc()
 unstruc = Unstruc()
 
@@ -234,10 +257,17 @@ class GroupData:
         "reward_rate_probability_matrix",  # Reward rate matrix as a function arm probs
         "perf_probability_matrix",  # Performance matrix as a function of arm probs
         "entropy_equal_probs",  # Entropy of equal probability arms in unstructured env
+        # ------ Regular RNN data ------
         "rnn_perf",  # RNN performance s_on_s, s_on_u, u_on_s, u_on_u
         "rnn_switch_prob",  # RNN switch prob s_on_s, s_on_u, u_on_s, u_on_u
         "rnn_cond_switch_prob",  # RNN conditional switch prob s_on_s, s_on_u etc.
         "rnn_perf_probability_matrix",  # RNN perf. matrix as a function of arm probs
+        "rnn_qlearn_2alphaH",  # Qlearn params for RNN
+        # ------ Impure probabilities RNN data ------
+        "rnn_perf_impure",  # RNN performance s_on_s, s_on_u, u_on_s, u_on_u
+        "rnn_switch_prob_impure",  # RNN switch prob s_on_s, s_on_u, u_on_s, u_on_u
+        "rnn_cond_switch_prob_impure",  # RNN conditional switch prob s_on_s, s_on_u etc.
+        "rnn_perf_probability_matrix_impure",  # RNN perf. matrix as a function of arm probs
     )
 
     def __init__(self) -> None:
