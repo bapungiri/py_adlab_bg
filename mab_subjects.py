@@ -187,45 +187,40 @@ class Unstruc(Group):
         return pipelines
 
 
-# Arm probabilities have 1 decimals precision e.g. 0.2, 0.7
-# rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals1")
-rnn_basedir1 = Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals\\tested_1decimals")
+def get_rnn_experiments(basedir):
+    """
+    Get RNN experiments for structured and unstructured environments.
+    Returns:
+        List of MABData objects for RNN experiments.
+    """
+    # rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals\\tested_1decimals")
 
-# Arm probabilities have 2 decimals precision e.g. 0.25, 0.75
-# rnn_basedir = Path(r"D:\\Data\\mab\\rnn_data\\probs_decimals2")
+    s_models = sorted(basedir.glob("structured_2arm*"))
+    u_models = sorted(basedir.glob("unstructured_2arm*"))
 
-struc_models = sorted(rnn_basedir1.glob("structured_2arm*"))
-unstruc_models = sorted(rnn_basedir1.glob("unstructured_2arm*"))
+    s_on_s = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in s_models]
+    s_on_u = [MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in s_models]
 
-rnn_s_on_s = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in struc_models]
-rnn_s_on_u = [MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in struc_models]
+    u_on_s = [MABData(_ / f"{_.stem}_structured", tag="u_on_s") for _ in u_models]
+    u_on_u = [MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in u_models]
 
-rnn_u_on_s = [MABData(_ / f"{_.stem}_structured", tag="u_on_s") for _ in unstruc_models]
-rnn_u_on_u = [
-    MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models
-]
+    return u_on_u + u_on_s + s_on_s + s_on_u
 
-rnn_exps1 = rnn_u_on_u + rnn_u_on_s + rnn_s_on_s + rnn_s_on_u
+
+# ----- RNN Data with 1 decimal training/testing --------
+rnn_exps1 = get_rnn_experiments(
+    Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals\\tested_1decimals")
+)
 
 # ----- RNN Data with 1 decimal training/testing with impure probabilities --------
-rnn_basedir2 = Path(r"D:\\Data\\mab\\rnn_data\\trained_1decimals_0.16impure")
+rnn_exps2 = get_rnn_experiments(
+    Path(r"D:\\Data\\mab\\rnn_data\\Train1Test1_0.16impure")
+)
 
-struc_models2 = sorted(rnn_basedir2.glob("structured_2arm*"))
-unstruc_models2 = sorted(rnn_basedir2.glob("unstructured_2arm*"))
-
-rnn_s_on_s2 = [MABData(_ / f"{_.stem}_structured", tag="s_on_s") for _ in struc_models2]
-rnn_s_on_u2 = [
-    MABData(_ / f"{_.stem}_unstructured", tag="s_on_u") for _ in struc_models2
-]
-
-rnn_u_on_s2 = [
-    MABData(_ / f"{_.stem}_structured", tag="u_on_s") for _ in unstruc_models2
-]
-rnn_u_on_u2 = [
-    MABData(_ / f"{_.stem}_unstructured", tag="u_on_u") for _ in unstruc_models2
-]
-
-rnn_exps2 = rnn_u_on_u2 + rnn_u_on_s2 + rnn_s_on_s2 + rnn_s_on_u2
+# ----- RNN Data with Train1, Tst1, impure probabilities --------
+rnn_exps3 = get_rnn_experiments(
+    Path(r"D:\\Data\\mab\\rnn_data\\Train1Test1_0.16impure_345reset")
+)
 
 
 struc = Struc()
