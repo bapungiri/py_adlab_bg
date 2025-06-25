@@ -31,7 +31,7 @@ class MABData:
             self.b2a = Bandit2Arm.from_csv(
                 fp.with_suffix(".csv"),
                 probs=["arm1_reward_prob", "arm2_reward_prob"],
-                choices="chosen_action",..
+                choices="chosen_action",
                 rewards="reward",
                 session_ids="session_id",
             )
