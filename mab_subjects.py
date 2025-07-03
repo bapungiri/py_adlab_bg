@@ -222,6 +222,10 @@ rnn_exps3 = get_rnn_experiments(
     Path(r"D:\\Data\\mab\\rnn_data\\Train1Test1_0.16impure_345reset")
 )
 
+# ----- RNN Data with Train1, Tst1, impure probabilities and filtered performance --------
+rnn_exps4 = get_rnn_experiments(
+    Path(r"D:\\Data\\mab\\rnn_data\\Train1Test1custom_0.16impure_performance_filtered")
+)
 
 struc = Struc()
 unstruc = Unstruc()
