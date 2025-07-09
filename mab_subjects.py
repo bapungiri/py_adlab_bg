@@ -347,7 +347,7 @@ rnn_exps9 = LSTMData(
     Path(r"D:\\Data\\mab\\rnn_models\\Train30000Impure0.16_2025-07-07_18-09-58"),
 )
 rnn_exps10 = LSTMData(
-    Path(r"D:\\Data\\mab\\rnn_data\\Train30000Test500Impure0.16_2025-07-08_18-34-26"),
+    Path(r"D:\\Data\\mab\\rnn_data\\Train30000Test500Impure0.16_2025-07-09_10-45-55"),
 )
 
 
