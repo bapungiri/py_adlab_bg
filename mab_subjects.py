@@ -79,7 +79,7 @@ class Group:
     if os.name == "nt":
         basedir = Path(r"D:\\Data\\mab")
     else:
-        basedir = Path("/data/Clustering/sessions/")
+        basedir = Path("/mnt/pve/Homes/bapun/Data")
 
     def _process(self, rel_path):
         return [MABData(self.basedir / rel_path, self.tag)]
@@ -91,27 +91,27 @@ class Group:
 class Struc(Group):
     @property
     def BewilderbeastExp1(self):
-        return self._process(r"anirudh_data\bewilderbeast\BewilderbeastExp1Structured")
+        return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
 
     # @property
     # def bratexp2(self): # bad animal
-    #     return self._process("anirudh_data\brat\bratexp2structured")
+    #     return self._process("AAdataset/brat/bratexp2structured")
 
     @property
     def BuffalordExp1(self):
-        return self._process(r"anirudh_data\buffalord\BuffalordExp1Structured")
+        return self._process("AAdataset/buffalord/BuffalordExp1Structured")
 
     @property
     def GronckleExp1(self):
-        return self._process(r"anirudh_data\gronckle\GronckleExp1Structured")
+        return self._process("AAdataset/gronckle/GronckleExp1Structured")
 
     @property
     def GrumpExp2(self):
-        return self._process(r"anirudh_data\grump\GrumpExp2Structured")
+        return self._process("AAdataset/grump/GrumpExp2Structured")
 
     @property
     def ToothlessExp1(self):
-        return self._process(r"anirudh_data\toothless\ToothlessExp1Structured")
+        return self._process("AAdataset/toothless/ToothlessExp1Structured")
 
     @property
     def allsess(self):
@@ -148,27 +148,27 @@ class Struc(Group):
 class Unstruc(Group):
     @property
     def AggroExp1(self):
-        return self._process(r"anirudh_data\aggro\AggroExp1UnStructured")
+        return self._process(r"AAdataset\aggro\AggroExp1UnStructured")
 
     @property
     def AuromaExp1(self):
-        return self._process(r"anirudh_data\auroma\AuromaExp1Unstructured")
+        return self._process(r"AAdataset\auroma\AuromaExp1Unstructured")
 
     @property
     def BratExp1(self):
-        return self._process(r"anirudh_data\brat\BratExp1Unstructured")
+        return self._process(r"AAdataset\brat\BratExp1Unstructured")
 
     @property
     def GronckleExp2(self):
-        return self._process(r"anirudh_data\gronckle\GronckleExp2Unstructured")
+        return self._process(r"AAdataset\gronckle\GronckleExp2Unstructured")
 
     @property
     def GrumpExp1(self):
-        return self._process(r"anirudh_data\grump\GrumpExp1Unstructured")
+        return self._process(r"AAdataset\grump\GrumpExp1Unstructured")
 
     @property
     def ToothlessExp2(self):
-        return self._process(r"anirudh_data\toothless\ToothlessExp2Unstructured")
+        return self._process(r"AAdataset\toothless\ToothlessExp2Unstructured")
 
     @property
     def allsess(self):
@@ -347,7 +347,7 @@ rnn_exps9 = LSTMData(
     Path(r"D:\\Data\\mab\\rnn_models\\Train30000Impure0.16_2025-07-07_18-09-58"),
 )
 rnn_exps10 = LSTMData(
-    Path(r"D:\\Data\\mab\\rnn_data\\Train30000Test500Impure0.16_2025-07-09_10-45-55"),
+    Path("D:/Data/mab/rnn_data/Train30000Test500Impure0.16_2025-07-09_10-45-55"),
 )
 
 
