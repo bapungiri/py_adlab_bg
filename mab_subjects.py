@@ -148,27 +148,27 @@ class Struc(Group):
 class Unstruc(Group):
     @property
     def AggroExp1(self):
-        return self._process(r"AAdataset\aggro\AggroExp1UnStructured")
+        return self._process("AAdataset/aggro/AggroExp1Unstructured")
 
     @property
     def AuromaExp1(self):
-        return self._process(r"AAdataset\auroma\AuromaExp1Unstructured")
+        return self._process("AAdataset/auroma/AuromaExp1Unstructured")
 
     @property
     def BratExp1(self):
-        return self._process(r"AAdataset\brat\BratExp1Unstructured")
+        return self._process("AAdataset/brat/BratExp1Unstructured")
 
     @property
     def GronckleExp2(self):
-        return self._process(r"AAdataset\gronckle\GronckleExp2Unstructured")
+        return self._process("AAdataset/gronckle/GronckleExp2Unstructured")
 
     @property
     def GrumpExp1(self):
-        return self._process(r"AAdataset\grump\GrumpExp1Unstructured")
+        return self._process("AAdataset/grump/GrumpExp1Unstructured")
 
     @property
     def ToothlessExp2(self):
-        return self._process(r"AAdataset\toothless\ToothlessExp2Unstructured")
+        return self._process("AAdataset/toothless/ToothlessExp2Unstructured")
 
     @property
     def allsess(self):
