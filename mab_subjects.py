@@ -394,9 +394,12 @@ class GroupData:
     )
 
     def __init__(self) -> None:
-        self.path = Path(
-            "C:\\Users\\asheshlab\\OneDrive\\academia\\analyses\\adlab\\processed_data"
-        )
+        if os.name == "nt":
+            self.path = Path(
+                "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/processed_data"
+            )
+        else:
+            self.path = Path("/mnt/pve/Homes/bapun/Data/processed_data")
 
     def save(self, d, fp):
         if isinstance(d, pd.DataFrame):
