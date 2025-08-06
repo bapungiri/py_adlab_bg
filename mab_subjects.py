@@ -362,10 +362,13 @@ class GroupData:
         "qlearning_2alpha_params_anirudh",
         "qlearning_2alpha_persev",
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
+        # ----- Switch probability data -----
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
         "switch_prob_by_trial_100trials_first_exposure",  # Trialwise switch prob
         "switch_prob_logreg_10past",  # Trialwise switch prob
+        "switch_prob_blockwise",  # Switch prob by block
+        # ------ Performance data -----
         "perf_logreg_10past",  # Trialwise switch prob
         "perf_difficulty_level",  # Performance across difficulty levels
         "perf_100min150max_10bin",
