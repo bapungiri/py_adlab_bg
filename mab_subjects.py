@@ -23,12 +23,14 @@ class MABData:
             csv_file = sorted(basepath.glob("*.csv"))
             if len(csv_file) == 0:
                 raise FileNotFoundError(f"No CSV files found in {basepath}")
-            fp = csv_file.with_suffix("")
+            fp = csv_file[0].with_suffix("")
+            print(csv_file)
         except:
             fp = basepath / basepath.name
+            # pass
 
         self.filePrefix = fp
-        self.sub_name = fp.name
+        self.sub_name = basepath.name
 
         self.group_tag = group_tag
         self.data_tag = data_tag
