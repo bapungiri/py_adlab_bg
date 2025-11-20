@@ -10,10 +10,19 @@ from dataclasses import dataclass
 
 
 class MABData:
-    def __init__(self, basepath, tag=None):
+    """_summary_
+    Notes
+    ------
+    20-11-2025: Three new attributes added: group_tag, data_tag, lesion_tag to keep track of animal groups and lesion status.
+
+    """
+
+    def __init__(self, basepath, group_tag=None, data_tag=None, lesion_tag=None):
         basepath = Path(basepath)
         try:
             csv_file = sorted(basepath.glob("*.csv"))
+            if len(csv_file) == 0:
+                raise FileNotFoundError(f"No CSV files found in {basepath}")
             fp = csv_file.with_suffix("")
         except:
             fp = basepath / basepath.name
@@ -21,7 +30,9 @@ class MABData:
         self.filePrefix = fp
         self.sub_name = fp.name
 
-        self.tag = tag
+        self.group_tag = group_tag
+        self.data_tag = data_tag
+        self.lesion_tag = lesion_tag
 
         if (f := self.filePrefix.with_suffix(".animal.npy")).is_file():
             d = np.load(f, allow_pickle=True).item()
@@ -37,16 +48,28 @@ class MABData:
                 session_ids="session_id",
             )
         else:
-            self.b2a = Bandit2Arm.from_csv(
-                fp.with_suffix(".csv"),
-                probs=["rewprobfull1", "rewprobfull2"],
-                choices="port",
-                rewards="reward",
-                session_ids="session#",
-                starts="trialstart",
-                stops="trialend",
-                datetime="datetime",
-            )
+            csv_data = pd.read_csv(fp.with_suffix(".csv"))
+
+            if "rewprobfull1" in csv_data.columns:
+                self.b2a = Bandit2Arm.from_csv(
+                    fp.with_suffix(".csv"),
+                    probs=["rewprobfull1", "rewprobfull2"],
+                    choices="port",
+                    rewards="reward",
+                    session_ids="session#",
+                    starts="trialstart",
+                    stops="trialend",
+                    datetime="datetime",
+                )
+            if "probs_1" in csv_data.columns:
+                self.b2a = Bandit2Arm.from_csv(
+                    fp.with_suffix(".csv"),
+                    probs=["probs_1", "probs_2"],
+                    choices="choices",
+                    rewards="rewards",
+                    session_ids="session_ids",
+                    datetime="datetime",
+                )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
@@ -60,19 +83,9 @@ class MABData:
 
 # exp1 = [BewilderbeastExp1, BuffalordExp1]
 
-from datetime import datetime
-import numpy as np
-
-a = np.random.choice([3, 4, 5, 6], size=1)
-
-
-def test_datetime():
-
-    print(a)
-
 
 class Group:
-    tag = None
+    group_tag = None
 
     # @property
     # def basedir(self):
@@ -81,105 +94,205 @@ class Group:
     else:
         basedir = Path("/mnt/pve/Homes/bapun/Data")
 
-    def _process(self, rel_path):
-        return [MABData(self.basedir / rel_path, self.tag)]
+    def _process(self, rel_path, data_tag=None, lesion_tag=None):
+        return [
+            MABData(
+                self.basedir / rel_path,
+                group_tag=self.group_tag,
+                data_tag=data_tag,
+                lesion_tag=lesion_tag,
+            )
+        ]
 
     def data_exist(self):
         self.allsess
 
 
 class Struc(Group):
+    group_tag = "struc"
+    """_summary_
+
+    Notes
+    ----------
+    20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    """
+
+    #!SECTION ======= Aarushi's dataset =======
     @property
-    def BewilderbeastExp1(self):
-        return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
+    def Bewilderbeast1(self):
+        # Aarushi's old data path
+        # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
+        return self._process(
+            "ACdataset/Bewilderbeast", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Gronckle1(self):
+        # Aarushi's old data path
+        # return self._process("AAdataset/gronckle/GronckleExp1Structured")
+        return self._process(
+            "ACdataset/Gronckle", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Aguero1(self):
+        return self._process(
+            "ACdataset/Aguero", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Sterling(self):
+        return self._process(
+            "ACdataset/Sterling", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Phil(self):
+        return self._process(
+            "ACdataset/Phil", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
+        )
+
+    @property
+    def Rodri(self):
+        return self._process(
+            "ACdataset/Rodri", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
+        )
+
+    #!SECTION ======= Anirudh's dataset =======
+    # @property
+    # def GrumpExp2(self):
+    #     return self._process("AAdataset/grump/GrumpExp2Structured")
+
+    @property
+    def Toothless(self):
+        return self._process(
+            "ASdataset/toothless/ToothlessExp1Structured",
+            data_tag="ASdataset",
+            lesion_tag="pre_lesion",
+        )
 
     # @property
     # def bratexp2(self): # bad animal
     #     return self._process("AAdataset/brat/bratexp2structured")
 
     @property
-    def BuffalordExp1(self):
-        return self._process("AAdataset/buffalord/BuffalordExp1Structured")
-
-    @property
-    def GronckleExp1(self):
-        return self._process("AAdataset/gronckle/GronckleExp1Structured")
-
-    @property
-    def GrumpExp2(self):
-        return self._process("AAdataset/grump/GrumpExp2Structured")
-
-    @property
-    def ToothlessExp1(self):
-        return self._process("AAdataset/toothless/ToothlessExp1Structured")
+    def Buffalord(self):
+        return self._process(
+            "ASdataset/buffalord/BuffalordExp1Structured",
+            data_tag="ASdataset",
+            lesion_tag="pre_lesion",
+        )
 
     @property
     def allsess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.BewilderbeastExp1
-            + self.BuffalordExp1
-            + self.GronckleExp1
-            + self.GrumpExp2
-            + self.ToothlessExp1
+            self.Bewilderbeast1
+            + self.Gronckle1
+            + self.Aguero1
+            + self.Sterling
+            + self.Phil
+            + self.Rodri
+            + self.Toothless
+            + self.Buffalord
         )
         return pipelines
 
-    @property
-    def first_exposure(self):
-        "First exposure was structured env, had no prior experience with any type of env before this."
-        pipelines: List[MABData]
-        pipelines = (
-            self.BewilderbeastExp1
-            + self.BuffalordExp1
-            + self.GronckleExp1
-            + self.ToothlessExp1
-        )
-        return pipelines
+    # @property
+    # def first_exposure(self):
+    #     "First exposure was structured env, had no prior experience with any type of env before this."
+    #     pipelines: List[MABData]
+    #     pipelines = (
+    #         self.BewilderbeastExp1
+    #         + self.BuffalordExp1
+    #         + self.GronckleExp1
+    #         + self.ToothlessExp1
+    #     )
+    #     return pipelines
 
-    @property
-    def second_exposure(self):
-        """Animals whose second experience is structured env."""
-        pipelines: List[MABData]
-        pipelines = self.GrumpExp2
-        return pipelines
+    # @property
+    # def second_exposure(self):
+    #     """Animals whose second experience is structured env."""
+    #     pipelines: List[MABData]
+    #     pipelines = self.GrumpExp2
+    #     return pipelines
 
 
 class Unstruc(Group):
+    """
+
+    Notes
+    ----------
+    20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    """
+
+    #!SECTION ======= Aarushi's dataset =======
     @property
-    def AggroExp1(self):
-        return self._process("AAdataset/aggro/AggroExp1Unstructured")
+    def Aggro1(self):
+        return self._process(
+            "ACdataset/Aggro", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
 
     @property
-    def AuromaExp1(self):
-        return self._process("AAdataset/auroma/AuromaExp1Unstructured")
+    def Auroma(self):
+        return self._process(
+            "ACdataset/Auroma", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
 
     @property
-    def BratExp1(self):
-        return self._process("AAdataset/brat/BratExp1Unstructured")
+    def Torres(self):
+        return self._process(
+            "ACdataset/Torres", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
 
     @property
-    def GronckleExp2(self):
-        return self._process("AAdataset/gronckle/GronckleExp2Unstructured")
+    def Debruyne(self):
+        return self._process(
+            "ACdataset/Debruyne", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
+        )
 
     @property
-    def GrumpExp1(self):
-        return self._process("AAdataset/grump/GrumpExp1Unstructured")
+    def Kompany(self):
+        return self._process(
+            "ACdataset/Kompany", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
+        )
+
+    # @property
+    # def Gronckle(self):
+    #     return self._process("AAdataset/gronckle/GronckleExp2Unstructured")
+
+    #!SECTION ======= Anirudh's dataset =======
+    @property
+    def Grump(self):
+        return self._process(
+            "ASdataset/grump/GrumpExp1Unstructured",
+            data_tag="ASdataset",
+            lesion_tag="pre_lesion",
+        )
+
+    # @property
+    # def Toothless(self):
+    #     return self._process("ASdataset/toothless/ToothlessExp2Unstructured")
 
     @property
-    def ToothlessExp2(self):
-        return self._process("AAdataset/toothless/ToothlessExp2Unstructured")
+    def Brat(self):
+        return self._process(
+            "AAdataset/brat/BratExp1Unstructured",
+            data_tag="ASdataset",
+            lesion_tag="pre_lesion",
+        )
 
     @property
     def allsess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.AggroExp1
-            + self.AuromaExp1
-            + self.BratExp1
-            + self.GronckleExp2
-            + self.GrumpExp1
-            + self.ToothlessExp2
+            self.Aggro1
+            + self.Auroma
+            + self.Torres
+            + self.Debruyne
+            + self.Kompany
+            + self.Grump
+            + self.Brat
         )
         return pipelines
 
@@ -195,6 +308,80 @@ class Unstruc(Group):
         """Animals whose second experience is unstructured env."""
         pipelines: List[MABData]
         pipelines = self.GronckleExp2 + self.ToothlessExp2
+        return pipelines
+
+
+class MostlyStruc(Group):
+    @property
+    def BGM1(self):
+        return self._process("BGdataset/BGM1")
+
+    @property
+    def BGF0(self):
+        return self._process("BGdataset/BGF0")
+
+    @property
+    def BGM3(self):
+        return self._process("BGdataset/BGM3")
+
+    @property
+    def BGM4(self):
+        return self._process("BGdataset/BGM4")
+
+    @property
+    def BGF4(self):
+        return self._process("BGdataset/BGF4")
+
+    @property
+    def good_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM1 + self.BGF0 + self.BGM3 + self.BGF4
+        return pipelines
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4
+        return pipelines
+
+
+class MostlyUnstruc(Group):
+    @property
+    def BGM0(self):
+        return self._process("BGdataset/BGM0")
+
+    @property
+    def BGM2(self):
+        return self._process("BGdataset/BGM2")
+
+    @property
+    def BGF1(self):
+        return self._process("BGdataset/BGF1")
+
+    @property
+    def BGF2(self):
+        return self._process("BGdataset/BGF2")
+
+    @property
+    def BGF3(self):
+        return self._process("BGdataset/BGF3")
+
+    @property
+    def BGM5(self):
+        return self._process("BGdataset/BGM5")
+
+    @property
+    def good_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM0 + self.BGF1 + self.BGF2
+        return pipelines
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.BGM0 + self.BGM2 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5
+        )
         return pipelines
 
 
@@ -353,6 +540,8 @@ rnn_exps10 = LSTMData(
 
 struc = Struc()
 unstruc = Unstruc()
+mostly_struc = MostlyStruc()
+mostly_unstruc = MostlyUnstruc()
 
 
 class GroupData:
