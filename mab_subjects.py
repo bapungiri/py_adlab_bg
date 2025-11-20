@@ -219,6 +219,7 @@ class Struc(Group):
 
 
 class Unstruc(Group):
+    group_tag = "unstruc"
     """
 
     Notes
