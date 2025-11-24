@@ -125,21 +125,34 @@ class Struc(Group):
         # Aarushi's old data path
         # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
         return self._process(
-            "ACdataset/Bewilderbeast", data_tag="ACdataset", lesion_tag="pre_lesion"
+            "ACdataset/Bewilderbeast/pre_lesion",
+            data_tag="ACdataset",
+            lesion_tag="pre_lesion",
         )
 
-    @property
-    def Gronckle1(self):
-        # Aarushi's old data path
-        # return self._process("AAdataset/gronckle/GronckleExp1Structured")
-        return self._process(
-            "ACdataset/Gronckle", data_tag="ACdataset", lesion_tag="pre_lesion"
-        )
+    # Bewilderbeast2 is bad data
+    # @property
+    # def Bewilderbeast2(self):
+    #     # Aarushi's old data path
+    #     # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
+    #     return self._process(
+    #         "ACdataset/Bewilderbeast/post_lesion",
+    #         data_tag="ACdataset",
+    #         lesion_tag="post_lesion_OFC",
+    #     )
 
     @property
     def Aguero1(self):
         return self._process(
-            "ACdataset/Aguero", data_tag="ACdataset", lesion_tag="pre_lesion"
+            "ACdataset/Aguero/pre_lesion", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Aguero2(self):
+        return self._process(
+            "ACdataset/Aguero/post_lesion",
+            data_tag="ACdataset",
+            lesion_tag="post_lesion_OFC",
         )
 
     @property
@@ -166,6 +179,16 @@ class Struc(Group):
     #     return self._process("AAdataset/grump/GrumpExp2Structured")
 
     @property
+    def Gronckle1(self):
+        # Aarushi's old data path
+        # return self._process("AAdataset/gronckle/GronckleExp1Structured")
+        return self._process(
+            "ASdataset/gronckle/pre_lesion",
+            data_tag="ASdataset",
+            lesion_tag="pre_lesion",
+        )
+
+    @property
     def Toothless(self):
         return self._process(
             "ASdataset/toothless/ToothlessExp1Structured",
@@ -190,11 +213,12 @@ class Struc(Group):
         pipelines: List[MABData]
         pipelines = (
             self.Bewilderbeast1
-            + self.Gronckle1
             + self.Aguero1
+            + self.Aguero2
             + self.Sterling
             + self.Phil
             + self.Rodri
+            + self.Gronckle1
             + self.Toothless
             + self.Buffalord
         )
@@ -233,7 +257,15 @@ class Unstruc(Group):
     @property
     def Aggro1(self):
         return self._process(
-            "ACdataset/Aggro", data_tag="ACdataset", lesion_tag="pre_lesion"
+            "ACdataset/Aggro/pre_lesion", data_tag="ACdataset", lesion_tag="pre_lesion"
+        )
+
+    @property
+    def Aggro2(self):
+        return self._process(
+            "ACdataset/Aggro/post_lesion",
+            data_tag="ACdataset",
+            lesion_tag="post_lesion_OFC",
         )
 
     @property
@@ -277,25 +309,36 @@ class Unstruc(Group):
     # def Toothless(self):
     #     return self._process("ASdataset/toothless/ToothlessExp2Unstructured")
 
-    @property
-    def Brat(self):
-        return self._process(
-            "AAdataset/brat/BratExp1Unstructured",
-            data_tag="ASdataset",
-            lesion_tag="pre_lesion",
-        )
+    # @property
+    # def Brat(self):
+    #     return self._process(
+    #         "AAdataset/brat/BratExp1Unstructured",
+    #         data_tag="ASdataset",
+    #         lesion_tag="pre_lesion",
+    #     )
+
+    # Gronckle2 is DLS lesion and environment was changed to unstructured post lesion
+    # @property
+    # def Gronckle2(self):
+    #     # Aarushi's old data path
+    #     # return self._process("AAdataset/gronckle/GronckleExp1Structured")
+    #     return self._process(
+    #         "ASdataset/Gronckle/post_lesion",
+    #         data_tag="ASdataset",
+    #         lesion_tag="post_lesion_DLS",
+    #     )
 
     @property
     def allsess(self):
         pipelines: List[MABData]
         pipelines = (
             self.Aggro1
+            + self.Aggro2
             + self.Auroma
             + self.Torres
             + self.Debruyne
             + self.Kompany
             + self.Grump
-            + self.Brat
         )
         return pipelines
 
