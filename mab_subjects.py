@@ -634,10 +634,11 @@ class GroupData:
     def __init__(self) -> None:
         if os.name == "nt":
             self.path = Path(
-                "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/processed_data"
+                "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/results"
+                # "D:/Data/mab/processed_data"
             )
         else:
-            self.path = Path("/mnt/pve/Homes/bapun/Data/processed_data")
+            self.path = Path("/mnt/pve/Homes/bapun/Data/results")
 
     def save(self, d, fp):
         if isinstance(d, pd.DataFrame):
