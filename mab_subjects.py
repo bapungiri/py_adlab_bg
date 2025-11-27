@@ -24,13 +24,17 @@ class MABData:
             if len(csv_file) == 0:
                 raise FileNotFoundError(f"No CSV files found in {basepath}")
             fp = csv_file[0].with_suffix("")
-            print(csv_file)
+            # print(csv_file)
         except:
             fp = basepath / basepath.name
             # pass
 
         self.filePrefix = fp
-        self.sub_name = basepath.name
+        sub_name = basepath.name
+
+        if sub_name in ["pre_lesion", "post_lesion"]:
+            sub_name = basepath.parent.name
+        self.sub_name = sub_name
 
         self.group_tag = group_tag
         self.data_tag = data_tag
@@ -597,6 +601,7 @@ class GroupData:
         "qlearning_2alpha_params_anirudh",
         "qlearning_2alpha_persev",
         "qlearning_2alpha_persev_correlated_within_unstructured_anirudh",
+        "qlearn_2alphaH_fit_1stBlock25trials_26112025_112008",
         # ----- Switch probability data -----
         "switch_prob_100trials",  # This mean across all sessions
         "switch_prob_by_trial_100trials",  # Trialwise switch prob
@@ -629,6 +634,8 @@ class GroupData:
         "rnn_switch_prob_impure",  # RNN switch prob s_on_s, s_on_u, u_on_s, u_on_u
         "rnn_cond_switch_prob_impure",  # RNN conditional switch prob s_on_s, s_on_u etc.
         "rnn_perf_probability_matrix_impure",  # RNN perf. matrix as a function of arm probs
+        # ------- Thompson sampling results ----------
+        "thomp_params_lr_shared_1stBlock_26112025_112008",
     )
 
     def __init__(self) -> None:
