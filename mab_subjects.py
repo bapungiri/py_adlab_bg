@@ -364,23 +364,23 @@ class Unstruc(Group):
 class MostlyStruc(Group):
     @property
     def BGM1(self):
-        return self._process("BGdataset/BGM1")
+        return self._process("BGdataset/BGM1", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGF0(self):
-        return self._process("BGdataset/BGF0")
+        return self._process("BGdataset/BGF0", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGM3(self):
-        return self._process("BGdataset/BGM3")
+        return self._process("BGdataset/BGM3", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGM4(self):
-        return self._process("BGdataset/BGM4")
+        return self._process("BGdataset/BGM4", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGF4(self):
-        return self._process("BGdataset/BGF4")
+        return self._process("BGdataset/BGF4", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def good_sess(self):
@@ -398,7 +398,7 @@ class MostlyStruc(Group):
 class MostlyUnstruc(Group):
     @property
     def BGM0(self):
-        return self._process("BGdataset/BGM0")
+        return self._process("BGdataset/BGM0", data_tag="BGdataset", lesion_tag="naive")
 
     # @property
     # def BGM2(self): # BAD animal
@@ -406,19 +406,19 @@ class MostlyUnstruc(Group):
 
     @property
     def BGF1(self):
-        return self._process("BGdataset/BGF1")
+        return self._process("BGdataset/BGF1", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGF2(self):
-        return self._process("BGdataset/BGF2")
+        return self._process("BGdataset/BGF2", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGF3(self):
-        return self._process("BGdataset/BGF3")
+        return self._process("BGdataset/BGF3", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def BGM5(self):
-        return self._process("BGdataset/BGM5")
+        return self._process("BGdataset/BGM5", data_tag="BGdataset", lesion_tag="naive")
 
     @property
     def good_sess(self):
