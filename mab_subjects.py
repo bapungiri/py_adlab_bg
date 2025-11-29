@@ -400,9 +400,9 @@ class MostlyUnstruc(Group):
     def BGM0(self):
         return self._process("BGdataset/BGM0")
 
-    @property
-    def BGM2(self):
-        return self._process("BGdataset/BGM2")
+    # @property
+    # def BGM2(self): # BAD animal
+    #     return self._process("BGdataset/BGM2")
 
     @property
     def BGF1(self):
@@ -429,9 +429,7 @@ class MostlyUnstruc(Group):
     @property
     def allsess(self):
         pipelines: List[MABData]
-        pipelines = (
-            self.BGM0 + self.BGM2 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5
-        )
+        pipelines = self.BGM0 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5
         return pipelines
 
 
@@ -636,6 +634,7 @@ class GroupData:
         "rnn_perf_probability_matrix_impure",  # RNN perf. matrix as a function of arm probs
         # ------- Thompson sampling results ----------
         "thomp_params_lr_shared_1stBlock_26112025_112008",
+        "thomp_params_lr_split_1stBlock_27112025_153214",
     )
 
     def __init__(self) -> None:
