@@ -362,6 +362,8 @@ class Unstruc(Group):
 
 
 class MostlyStruc(Group):
+    group_tag = "struc"
+
     @property
     def BGM1(self):
         return self._process("BGdataset/BGM1", data_tag="BGdataset", lesion_tag="naive")
@@ -396,6 +398,8 @@ class MostlyStruc(Group):
 
 
 class MostlyUnstruc(Group):
+    group_tag = "unstruc"
+
     @property
     def BGM0(self):
         return self._process("BGdataset/BGM0", data_tag="BGdataset", lesion_tag="naive")
