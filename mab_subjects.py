@@ -597,15 +597,46 @@ mostly_unstruc = MostlyUnstruc()
 
 
 # ------- Files generated with slots -------#
-from groupdata_slots import SLOTS
-from groupdata_slots_generator import generate_slots
 from datetime import datetime
 
 
-class GroupData:
-    __slots__ = SLOTS
+# ---------------------------------------------------------
+# Helper class: versioned accessor
+# ---------------------------------------------------------
+class VersionedAccessor:
+    def __init__(self, parent: "GroupData", basename: str):
+        self.parent = parent
+        self.basename = basename
 
-    def __init__(self):
+    # load all versioned files
+    @property
+    def all(self):
+        return self.parent._all_versions(self.basename)
+
+    # load the newest version
+    @property
+    def latest(self):
+        fp = self.parent._latest_version(self.basename)
+        return self.parent.load(fp)["data"]
+
+    # calling the object returns latest
+    def __call__(self):
+        return self.latest
+
+    # give list of version names (basename_yyyymmdd_hhmmss.npy)
+    @property
+    def versions(self):
+        return [p.stem for p in self.parent._all_versions(self.basename)]
+
+
+# ---------------------------------------------------------
+# GroupData main class
+# ---------------------------------------------------------
+class GroupData:
+
+    def __init__(self, keep_versions: int = 3):
+        self.keep_versions = keep_versions
+
         if os.name == "nt":
             self.path = Path(
                 "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/results"
@@ -613,45 +644,94 @@ class GroupData:
         else:
             self.path = Path("/mnt/pve/Homes/bapun/Data/results")
 
+        self.path.mkdir(exist_ok=True, parents=True)
+
+        # discover basenames from existing files
+        self._basenames = self._discover_basenames()
+
     # -----------------------------------------------------
-    # Improved SAVE function
+    # BASENAME DISCOVERY
     # -----------------------------------------------------
-    def save(self, data, basename: str, datestamp=True):
+    def _discover_basenames(self):
+        basenames = set()
+        for f in self.path.glob("*.npy"):
+            stem = f.stem
+            # assume format: basename_YYYYMMDD_HHMMSS
+            parts = stem.rsplit("_", 2)  # basename, yyyymmdd, hhmmss
+            if len(parts) == 3 and parts[1].isdigit() and parts[2].isdigit():
+                basenames.add(parts[0])
+        return sorted(basenames)
+
+    # -----------------------------------------------------
+    # ATTRIBUTE ACCESS (this gives you autocomplete!)
+    # -----------------------------------------------------
+    def __getattr__(self, name: str):
+        if name in self._basenames:
+            return VersionedAccessor(self, name)
+        raise AttributeError(f"No attribute or data basename named '{name}'")
+
+    # -----------------------------------------------------
+    # FILENAME HELPERS
+    # -----------------------------------------------------
+    def _versioned_name(self, basename: str):
+        now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return f"{basename}_{now}.npy"
+
+    def _all_versions(self, basename: str):
+        return sorted(self.path.glob(f"{basename}_*.npy"))
+
+    def _latest_version(self, basename: str):
+        files = self._all_versions(basename)
+        if not files:
+            raise FileNotFoundError(f"No versions found for '{basename}'")
+        return files[-1].stem  # no .npy
+
+    # -----------------------------------------------------
+    # SAVE WITH VERSIONING + CLEANUP
+    # -----------------------------------------------------
+    def save(self, data, basename: str, clean: bool = True):
+        # convert DataFrame to dict
         if isinstance(data, pd.DataFrame):
             data = data.to_dict()
 
-        # unified container
-        payload = {"data": data}
+        filename = self._versioned_name(basename)
+        np.save(self.path / filename, {"data": data})
+        print(f"[GroupData] Saved: {filename}")
 
-        # improved filename convention
-        if datestamp:
-            stamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
-            filename = f"{basename}_{stamp}"
-        else:
-            filename = basename  # no timestamp
+        # register new basename if new
+        if basename not in self._basenames:
+            self._basenames.append(basename)
 
-        outpath = self.path / f"{filename}.npy"
-        np.save(outpath, payload)
+        if clean:
+            self._cleanup_versions(basename)
 
-        print(f"[GroupData] Saved: {outpath.name}")
+        return filename
 
-        # --- New: auto-regenerate slots after saving ---
-        generate_slots(
-            results_dir=self.path,
-            out_file=Path(__file__).parent / "groupdata_slots.py",
-        )
-
-        return filename  # useful to know exact name
+    def _cleanup_versions(self, basename: str):
+        files = self._all_versions(basename)
+        if len(files) > self.keep_versions:
+            old = files[: len(files) - self.keep_versions]
+            for f in old:
+                f.unlink()
+                print(f"Deleted old version: {f.name}")
 
     # -----------------------------------------------------
-    # Dynamic loading (unchanged)
+    # LOAD
     # -----------------------------------------------------
-    def load(self, fp):
-        data = np.load(self.path / f"{fp}.npy", allow_pickle=True).item()["data"]
+    def load(self, stem: str):
+        data = np.load(self.path / f"{stem}.npy", allow_pickle=True).item()
         try:
-            return pd.DataFrame(data)
+            data["data"] = pd.DataFrame(data["data"])
         except Exception:
-            return data
+            pass
+        return data
 
-    def __getattr__(self, name):
-        return self.load(name)
+    # -----------------------------------------------------
+    # REVERSE MAPPING
+    # -----------------------------------------------------
+    def filename_to_attr(self, filename: str):
+        stem = Path(filename).stem
+        for base in self._basenames:
+            if stem.startswith(base + "_"):
+                return base
+        return None
