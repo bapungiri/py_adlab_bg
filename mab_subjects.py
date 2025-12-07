@@ -8,6 +8,8 @@ from typing import List
 import pandas as pd
 from dataclasses import dataclass
 
+figpath = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
+
 
 class MABData:
     """_summary_
