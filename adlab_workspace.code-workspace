@@ -16,5 +16,11 @@
 			"path": "../StatPlotAnnot"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.colorCustomizations": {
+			// "activityBar.background": "#bbdef3",
+			"statusBar.background": "#bbdef3",
+			"titleBar.activeBackground": "#bbdef3"
+		}
+	}
 }
