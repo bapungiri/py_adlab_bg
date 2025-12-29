@@ -78,6 +78,17 @@ class MABData:
                     session_ids="session_ids",
                     datetime="datetime",
                 )
+            if "p1" in csv_data.columns:
+                self.b2a = Bandit2Arm.from_csv(
+                    fp.with_suffix(".csv"),
+                    probs=["p1", "p2"],
+                    choices=["port"],
+                    rewards=["reward"],
+                    session_ids=["session_id"],
+                    starts=["start"],
+                    stops=["stop"],
+                    datetime=["stop_time"],
+                )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
@@ -386,6 +397,33 @@ class MostlyStruc(Group):
     def BGF4(self):
         return self._process("BGdataset/BGF4", data_tag="BGdataset", lesion_tag="naive")
 
+    # -------- Aarushi dataset ----------
+    @property
+    def Gavi(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Gavi", data_tag="ACdataset", lesion_tag="naive"
+        )
+
+    @property
+    def Haaland(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Haaland",
+            data_tag="ACdataset",
+            lesion_tag="naive",
+        )
+
+    @property
+    def Pedri(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Pedri", data_tag="ACdataset", lesion_tag="naive"
+        )
+
+    @property
+    def Xavi(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Xavi", data_tag="ACdataset", lesion_tag="naive"
+        )
+
     @property
     def good_sess(self):
         pipelines: List[MABData]
@@ -395,7 +433,29 @@ class MostlyStruc(Group):
     @property
     def allsess(self):
         pipelines: List[MABData]
+        pipelines = (
+            self.BGM1
+            + self.BGF0
+            + self.BGM3
+            + self.BGM4
+            + self.BGF4
+            + self.Gavi
+            + self.Haaland
+            + self.Pedri
+            + self.Xavi
+        )
+        return pipelines
+
+    @property
+    def BGdataset(self):
+        pipelines: List[MABData]
         pipelines = self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4
+        return pipelines
+
+    @property
+    def ACdataset(self):
+        pipelines: List[MABData]
+        pipelines = self.Gavi + self.Haaland + self.Pedri + self.Xavi
         return pipelines
 
 
@@ -426,6 +486,26 @@ class MostlyUnstruc(Group):
     def BGM5(self):
         return self._process("BGdataset/BGM5", data_tag="BGdataset", lesion_tag="naive")
 
+    # -------- Aarushi dataset ----------
+
+    @property
+    def Messi(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Messi", data_tag="ACdataset", lesion_tag="naive"
+        )
+
+    @property
+    def Neymar(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Neymar", data_tag="ACdataset", lesion_tag="naive"
+        )
+
+    @property
+    def Son(self):
+        return self._process(
+            "ACdataset/impure_paradigm/Son", data_tag="ACdataset", lesion_tag="naive"
+        )
+
     @property
     def good_sess(self):
         pipelines: List[MABData]
@@ -435,7 +515,28 @@ class MostlyUnstruc(Group):
     @property
     def allsess(self):
         pipelines: List[MABData]
+        pipelines = (
+            self.BGM0
+            + self.BGF1
+            + self.BGF2
+            + self.BGF3
+            + self.BGM5
+            + self.Messi
+            + self.Neymar
+            + self.Son
+        )
+        return pipelines
+
+    @property
+    def BGdataset(self):
+        pipelines: List[MABData]
         pipelines = self.BGM0 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5
+        return pipelines
+
+    @property
+    def ACdataset(self):
+        pipelines: List[MABData]
+        pipelines = self.Messi + self.Neymar + self.Son
         return pipelines
 
 
