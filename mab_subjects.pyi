@@ -1,0 +1,27 @@
+from typing import Any
+
+class VersionedAccessor:
+    def __init__(self, parent: 'GroupData', basename: str): ...
+    @property
+    def all(self) -> Any: ...
+    @property
+    def latest(self) -> Any: ...
+    def __call__(self) -> Any: ...
+    @property
+    def versions(self) -> list[str]: ...
+
+class GroupData:
+    def __init__(self, keep_versions: int = 3): ...
+    def save(self, data: Any, basename: str, clean: bool = True) -> str: ...
+    def load(self, stem: str) -> dict: ...
+    bias: VersionedAccessor
+    cheeku: VersionedAccessor
+    perf_AAdataset_Block1: VersionedAccessor
+    perf_probability_matrix: VersionedAccessor
+    qlearnH: VersionedAccessor
+    reward_prob: VersionedAccessor
+    switch_density: VersionedAccessor
+    switch_prob: VersionedAccessor
+    swp_AAdataset_Block1: VersionedAccessor
+    swp_trial_history: VersionedAccessor
+    ucb_fitting_results: VersionedAccessor
