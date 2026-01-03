@@ -703,9 +703,6 @@ mostly_unstruc = MostlyUnstruc()
 from datetime import datetime
 
 
-# ---------------------------------------------------------
-# Helper class: versioned accessor
-# ---------------------------------------------------------
 class VersionedAccessor:
     def __init__(self, parent: "GroupData", basename: str):
         self.parent = parent
@@ -732,9 +729,6 @@ class VersionedAccessor:
         return [p.stem for p in self.parent._all_versions(self.basename)]
 
 
-# ---------------------------------------------------------
-# GroupData main class
-# ---------------------------------------------------------
 class GroupData:
 
     def __init__(self, keep_versions: int = 3):
@@ -752,12 +746,24 @@ class GroupData:
         # discover basenames from existing files
         self._basenames = self._discover_basenames()
 
-    # -----------------------------------------------------
-    # BASENAME DISCOVERY
-    # -----------------------------------------------------
+        # Debug: print discovered basenames
+        # print(f"Discovered basenames: {self._basenames}")
+
+        # Dynamically create attributes for autocomplete
+        for basename in self._basenames:
+            setattr(self, basename, VersionedAccessor(self, basename))
+
+        # write stub at init so VS Code sees current basenames
+        self._write_stub()
+
+    def __dir__(self):
+        """Enable autocomplete for discovered basenames"""
+        base_attrs = list(super().__dir__())
+        return base_attrs + list(self._basenames)
+
     def _discover_basenames(self):
         basenames = set()
-        for f in self.path.glob("*.npy"):
+        for f in self.path.glob("*.npy"):  # Uses self.path which is already defined
             stem = f.stem
             # assume format: basename_YYYYMMDD_HHMMSS
             parts = stem.rsplit("_", 2)  # basename, yyyymmdd, hhmmss
@@ -765,23 +771,25 @@ class GroupData:
                 basenames.add(parts[0])
         return sorted(basenames)
 
-    # -----------------------------------------------------
-    # ATTRIBUTE ACCESS (this gives you autocomplete!)
-    # -----------------------------------------------------
+    def filename_to_attr(self, stem: str) -> str | None:
+        """Extract basename from a versioned filename stem (basename_YYYYMMDD_HHMMSS)."""
+        parts = stem.rsplit("_", 2)
+        if len(parts) == 3 and parts[1].isdigit() and parts[2].isdigit():
+            return parts[0]
+        return None
+
     def __getattr__(self, name: str):
         if name in self._basenames:
             return VersionedAccessor(self, name)
         raise AttributeError(f"No attribute or data basename named '{name}'")
 
-    # -----------------------------------------------------
-    # FILENAME HELPERS
-    # -----------------------------------------------------
     def _versioned_name(self, basename: str):
         now = datetime.now().strftime("%Y%m%d_%H%M%S")
         return f"{basename}_{now}.npy"
 
     def _all_versions(self, basename: str):
-        return sorted(self.path.glob(f"{basename}_*.npy"))
+        files = sorted(self.path.glob(f"{basename}_*.npy"))
+        return [f for f in files if self.filename_to_attr(f.stem) == basename]
 
     def _latest_version(self, basename: str):
         files = self._all_versions(basename)
@@ -789,9 +797,6 @@ class GroupData:
             raise FileNotFoundError(f"No versions found for '{basename}'")
         return files[-1].stem  # no .npy
 
-    # -----------------------------------------------------
-    # SAVE WITH VERSIONING + CLEANUP
-    # -----------------------------------------------------
     def save(self, data, basename: str, clean: bool = True):
         # convert DataFrame to dict
         if isinstance(data, pd.DataFrame):
@@ -804,6 +809,8 @@ class GroupData:
         # register new basename if new
         if basename not in self._basenames:
             self._basenames.append(basename)
+            setattr(self, basename, VersionedAccessor(self, basename))
+            self._write_stub()  # update stub on new basename
 
         if clean:
             self._cleanup_versions(basename)
@@ -818,23 +825,42 @@ class GroupData:
                 f.unlink()
                 print(f"Deleted old version: {f.name}")
 
-    # -----------------------------------------------------
-    # LOAD
-    # -----------------------------------------------------
     def load(self, stem: str):
         data = np.load(self.path / f"{stem}.npy", allow_pickle=True).item()
         try:
             data["data"] = pd.DataFrame(data["data"])
         except Exception:
             pass
+
+        # ensure basename from stem is registered for autocomplete
+        base = self.filename_to_attr(stem)
+        if base and base not in self._basenames:
+            self._basenames.append(base)
+            setattr(self, base, VersionedAccessor(self, base))
+            self._write_stub()
+
         return data
 
-    # -----------------------------------------------------
-    # REVERSE MAPPING
-    # -----------------------------------------------------
-    def filename_to_attr(self, filename: str):
-        stem = Path(filename).stem
-        for base in self._basenames:
-            if stem.startswith(base + "_"):
-                return base
-        return None
+    def _write_stub(self, stub_path: Path | None = None):
+        """Write mab_subjects.pyi so VS Code can autocomplete basenames."""
+        stub_path = stub_path or Path(__file__).with_suffix(".pyi")
+        lines = [
+            "from typing import Any",
+            "",
+            "class VersionedAccessor:",
+            "    def __init__(self, parent: 'GroupData', basename: str): ...",
+            "    @property",
+            "    def all(self) -> Any: ...",
+            "    @property",
+            "    def latest(self) -> Any: ...",
+            "    def __call__(self) -> Any: ...",
+            "    @property",
+            "    def versions(self) -> list[str]: ...",
+            "",
+            "class GroupData:",
+            "    def __init__(self, keep_versions: int = 3): ...",
+            "    def save(self, data: Any, basename: str, clean: bool = True) -> str: ...",
+            "    def load(self, stem: str) -> dict: ...",
+        ]
+        lines += [f"    {b}: VersionedAccessor" for b in sorted(self._basenames)]
+        stub_path.write_text("\n".join(lines))
