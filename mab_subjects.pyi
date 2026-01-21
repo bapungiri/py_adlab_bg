@@ -16,10 +16,13 @@ class GroupData:
     def load(self, stem: str) -> dict: ...
     bias: VersionedAccessor
     cheeku: VersionedAccessor
+    fit_qlearnH_sim: VersionedAccessor
+    fit_thompson_split: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
     qlearnH: VersionedAccessor
     reward_prob: VersionedAccessor
+    reward_probability_matrix: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
     swp_AAdataset_Block1: VersionedAccessor
