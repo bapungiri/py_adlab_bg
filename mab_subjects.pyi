@@ -17,6 +17,8 @@ class GroupData:
     bias: VersionedAccessor
     cheeku: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
+    fit_si: VersionedAccessor
+    fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
@@ -25,6 +27,7 @@ class GroupData:
     reward_probability_matrix: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
+    switchprob_si: VersionedAccessor
     swp_AAdataset_Block1: VersionedAccessor
     swp_trial_history: VersionedAccessor
     ucb_fitting_results: VersionedAccessor
