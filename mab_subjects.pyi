@@ -22,6 +22,7 @@ class GroupData:
     fit_thompson_split: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
+    perf_sliding: VersionedAccessor
     qlearnH: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
