@@ -21,6 +21,9 @@ class GroupData:
     fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
+    perf_all_corr_uncorr: VersionedAccessor
+    perf_easy_hard_transitions: VersionedAccessor
+    perf_easy_to_hard: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
     perf_sliding: VersionedAccessor
     qlearnH: VersionedAccessor
@@ -30,5 +33,6 @@ class GroupData:
     switch_prob: VersionedAccessor
     switchprob_si: VersionedAccessor
     swp_AAdataset_Block1: VersionedAccessor
+    swp_by_quartiles: VersionedAccessor
     swp_trial_history: VersionedAccessor
     ucb_fitting_results: VersionedAccessor
