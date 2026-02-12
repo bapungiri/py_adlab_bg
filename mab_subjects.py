@@ -399,13 +399,13 @@ class MostlyStruc(Group):
 
     # -------- Aarushi dataset ----------
     @property
-    def Gavi(self):
+    def Gavi(self):  # female
         return self._process(
             "ACdataset/impure_paradigm/Gavi", data_tag="ACdataset", lesion_tag="naive"
         )
 
     @property
-    def Haaland(self):
+    def Haaland(self):  # male
         return self._process(
             "ACdataset/impure_paradigm/Haaland",
             data_tag="ACdataset",
@@ -413,13 +413,13 @@ class MostlyStruc(Group):
         )
 
     @property
-    def Pedri(self):
+    def Pedri(self):  # female
         return self._process(
             "ACdataset/impure_paradigm/Pedri", data_tag="ACdataset", lesion_tag="naive"
         )
 
     @property
-    def Xavi(self):
+    def Xavi(self):  # male
         return self._process(
             "ACdataset/impure_paradigm/Xavi", data_tag="ACdataset", lesion_tag="naive"
         )
@@ -489,19 +489,19 @@ class MostlyUnstruc(Group):
     # -------- Aarushi dataset ----------
 
     @property
-    def Messi(self):
+    def Messi(self):  # male
         return self._process(
             "ACdataset/impure_paradigm/Messi", data_tag="ACdataset", lesion_tag="naive"
         )
 
     @property
-    def Neymar(self):
+    def Neymar(self):  # male
         return self._process(
             "ACdataset/impure_paradigm/Neymar", data_tag="ACdataset", lesion_tag="naive"
         )
 
     @property
-    def Son(self):
+    def Son(self):  # male
         return self._process(
             "ACdataset/impure_paradigm/Son", data_tag="ACdataset", lesion_tag="naive"
         )
