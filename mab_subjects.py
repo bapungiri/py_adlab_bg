@@ -450,6 +450,7 @@ class MostlyStruc(Group):
             + self.BGM3
             + self.BGM4
             + self.BGF4
+            + self.BGM6
             + self.Gavi
             + self.Haaland
             + self.Pedri

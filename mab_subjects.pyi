@@ -1,7 +1,7 @@
 from typing import Any
 
 class VersionedAccessor:
-    def __init__(self, parent: "GroupData", basename: str): ...
+    def __init__(self, parent: 'GroupData', basename: str): ...
     @property
     def all(self) -> Any: ...
     @property
@@ -20,6 +20,7 @@ class GroupData:
     fit_si: VersionedAccessor
     fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
+    fit_ucb: VersionedAccessor
     logreg: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_all_corr_uncorr: VersionedAccessor
@@ -31,9 +32,8 @@ class GroupData:
     perf_meta_learning: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
     perf_sliding: VersionedAccessor
+    perf_vs_lesion: VersionedAccessor
     qlearnH: VersionedAccessor
-    qlearn_2alphaH_fit_1stBlock25trials: VersionedAccessor
-    qlearn_2alphaH_fit_impure: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
     switch_density: VersionedAccessor
@@ -46,7 +46,3 @@ class GroupData:
     swp_AAdataset_Block1: VersionedAccessor
     swp_by_quartiles: VersionedAccessor
     swp_trial_history: VersionedAccessor
-    thomp_params_impure_lr_split: VersionedAccessor
-    thomp_params_lr_shared_1stBlock: VersionedAccessor
-    thomp_params_lr_split_1stBlock: VersionedAccessor
-    ucb_fitting_results: VersionedAccessor
