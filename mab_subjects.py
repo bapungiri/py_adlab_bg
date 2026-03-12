@@ -377,61 +377,72 @@ class Unstruc(Group):
 class MostlyStruc(Group):
     group_tag = "struc"
 
+    dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "naive"}
+
+    dirstr_AC = "ACdataset/impure_paradigm/"  # directory base string for ACdataset
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "naive"}
+
     @property
     def BGM1(self):
-        return self._process("BGdataset/BGM1", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGM1", **self.kwargs_BG)
 
     @property
     def BGF0(self):
-        return self._process("BGdataset/BGF0", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGF0", **self.kwargs_BG)
 
     @property
     def BGM3(self):
-        return self._process("BGdataset/BGM3", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGM3", **self.kwargs_BG)
 
     @property
     def BGM4(self):
-        return self._process("BGdataset/BGM4", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGM4", **self.kwargs_BG)
 
     @property
     def BGF4(self):
-        return self._process("BGdataset/BGF4", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGF4", **self.kwargs_BG)
+
+    @property
+    def BGM6(self):
+        return self._process(self.dirstr_BG + "BGM6", **self.kwargs_BG)
 
     # -------- Aarushi dataset ----------
     @property
     def Gavi(self):  # female
-        return self._process(
-            "ACdataset/impure_paradigm/Gavi", data_tag="ACdataset", lesion_tag="naive"
-        )
+        return self._process(self.dirstr_AC + "Gavi", **self.kwargs_AC)
 
     @property
     def Haaland(self):  # male
-        return self._process(
-            "ACdataset/impure_paradigm/Haaland",
-            data_tag="ACdataset",
-            lesion_tag="naive",
-        )
+        return self._process(self.dirstr_AC + "Haaland", **self.kwargs_AC)
 
     @property
     def Pedri(self):  # female
-        return self._process(
-            "ACdataset/impure_paradigm/Pedri", data_tag="ACdataset", lesion_tag="naive"
-        )
+        return self._process(self.dirstr_AC + "Pedri", **self.kwargs_AC)
 
     @property
     def Xavi(self):  # male
-        return self._process(
-            "ACdataset/impure_paradigm/Xavi", data_tag="ACdataset", lesion_tag="naive"
-        )
-
-    @property
-    def good_sess(self):
-        pipelines: List[MABData]
-        pipelines = self.BGM1 + self.BGF0 + self.BGM3 + self.BGF4
-        return pipelines
+        return self._process(self.dirstr_AC + "Xavi", **self.kwargs_AC)
 
     @property
     def allsess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.BGM1
+            + self.BGF0
+            + self.BGM3
+            + self.BGM4
+            + self.BGF4
+            + self.Gavi
+            + self.Haaland
+            + self.Pedri
+            + self.Xavi
+        )
+        return pipelines
+
+    @property
+    def good_sess(self):
+        # Biased animals are excluded from good_sess.
         pipelines: List[MABData]
         pipelines = (
             self.BGM1
@@ -461,10 +472,14 @@ class MostlyStruc(Group):
 
 class MostlyUnstruc(Group):
     group_tag = "unstruc"
+    dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "naive"}
+    dirstr_AC = "ACdataset/impure_paradigm/"  # directory base string for ACdataset
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "naive"}
 
     @property
     def BGM0(self):
-        return self._process("BGdataset/BGM0", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGM0", **self.kwargs_BG)
 
     # @property
     # def BGM2(self): # BAD animal
@@ -472,45 +487,37 @@ class MostlyUnstruc(Group):
 
     @property
     def BGF1(self):
-        return self._process("BGdataset/BGF1", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGF1", **self.kwargs_BG)
 
     @property
     def BGF2(self):
-        return self._process("BGdataset/BGF2", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGF2", **self.kwargs_BG)
 
     @property
     def BGF3(self):
-        return self._process("BGdataset/BGF3", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGF3", **self.kwargs_BG)
 
     @property
     def BGM5(self):
-        return self._process("BGdataset/BGM5", data_tag="BGdataset", lesion_tag="naive")
+        return self._process(self.dirstr_BG + "BGM5", **self.kwargs_BG)
+
+    @property
+    def BGF5(self):
+        return self._process(self.dirstr_BG + "BGF5", **self.kwargs_BG)
 
     # -------- Aarushi dataset ----------
 
     @property
     def Messi(self):  # male
-        return self._process(
-            "ACdataset/impure_paradigm/Messi", data_tag="ACdataset", lesion_tag="naive"
-        )
+        return self._process(self.dirstr_AC + "Messi", **self.kwargs_AC)
 
     @property
     def Neymar(self):  # male
-        return self._process(
-            "ACdataset/impure_paradigm/Neymar", data_tag="ACdataset", lesion_tag="naive"
-        )
+        return self._process(self.dirstr_AC + "Neymar", **self.kwargs_AC)
 
     @property
     def Son(self):  # male
-        return self._process(
-            "ACdataset/impure_paradigm/Son", data_tag="ACdataset", lesion_tag="naive"
-        )
-
-    @property
-    def good_sess(self):
-        pipelines: List[MABData]
-        pipelines = self.BGM0 + self.BGF1 + self.BGF2
-        return pipelines
+        return self._process(self.dirstr_AC + "Son", **self.kwargs_AC)
 
     @property
     def allsess(self):
@@ -528,15 +535,62 @@ class MostlyUnstruc(Group):
         return pipelines
 
     @property
+    def good_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.BGM0
+            + self.BGF1
+            + self.BGF2
+            + self.BGM5
+            + self.BGF5
+            + self.Messi
+            + self.Son
+        )
+        return pipelines
+
+    @property
     def BGdataset(self):
         pipelines: List[MABData]
-        pipelines = self.BGM0 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5
+        pipelines = (
+            self.BGM0 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5 + self.BGF5
+        )
         return pipelines
 
     @property
     def ACdataset(self):
         pipelines: List[MABData]
         pipelines = self.Messi + self.Neymar + self.Son
+        return pipelines
+
+
+class MostlyUnstrucExpertLesioned(Group):
+    group_tag = "unstruc"
+    dirstr_BG = "BGdataset/expert_lesion_mPFC/"  # directory base string for BGdataset
+
+    @property
+    def BGF2(self):
+        return self._process(
+            self.dirstr_BG + "BGF2",
+            data_tag="BGdataset",
+            lesion_tag="expert_lesion_mPFC",
+        )
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGF2
+        return pipelines
+
+    # @property
+    # def good_sess(self):
+    #     pipelines: List[MABData]
+    #     pipelines = self.BGF2
+    #     return pipelines
+
+    @property
+    def BGdataset(self):
+        pipelines: List[MABData]
+        pipelines = self.BGF2
         return pipelines
 
 
@@ -697,6 +751,7 @@ struc = Struc()
 unstruc = Unstruc()
 mostly_struc = MostlyStruc()
 mostly_unstruc = MostlyUnstruc()
+mostly_unstruc_expert_lesioned = MostlyUnstrucExpertLesioned()
 
 
 # ------- Files generated with slots -------#
