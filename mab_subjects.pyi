@@ -27,6 +27,8 @@ class GroupData:
     perf_probability_matrix: VersionedAccessor
     perf_sliding: VersionedAccessor
     qlearnH: VersionedAccessor
+    qlearn_2alphaH_fit_1stBlock25trials: VersionedAccessor
+    qlearn_2alphaH_fit_impure: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
     switch_density: VersionedAccessor
@@ -35,4 +37,7 @@ class GroupData:
     swp_AAdataset_Block1: VersionedAccessor
     swp_by_quartiles: VersionedAccessor
     swp_trial_history: VersionedAccessor
+    thomp_params_impure_lr_split: VersionedAccessor
+    thomp_params_lr_shared_1stBlock: VersionedAccessor
+    thomp_params_lr_split_1stBlock: VersionedAccessor
     ucb_fitting_results: VersionedAccessor
