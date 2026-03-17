@@ -19,7 +19,8 @@ MODEL_PARAM_GROUPS = {
     "qlearnH": {
         "params": [("alpha_c", "alpha_u", "alpha_h"), ("scaler"), ("beta"), ("nll")],
         "width_ratios": [2, 1, 1, 1],
-        "scopes": ["block_all", "block1", "block2_plus"],
+        "scopes": ["block_all"],
+        # "scopes": ["block_all", "block1", "block2_plus"],
     },
     # Qlearn
     "ucb": {
@@ -35,15 +36,22 @@ MODEL_PARAM_GROUPS = {
     },
     # Thompson Sampling
     "ts_split": {
-        "params": [("alpha_c", "alpha_u", "alpha_h"), ("scaler"), ("beta"), ("nll")],
-        "width_ratios": [3, 1, 1, 1],
-        "scopes": ["block_all", "block1", "block2_plus"],
+        "params": [
+            ("alpha0", "beta0"),
+            ("tau"),
+            ("lr_c_pos", "lr_c_neg", "lr_u_pos", "lr_u_neg"),
+            ("beta"),
+            ("nll"),
+        ],
+        "width_ratios": [2, 1, 3, 1, 1],
+        "scopes": ["block_all"],
     },
     # State inference 2-arm model
     "si": {
         "params": [("c"), ("y", "b0"), ("beta"), ("nll")],
         "width_ratios": [1, 2, 1, 1],
-        "scopes": ["block_all", "block1", "block2_plus"],
+        # "scopes": ["block_all", "block1", "block2_plus"],
+        "scopes": ["block_all"],
     },
     # Add other models here, e.g. "qlearn": {"alpha": ("alpha",), "beta": "beta", ...}
 }
@@ -71,16 +79,16 @@ def build_actual_vs_sim_perf_df(
 
         task_specs = [
             ("block_all", task, task.get_block_start_mask(start=1)),
-            (
-                "block1",
-                task_block1 := task.filter_by_block_id(start=1, stop=1),
-                task_block1.get_block_start_mask(start=1, stop=1),
-            ),
-            (
-                "block2_plus",
-                task_block2 := task.filter_by_block_id(start=2),
-                task_block2.get_block_start_mask(start=2, stop=2),
-            ),
+            # (
+            #     "block1",
+            #     task_block1 := task.filter_by_block_id(start=1, stop=1),
+            #     task_block1.get_block_start_mask(start=1, stop=1),
+            # ),
+            # (
+            #     "block2_plus",
+            #     task_block2 := task.filter_by_block_id(start=2),
+            #     task_block2.get_block_start_mask(start=2, stop=2),
+            # ),
         ]
 
         sims_perf = {}
@@ -95,6 +103,7 @@ def build_actual_vs_sim_perf_df(
                 )
             )
             policy = policy_factory()
+            print(policy.param_names())
             model = DecisionModel(scoped_task, policy=policy, reset_mode=reset_mask)
             model.params = {k: params[k] for k in policy.param_names()}
             sims_perf[scope] = (
@@ -107,10 +116,10 @@ def build_actual_vs_sim_perf_df(
                 "trial_id": np.arange(n_trials) + 1,
                 "perf_all": task.get_optimal_choice_probability(),
                 "sim_perf_all": sims_perf["block_all"],
-                "perf_block1": task_block1.get_optimal_choice_probability(),
-                "sim_perf_block1": sims_perf["block1"],
-                "perf_block2plus": task_block2.get_optimal_choice_probability(),
-                "sim_perf_block2plus": sims_perf["block2_plus"],
+                # "perf_block1": task_block1.get_optimal_choice_probability(),
+                # "sim_perf_block1": sims_perf["block1"],
+                # "perf_block2plus": task_block2.get_optimal_choice_probability(),
+                # "sim_perf_block2plus": sims_perf["block2_plus"],
                 "grp": exp.group_tag,
             }
         )
@@ -201,8 +210,8 @@ def plot_param_block_grid(data_df, model_key: str, fs=10):
 
     palette = Palette2Arm().as_dict()
     hue_order = ["unstruc", "struc"]
-    strip_kw = dict(size=5, linewidth=0.3, alpha=0.7, palette=palette)
-    bar_kw = dict(alpha=0.5, palette=palette)
+    strip_kw = dict(size=5, linewidth=0.3, alpha=0.8, palette=palette)
+    bar_kw = dict(palette=palette)
     plot_kw = dict(
         x="param_names", y="param_values", hue="grp", hue_order=list(hue_order)
     )
@@ -228,7 +237,7 @@ def plot_param_block_grid(data_df, model_key: str, fs=10):
             ax = fig.subplot(fig.gs[i, i1])
             SeabornPlotter(data=param_df, ax=ax, **plot_kw).stripplot(
                 **strip_kw
-            ).barplot(**bar_kw).bootstrap_test()
+            ).boxplot_filled(**bar_kw).bootstrap_test()
             ax.set_xlabel("")
             if getattr(ax, "legend_", None):
                 ax.legend_.remove()
@@ -236,6 +245,8 @@ def plot_param_block_grid(data_df, model_key: str, fs=10):
                 ax.set_title(f"fit scope={block}")
             # if p == 1 and rotate_beta_ticks:
             #     xtick_format(ax, rotation=45)
+
+    return fig
 
 
 __all__ = [
