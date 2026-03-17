@@ -433,6 +433,7 @@ class MostlyStruc(Group):
             + self.BGM3
             + self.BGM4
             + self.BGF4
+            + self.BGM6
             + self.Gavi
             + self.Haaland
             + self.Pedri
@@ -853,7 +854,7 @@ class GroupData:
             raise FileNotFoundError(f"No versions found for '{basename}'")
         return files[-1].stem  # no .npy
 
-    def save(self, data, basename: str, clean: bool = True):
+    def save(self, data, basename: str, clean: bool = True, write_stub: bool = True):
         # convert DataFrame to dict
         if isinstance(data, pd.DataFrame):
             data = data.to_dict()
@@ -866,7 +867,8 @@ class GroupData:
         if basename not in self._basenames:
             self._basenames.append(basename)
             setattr(self, basename, VersionedAccessor(self, basename))
-            self._write_stub()  # update stub on new basename
+            if write_stub:
+                self._write_stub()  # update stub on new basename
 
         if clean:
             self._cleanup_versions(basename)
