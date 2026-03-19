@@ -462,7 +462,17 @@ class MostlyStruc(Group):
     @property
     def BGdataset(self):
         pipelines: List[MABData]
-        pipelines = self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4
+        pipelines = (
+            self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4 + self.BGM6
+        )
+        return pipelines
+
+    @property
+    def BGdataset_good(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4 + self.BGM6
+        )
         return pipelines
 
     @property
@@ -530,6 +540,7 @@ class MostlyUnstruc(Group):
             + self.BGF2
             + self.BGF3
             + self.BGM5
+            + self.BGF5
             + self.Messi
             + self.Neymar
             + self.Son
@@ -559,9 +570,15 @@ class MostlyUnstruc(Group):
         return pipelines
 
     @property
+    def BGdataset_good(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM0 + self.BGF1 + self.BGF2 + self.BGM5 + self.BGF5
+        return pipelines
+
+    @property
     def ACdataset(self):
         pipelines: List[MABData]
-        pipelines = self.Messi + self.Neymar + self.Son
+        pipelines = self.Messi + self.Son
         return pipelines
 
 
