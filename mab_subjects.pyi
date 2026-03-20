@@ -23,6 +23,7 @@ class GroupData:
     fit_thompson_split: VersionedAccessor
     fit_ucb: VersionedAccessor
     logreg: VersionedAccessor
+    param_recovery_si: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_all_corr_uncorr: VersionedAccessor
     perf_easy_hard_transitions: VersionedAccessor
