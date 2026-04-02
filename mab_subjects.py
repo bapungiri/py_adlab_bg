@@ -9,6 +9,9 @@ import pandas as pd
 from dataclasses import dataclass
 
 figpath = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
+iapath = Path(
+    "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures/india_alliance"
+)
 
 
 class MABData:
@@ -828,7 +831,8 @@ class GroupData:
             setattr(self, basename, VersionedAccessor(self, basename))
 
         # write stub at init so VS Code sees current basenames
-        self._write_stub()
+        if os.name == "nt":
+            self._write_stub()
 
     def __dir__(self):
         """Enable autocomplete for discovered basenames"""
