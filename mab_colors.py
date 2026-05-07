@@ -19,6 +19,8 @@ class Palette2Arm:
     # canonical color definitions live inside the class
     unstruc: str = "#f55673"
     struc: str = "#3baaa1"
+    unstruc_old: str = "#f58f2a"
+    struc_old: str = "#1986ad"
 
     def as_dict(self):
         """
@@ -37,3 +39,14 @@ class Palette2Arm:
         """
         m = self.as_dict()
         return sns.color_palette([m["unstruc"], m["struc"]])
+
+    def old_vs_new(self):
+        """
+        Return a dict mapping group → adjusted color for old vs new comparison.
+        """
+        return {
+            "unstruc_old": adjust_lightness(self.unstruc_old, self.lightness_scale),
+            "struc_old": adjust_lightness(self.struc_old, self.lightness_scale),
+            "unstruc": adjust_lightness(self.unstruc, self.lightness_scale),
+            "struc": adjust_lightness(self.struc, self.lightness_scale),
+        }

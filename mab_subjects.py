@@ -131,7 +131,7 @@ class Group:
 
 
 class Struc(Group):
-    group_tag = "struc"
+    group_tag = "struc_old"
     """_summary_
 
     Notes
@@ -244,6 +244,19 @@ class Struc(Group):
         )
         return pipelines
 
+    @property
+    def intact_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.Bewilderbeast1
+            + self.Aguero1
+            + self.Sterling
+            + self.Gronckle1
+            + self.Toothless
+            + self.Buffalord
+        )
+        return pipelines
+
     # @property
     # def first_exposure(self):
     #     "First exposure was structured env, had no prior experience with any type of env before this."
@@ -265,7 +278,7 @@ class Struc(Group):
 
 
 class Unstruc(Group):
-    group_tag = "unstruc"
+    group_tag = "unstruc_old"
     """
 
     Notes
@@ -360,6 +373,12 @@ class Unstruc(Group):
             + self.Kompany
             + self.Grump
         )
+        return pipelines
+
+    @property
+    def intact_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.Aggro1 + self.Auroma + self.Torres + self.Grump
         return pipelines
 
     @property
@@ -616,6 +635,56 @@ class MostlyUnstrucExpertLesioned(Group):
         return pipelines
 
 
+class MostlyStrucShortBlocks(Group):
+    group_tag = "struc"
+    dirstr_BG = "BGdataset/short_blocks/"  # directory base string for BGdataset
+
+    @property
+    def BGF4(self):
+        return self._process(
+            self.dirstr_BG + "BGF4",
+            data_tag="BGdataset",
+            lesion_tag="naive",
+        )
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGF4
+        return pipelines
+
+    @property
+    def BGdataset(self):
+        pipelines: List[MABData]
+        pipelines = self.BGF4
+        return pipelines
+
+
+class MostlyUnstrucShortBlocks(Group):
+    group_tag = "unstruc"
+    dirstr_BG = "BGdataset/short_blocks/"  # directory base string for BGdataset
+
+    @property
+    def BGM5(self):
+        return self._process(
+            self.dirstr_BG + "BGM5",
+            data_tag="BGdataset",
+            lesion_tag="naive",
+        )
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM5
+        return pipelines
+
+    @property
+    def BGdataset(self):
+        pipelines: List[MABData]
+        pipelines = self.BGM5
+        return pipelines
+
+
 class LSTMData:
     """
     Get RNN experiments for structured and unstructured environments.
@@ -774,6 +843,8 @@ unstruc = Unstruc()
 mostly_struc = MostlyStruc()
 mostly_unstruc = MostlyUnstruc()
 mostly_unstruc_expert_lesioned = MostlyUnstrucExpertLesioned()
+mostly_struc_short_blocks = MostlyStrucShortBlocks()
+mostly_unstruc_short_blocks = MostlyUnstrucShortBlocks()
 
 
 # ------- Files generated with slots -------#
