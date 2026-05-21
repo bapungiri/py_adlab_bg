@@ -13,6 +13,8 @@ iapath = Path(
     "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures/india_alliance"
 )
 
+pkpath = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures/pk")
+
 
 class MABData:
     """_summary_
@@ -400,10 +402,12 @@ class MostlyStruc(Group):
     group_tag = "struc"
 
     dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "naive"}
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "intact"}
 
-    dirstr_AC = "ACdataset/impure_paradigm/"  # directory base string for ACdataset
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "naive"}
+    dirstr_AC = (
+        "ACdataset/impure_paradigm/intact/"  # directory base string for ACdataset
+    )
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "intact"}
 
     @property
     def BGM1(self):
@@ -507,9 +511,11 @@ class MostlyStruc(Group):
 class MostlyUnstruc(Group):
     group_tag = "unstruc"
     dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "naive"}
-    dirstr_AC = "ACdataset/impure_paradigm/"  # directory base string for ACdataset
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "naive"}
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "intact"}
+    dirstr_AC = (
+        "ACdataset/impure_paradigm/intact/"  # directory base string for ACdataset
+    )
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "intact"}
 
     @property
     def BGM0(self):
@@ -604,22 +610,61 @@ class MostlyUnstruc(Group):
         return pipelines
 
 
-class MostlyUnstrucExpertLesioned(Group):
-    group_tag = "unstruc"
+class MostlyStrucExpertLesioned(Group):
+    group_tag = "struc_lesioned"
     dirstr_BG = "BGdataset/expert_lesion_mPFC/"  # directory base string for BGdataset
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "expert_lesion_mPFC"}
+
+    dirstr_AC = "ACdataset/impure_paradigm/expert_lesion_OFC/"  # directory base string for ACdataset
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "expert_lesion_OFC"}
 
     @property
-    def BGF2(self):
-        return self._process(
-            self.dirstr_BG + "BGF2",
-            data_tag="BGdataset",
-            lesion_tag="expert_lesion_mPFC",
-        )
+    def Gavi(self):
+        return self._process(self.dirstr_AC + "Gavi", **self.kwargs_AC)
+
+    @property
+    def Pedri(self):
+        return self._process(self.dirstr_AC + "Pedri", **self.kwargs_AC)
+
+    @property
+    def Xavi(self):
+        return self._process(self.dirstr_AC + "Xavi", **self.kwargs_AC)
+
+    @property
+    def Haaland(self):
+        return self._process(self.dirstr_AC + "Haaland", **self.kwargs_AC)
 
     @property
     def allsess(self):
         pipelines: List[MABData]
-        pipelines = self.BGF2
+        pipelines = self.Gavi + self.Pedri + self.Xavi + self.Haaland
+        return pipelines
+
+
+class MostlyUnstrucExpertLesioned(Group):
+    group_tag = "unstruc_lesioned"
+    dirstr_BG = "BGdataset/expert_lesion_mPFC/"  # directory base string for BGdataset
+    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "expert_lesion_mPFC"}
+
+    dirstr_AC = "ACdataset/impure_paradigm/expert_lesion_OFC/"  # directory base string for ACdataset
+    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "expert_lesion_OFC"}
+
+    @property
+    def BGF2(self):
+        return self._process(self.dirstr_BG + "BGF2", **self.kwargs_BG)
+
+    @property
+    def Messi(self):
+        return self._process(self.dirstr_AC + "Messi", **self.kwargs_AC)
+
+    @property
+    def Son(self):
+        return self._process(self.dirstr_AC + "Son", **self.kwargs_AC)
+
+    @property
+    def allsess(self):
+        pipelines: List[MABData]
+        pipelines = self.BGF2 + self.Messi + self.Son
         return pipelines
 
     # @property
@@ -842,6 +887,7 @@ struc = Struc()
 unstruc = Unstruc()
 mostly_struc = MostlyStruc()
 mostly_unstruc = MostlyUnstruc()
+mostly_struc_expert_lesioned = MostlyStrucExpertLesioned()
 mostly_unstruc_expert_lesioned = MostlyUnstrucExpertLesioned()
 mostly_struc_short_blocks = MostlyStrucShortBlocks()
 mostly_unstruc_short_blocks = MostlyUnstrucShortBlocks()

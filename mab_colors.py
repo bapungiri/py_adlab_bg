@@ -40,6 +40,15 @@ class Palette2Arm:
         m = self.as_dict()
         return sns.color_palette([m["unstruc"], m["struc"]])
 
+    def old_as_dict(self):
+        """
+        Return a dict mapping group → adjusted color for old data.
+        """
+        return {
+            "unstruc_old": adjust_lightness(self.unstruc, self.lightness_scale),
+            "struc_old": adjust_lightness(self.struc, self.lightness_scale),
+        }
+
     def old_vs_new(self):
         """
         Return a dict mapping group → adjusted color for old vs new comparison.

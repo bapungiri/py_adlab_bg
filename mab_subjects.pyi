@@ -24,10 +24,12 @@ class GroupData:
     fit_thompson_split: VersionedAccessor
     fit_ucb: VersionedAccessor
     logreg: VersionedAccessor
+    logreg_AAdataset: VersionedAccessor
     model_recovery: VersionedAccessor
     nll_fit_multi_policy: VersionedAccessor
     param_recovery_qlearn: VersionedAccessor
     param_recovery_si: VersionedAccessor
+    perf_AAdataset: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_all_corr_uncorr: VersionedAccessor
     perf_easy_hard_transitions: VersionedAccessor
@@ -36,6 +38,7 @@ class GroupData:
     perf_flip_transitions: VersionedAccessor
     perf_learning: VersionedAccessor
     perf_logreg: VersionedAccessor
+    perf_logreg_AAdataset: VersionedAccessor
     perf_mat_fit_multi_policy: VersionedAccessor
     perf_meta_learning: VersionedAccessor
     perf_old_vs_new: VersionedAccessor
@@ -51,6 +54,7 @@ class GroupData:
     switch_prob: VersionedAccessor
     switch_prob_by_delta_prob: VersionedAccessor
     switch_prob_logreg: VersionedAccessor
+    switch_prob_logreg_AAdataset: VersionedAccessor
     switch_prob_seq: VersionedAccessor
     switch_prob_seq_previous: VersionedAccessor
     switch_pure_prob_seq: VersionedAccessor
