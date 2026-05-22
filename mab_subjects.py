@@ -24,7 +24,15 @@ class MABData:
 
     """
 
-    def __init__(self, basepath, group_tag=None, data_tag=None, lesion_tag=None):
+    def __init__(
+        self,
+        basepath,
+        group_tag=None,
+        paradigm_tag=None,
+        data_tag=None,
+        lesion_tag=None,
+        sex_tag=None,
+    ):
         basepath = Path(basepath)
         try:
             csv_file = sorted(basepath.glob("*.csv"))
@@ -44,8 +52,20 @@ class MABData:
         self.sub_name = sub_name
 
         self.group_tag = group_tag
+        self.paradigm_tag = paradigm_tag
+        self.group_paradigm_tag = f"{group_tag}_{paradigm_tag}"
         self.data_tag = data_tag
         self.lesion_tag = lesion_tag
+        self.sex_tag = sex_tag
+        self.common_kwargs = dict(
+            name=self.sub_name,
+            group=group_tag,
+            paradigm=paradigm_tag,
+            dataset=data_tag,
+            lesion=lesion_tag,
+            sex=sex_tag,
+            group_paradigm=self.group_paradigm_tag,
+        )
 
         if (f := self.filePrefix.with_suffix(".animal.npy")).is_file():
             d = np.load(f, allow_pickle=True).item()
@@ -99,41 +119,81 @@ class MABData:
         return f"{self.__class__.__name__}({self.sub_name})\n"
 
 
-# basedir = Path(r"D:\\Data\\mab")
-# BewilderbeastExp1 = MABData(
-#     basedir / r"anirudh_data\bewilderbeast\BewilderbeastExp1Structured"
-# )
-# BuffalordExp1 = MABData(basedir / r"anirudh_data\buffalord\BuffalordExp1Structured")
-
-# exp1 = [BewilderbeastExp1, BuffalordExp1]
-
-
 class Group:
     group_tag = None
 
-    # @property
-    # def basedir(self):
     if os.name == "nt":
         basedir = Path(r"D:\\Data\\mab")
     else:
         basedir = Path("/mnt/pve/Homes/bapun/Data")
 
-    def _process(self, rel_path, data_tag=None, lesion_tag=None):
+    def _process(
+        self, rel_path, data_tag=None, paradigm_tag=None, lesion_tag=None, sex_tag=None
+    ):
         return [
             MABData(
                 self.basedir / rel_path,
                 group_tag=self.group_tag,
                 data_tag=data_tag,
+                paradigm_tag=paradigm_tag,
                 lesion_tag=lesion_tag,
+                sex_tag=sex_tag,
             )
         ]
 
-    def data_exist(self):
-        self.allsess
+
+@dataclass(frozen=True)
+class DatasetCondition:
+    data_tag: str
+    paradigm: str
+    lesion_tag: str
+    base_root: str = ""
+
+    @property
+    def basedir(self):
+        return Path(self.base_root) / self.data_tag / f"Paradigm_{self.paradigm}"
+
+    @property
+    def dirstr(self):
+        return self.basedir / self.lesion_tag
+
+    @property
+    def kwargs(self):
+        return {
+            "data_tag": self.data_tag,
+            "lesion_tag": self.lesion_tag,
+            "paradigm_tag": f"{self.paradigm}",
+        }
+
+
+class Datasets:
+
+    class BG:
+        P8020_intact = DatasetCondition("BGdataset", "8020", "intact")
+        P8020_lesion_mPFC_pre = DatasetCondition("BGdataset", "8020", "lesion_mPFC_pre")
+        P8020_lesion_mPFC_post = DatasetCondition(
+            "BGdataset", "8020", "lesion_mPFC_post"
+        )
+        P8020_sham_pre = DatasetCondition("BGdataset", "8020", "sham_pre")
+        P8020_sham_post = DatasetCondition("BGdataset", "8020", "sham_post")
+
+    class AC:
+        P100_intact = DatasetCondition("ACdataset", "100", "intact")
+        P100_lesion_OFC_pre = DatasetCondition("ACdataset", "100", "lesion_OFC_pre")
+        P100_lesion_OFC_post = DatasetCondition("ACdataset", "100", "lesion_OFC_post")
+
+        P8020_intact = DatasetCondition("ACdataset", "8020", "intact")
+        P8020_lesion_OFC_pre = DatasetCondition("ACdataset", "8020", "lesion_OFC_pre")
+        P8020_lesion_OFC_post = DatasetCondition("ACdataset", "8020", "lesion_OFC_post")
+        P8020_sham_pre = DatasetCondition("ACdataset", "8020", "sham_pre")
+        P8020_sham_post = DatasetCondition("ACdataset", "8020", "sham_post")
+
+    class AS:
+        P100_intact = DatasetCondition("ASdataset", "100", "intact")
 
 
 class Struc(Group):
-    group_tag = "struc_old"
+    group_tag = "struc"
     """_summary_
 
     Notes
@@ -141,20 +201,21 @@ class Struc(Group):
     20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
     """
 
-    #!SECTION ======= Aarushi's dataset =======
-    @property
-    def Bewilderbeast1(self):
-        # Aarushi's old data path
-        # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
-        return self._process(
-            "ACdataset/Bewilderbeast/pre_lesion",
-            data_tag="ACdataset",
-            lesion_tag="pre_lesion",
+    def process_wrapper(self, DCinst: DatasetCondition, animal_name: str, sex: str):
+        return super()._process(
+            DCinst.dirstr / animal_name, sex_tag=sex, **DCinst.kwargs
         )
 
-    # Bewilderbeast2 is bad data
+    # ===================================
+    #  Aarushi's dataset
+    # ====================================
+    # Paradigm 100
+    @property
+    def p100_intact_Bewilderbeast(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Bewilderbeast", "male")
+
     # @property
-    # def Bewilderbeast2(self):
+    # def Bewilderbeast2(self): # Bewilderbeast2 is bad data
     #     # Aarushi's old data path
     #     # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
     #     return self._process(
@@ -164,123 +225,204 @@ class Struc(Group):
     #     )
 
     @property
-    def Aguero1(self):
-        return self._process(
-            "ACdataset/Aguero/pre_lesion", data_tag="ACdataset", lesion_tag="pre_lesion"
+    def p100_intact_Aguero(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Aguero", "male")
+
+    @property
+    def p100_intact_Sterling(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Sterling", "male")
+
+    @property
+    def p100_lesion_OFC_post_Aguero(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_post, "Aguero", "male")
+
+    @property
+    def p100_lesion_OFC_pre_Phil(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Phil", "male")
+
+    @property
+    def p100_lesion_OFC_pre_Rodri(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Rodri", "male")
+
+    # Paradigm 8020
+    @property
+    def p8020_intact_Gavi(self):
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Gavi", "male")
+
+    @property
+    def p8020_intact_Haaland(self):  # male
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Haaland", "male")
+
+    @property
+    def p8020_intact_Pedri(self):  # female
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Pedri", "female")
+
+    @property
+    def p8020_intact_Xavi(self):  # male
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Xavi", "male")
+
+    @property
+    def p8020_lesion_OFC_post_Gavi(self):
+        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Gavi", "male")
+
+    @property
+    def p8020_lesion_OFC_post_Pedri(self):
+        return self.process_wrapper(
+            Datasets.AC.P8020_lesion_OFC_post, "Pedri", "female"
         )
 
     @property
-    def Aguero2(self):
-        return self._process(
-            "ACdataset/Aguero/post_lesion",
-            data_tag="ACdataset",
-            lesion_tag="post_lesion_OFC",
-        )
+    def p8020_lesion_OFC_post_Xavi(self):
+        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Xavi", "male")
 
     @property
-    def Sterling(self):
-        return self._process(
-            "ACdataset/Sterling", data_tag="ACdataset", lesion_tag="pre_lesion"
+    def p8020_lesion_OFC_post_Haaland(self):
+        return self.process_wrapper(
+            Datasets.AC.P8020_lesion_OFC_post, "Haaland", "male"
         )
 
-    @property
-    def Phil(self):
-        return self._process(
-            "ACdataset/Phil", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
-        )
-
-    @property
-    def Rodri(self):
-        return self._process(
-            "ACdataset/Rodri", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
-        )
-
-    #!SECTION ======= Anirudh's dataset =======
+    # ===================================
+    #   Anirudh's dataset
+    # ==================================
     # @property
     # def GrumpExp2(self):
     #     return self._process("AAdataset/grump/GrumpExp2Structured")
 
-    @property
-    def Gronckle1(self):
-        # Aarushi's old data path
-        # return self._process("AAdataset/gronckle/GronckleExp1Structured")
-        return self._process(
-            "ASdataset/gronckle/pre_lesion",
-            data_tag="ASdataset",
-            lesion_tag="pre_lesion",
-        )
+    # @property
+    # def Gronckle_intact(self):
+    #     return self.process_wrapper(Datasets.AS.P100_intact, "Gronckle")
 
     @property
-    def Toothless(self):
-        return self._process(
-            "ASdataset/toothless/ToothlessExp1Structured",
-            data_tag="ASdataset",
-            lesion_tag="pre_lesion",
-        )
+    def p100_intact_Toothless(self):
+        return self.process_wrapper(Datasets.AS.P100_intact, "Toothless", "male")
 
     # @property
     # def bratexp2(self): # bad animal
     #     return self._process("AAdataset/brat/bratexp2structured")
 
     @property
-    def Buffalord(self):
-        return self._process(
-            "ASdataset/buffalord/BuffalordExp1Structured",
-            data_tag="ASdataset",
-            lesion_tag="pre_lesion",
-        )
+    def p100_intact_Buffalord(self):
+        return self.process_wrapper(Datasets.AS.P100_intact, "Buffalord", "male")
+
+    # ===================================
+    #     BG dataset
+    # ===================================
+    @property
+    def p8020_intact_BGM1(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM1", "male")
 
     @property
-    def allsess(self):
+    def p8020_intact_BGF0(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF0", "female")
+
+    @property
+    def p8020_intact_BGM3(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM3", "male")
+
+    @property
+    def p8020_intact_BGM4(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM4", "male")
+
+    @property
+    def p8020_intact_BGF4(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF4", "female")
+
+    @property
+    def p8020_intact_BGM6(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM6", "male")
+
+    @property
+    def p100_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.Bewilderbeast1
-            + self.Aguero1
-            + self.Aguero2
-            + self.Sterling
-            + self.Phil
-            + self.Rodri
-            + self.Gronckle1
-            + self.Toothless
-            + self.Buffalord
+            self.P100_intact_Bewilderbeast
+            + self.P100_intact_Aguero
+            + self.P100_intact_Sterling
+            + self.P100_intact_Toothless
+            + self.P100_intact_Buffalord
         )
         return pipelines
 
     @property
-    def intact_sess(self):
+    def p100_good_intact_sess(self):
+        # same as p100_intact_sess for now since no biased animals are excluded from good_sess in Struc group. If we want to exclude biased animals, we can modify this property accordingly.
         pipelines: List[MABData]
         pipelines = (
-            self.Bewilderbeast1
-            + self.Aguero1
-            + self.Sterling
-            + self.Gronckle1
-            + self.Toothless
-            + self.Buffalord
+            self.p100_intact_Bewilderbeast
+            + self.p100_intact_Aguero
+            + self.p100_intact_Sterling
+            + self.p100_intact_Toothless
+            + self.p100_intact_Buffalord
         )
         return pipelines
 
-    # @property
-    # def first_exposure(self):
-    #     "First exposure was structured env, had no prior experience with any type of env before this."
-    #     pipelines: List[MABData]
-    #     pipelines = (
-    #         self.BewilderbeastExp1
-    #         + self.BuffalordExp1
-    #         + self.GronckleExp1
-    #         + self.ToothlessExp1
-    #     )
-    #     return pipelines
+    @property
+    def p100_lesion_OFC_pre_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.p100_lesion_OFC_pre_Phil + self.p100_lesion_OFC_pre_Rodri
+        return pipelines
 
-    # @property
-    # def second_exposure(self):
-    #     """Animals whose second experience is structured env."""
-    #     pipelines: List[MABData]
-    #     pipelines = self.GrumpExp2
-    #     return pipelines
+    @property
+    def p100_lesion_OFC_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.p100_lesion_OFC_post_Aguero
+        return pipelines
+
+    @property
+    def p8020_intact_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_BGF0
+            + self.p8020_intact_BGM3
+            + self.p8020_intact_BGM4
+            + self.p8020_intact_BGF4
+            + self.p8020_intact_BGM6
+            + self.p8020_intact_Gavi
+            + self.p8020_intact_Haaland
+            + self.p8020_intact_Pedri
+            + self.p8020_intact_Xavi
+        )
+        return pipelines
+
+    @property
+    def p8020_good_intact_sess(self):
+        # same as p8020_intact_sess for now since no biased animals are excluded from good_sess in Struc group. If we want to exclude biased animals, we can modify this property accordingly.
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_BGF0
+            + self.p8020_intact_BGM3
+            + self.p8020_intact_BGM4
+            + self.p8020_intact_BGF4
+            + self.p8020_intact_BGM6
+            + self.p8020_intact_Gavi
+            + self.p8020_intact_Haaland
+            + self.p8020_intact_Pedri
+            + self.p8020_intact_Xavi
+        )
+        return pipelines
+
+    @property
+    def p8020_lesion_OFC_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_lesion_OFC_post_Gavi
+            + self.p8020_lesion_OFC_post_Haaland
+            + self.p8020_lesion_OFC_post_Pedri
+            + self.p8020_lesion_OFC_post_Xavi
+        )
+        return pipelines
+
+    @property
+    def all_intact_sess(self):
+        return self.p100_intact_sess + self.p8020_intact_sess
+
+    @property
+    def all_good_intact_sess(self):
+        return self.p100_good_intact_sess + self.p8020_good_intact_sess
 
 
 class Unstruc(Group):
-    group_tag = "unstruc_old"
+    group_tag = "unstruc"
     """
 
     Notes
@@ -288,57 +430,68 @@ class Unstruc(Group):
     20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
     """
 
-    #!SECTION ======= Aarushi's dataset =======
-    @property
-    def Aggro1(self):
-        return self._process(
-            "ACdataset/Aggro/pre_lesion", data_tag="ACdataset", lesion_tag="pre_lesion"
+    def process_wrapper(self, DCinst: DatasetCondition, animal_name: str, sex: str):
+        return super()._process(
+            DCinst.dirstr / animal_name, sex_tag=sex, **DCinst.kwargs
         )
 
+    # ====================================
+    # ======= Aarushi's dataset =======
+    # =====================================
     @property
-    def Aggro2(self):
-        return self._process(
-            "ACdataset/Aggro/post_lesion",
-            data_tag="ACdataset",
-            lesion_tag="post_lesion_OFC",
-        )
+    def p100_intact_Aggro(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Aggro", "male")
 
     @property
-    def Auroma(self):
-        return self._process(
-            "ACdataset/Auroma", data_tag="ACdataset", lesion_tag="pre_lesion"
-        )
+    def p100_intact_Auroma(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Auroma", "male")
 
     @property
-    def Torres(self):
-        return self._process(
-            "ACdataset/Torres", data_tag="ACdataset", lesion_tag="pre_lesion"
-        )
+    def p100_intact_Torres(self):
+        return self.process_wrapper(Datasets.AC.P100_intact, "Torres", "male")
 
     @property
-    def Debruyne(self):
-        return self._process(
-            "ACdataset/Debruyne", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
-        )
+    def p100_lesion_OFC_pre_Debruyne(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Debruyne", "male")
 
     @property
-    def Kompany(self):
-        return self._process(
-            "ACdataset/Kompany", data_tag="ACdataset", lesion_tag="naive_lesion_OFC"
-        )
+    def p100_lesion_OFC_pre_Kompany(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Kompany", "male")
+
+    @property
+    def p100_lesion_OFC_post_Aggro(self):
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_post, "Aggro", "male")
+
+    @property
+    def p8020_intact_Messi(self):  # male
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Messi", "male")
+
+    @property
+    def p8020_intact_Neymar(self):  # male
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Neymar", "male")
+
+    @property
+    def p8020_intact_Son(self):  # male
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Son", "male")
+
+    @property
+    def p8020_lesion_OFC_post_Messi(self):
+        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Messi", "male")
+
+    @property
+    def p8020_lesion_OFC_post_Son(self):
+        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Son", "male")
 
     # @property
     # def Gronckle(self):
     #     return self._process("AAdataset/gronckle/GronckleExp2Unstructured")
 
-    #!SECTION ======= Anirudh's dataset =======
+    # ==================================
+    # ======= Anirudh's dataset =======
+    # ==========================================
     @property
-    def Grump(self):
-        return self._process(
-            "ASdataset/grump/GrumpExp1Unstructured",
-            data_tag="ASdataset",
-            lesion_tag="pre_lesion",
-        )
+    def p100_intact_Grump(self):
+        return self.process_wrapper(Datasets.AS.P100_intact, "Grump", "male")
 
     # @property
     # def Toothless(self):
@@ -362,322 +515,126 @@ class Unstruc(Group):
     #         data_tag="ASdataset",
     #         lesion_tag="post_lesion_DLS",
     #     )
+    # ========================
+    # BG dataset
+    # ===========================
+    @property
+    def p8020_intact_BGM0(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM0", "male")
+
+    # @property
+    # def p8020_intact_BGM2(self): # BAD animal
+    #     return self.process_wrapper(Datasets.BG.P8020_intact, "BGM2", "male")
 
     @property
-    def allsess(self):
+    def p8020_intact_BGF1(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF1", "female")
+
+    @property
+    def p8020_intact_BGF2(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF2", "female")
+
+    @property
+    def p8020_intact_BGF3(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF3", "female")
+
+    @property
+    def p8020_intact_BGM5(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM5", "male")
+
+    @property
+    def p8020_intact_BGF5(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGF5", "female")
+
+    @property
+    def p8020_lesion_mPFC_post_BGF2(self):
+        return self.process_wrapper(
+            Datasets.BG.P8020_lesion_mPFC_post, "BGF2", "female"
+        )
+
+    @property
+    def p100_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.Aggro1
-            + self.Aggro2
-            + self.Auroma
-            + self.Torres
-            + self.Debruyne
-            + self.Kompany
-            + self.Grump
+            self.p100_intact_Aggro
+            + self.p100_intact_Auroma
+            + self.p100_intact_Torres
+            + self.p100_intact_Grump
         )
         return pipelines
 
     @property
-    def intact_sess(self):
-        pipelines: List[MABData]
-        pipelines = self.Aggro1 + self.Auroma + self.Torres + self.Grump
-        return pipelines
-
-    @property
-    def first_exposure(self):
-        """Animals who were not exposed to any other environments before this."""
-        pipelines: List[MABData]
-        pipelines = self.AggroExp1 + self.AuromaExp1 + self.BratExp1 + self.GrumpExp1
-        return pipelines
-
-    @property
-    def second_exposure(self):
-        """Animals whose second experience is unstructured env."""
-        pipelines: List[MABData]
-        pipelines = self.GronckleExp2 + self.ToothlessExp2
-        return pipelines
-
-
-class MostlyStruc(Group):
-    group_tag = "struc"
-
-    dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "intact"}
-
-    dirstr_AC = (
-        "ACdataset/impure_paradigm/intact/"  # directory base string for ACdataset
-    )
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "intact"}
-
-    @property
-    def BGM1(self):
-        return self._process(self.dirstr_BG + "BGM1", **self.kwargs_BG)
-
-    @property
-    def BGF0(self):
-        return self._process(self.dirstr_BG + "BGF0", **self.kwargs_BG)
-
-    @property
-    def BGM3(self):
-        return self._process(self.dirstr_BG + "BGM3", **self.kwargs_BG)
-
-    @property
-    def BGM4(self):
-        return self._process(self.dirstr_BG + "BGM4", **self.kwargs_BG)
-
-    @property
-    def BGF4(self):
-        return self._process(self.dirstr_BG + "BGF4", **self.kwargs_BG)
-
-    @property
-    def BGM6(self):
-        return self._process(self.dirstr_BG + "BGM6", **self.kwargs_BG)
-
-    # -------- Aarushi dataset ----------
-    @property
-    def Gavi(self):  # female
-        return self._process(self.dirstr_AC + "Gavi", **self.kwargs_AC)
-
-    @property
-    def Haaland(self):  # male
-        return self._process(self.dirstr_AC + "Haaland", **self.kwargs_AC)
-
-    @property
-    def Pedri(self):  # female
-        return self._process(self.dirstr_AC + "Pedri", **self.kwargs_AC)
-
-    @property
-    def Xavi(self):  # male
-        return self._process(self.dirstr_AC + "Xavi", **self.kwargs_AC)
-
-    @property
-    def allsess(self):
+    def p100_good_intact_sess(self):
+        # Same as p100_intact_sess for now since no biased animals are excluded from good_sess in Unstruc group. If we want to exclude biased animals, we can modify this property accordingly.
         pipelines: List[MABData]
         pipelines = (
-            self.BGM1
-            + self.BGF0
-            + self.BGM3
-            + self.BGM4
-            + self.BGF4
-            + self.BGM6
-            + self.Gavi
-            + self.Haaland
-            + self.Pedri
-            + self.Xavi
+            self.p100_intact_Aggro
+            + self.p100_intact_Auroma
+            + self.p100_intact_Torres
+            + self.p100_intact_Grump
         )
         return pipelines
 
     @property
-    def good_sess(self):
+    def p100_lesion_OFC_pre_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.p100_lesion_OFC_pre_Debruyne + self.p100_lesion_OFC_pre_Kompany
+        return pipelines
+
+    @property
+    def p100_lesion_OFC_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.p100_lesion_OFC_post_Aggro
+        return pipelines
+
+    @property
+    def p8020_intact_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_BGF1
+            + self.p8020_intact_BGF2
+            + self.p8020_intact_BGF3  # biased
+            + self.p8020_intact_BGM5
+            + self.p8020_intact_BGF5
+            + self.p8020_intact_Messi
+            + self.p8020_intact_Neymar  # biased
+            + self.p8020_intact_Son
+        )
+        return pipelines
+
+    @property
+    def p8020_good_intact_sess(self):
         # Biased animals are excluded from good_sess.
         pipelines: List[MABData]
         pipelines = (
-            self.BGM1
-            + self.BGF0
-            + self.BGM3
-            + self.BGM4
-            + self.BGF4
-            + self.BGM6
-            + self.Gavi
-            + self.Haaland
-            + self.Pedri
-            + self.Xavi
+            self.p8020_intact_BGF1
+            + self.p8020_intact_BGF2
+            + self.p8020_intact_BGM5
+            + self.p8020_intact_BGF5
+            + self.p8020_intact_Messi
+            + self.p8020_intact_Son
         )
         return pipelines
 
     @property
-    def BGdataset(self):
+    def p8020_lesion_OFC_post_sess(self):
         pipelines: List[MABData]
-        pipelines = (
-            self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4 + self.BGM6
-        )
+        pipelines = self.p8020_lesion_OFC_post_Messi + self.p8020_lesion_OFC_post_Son
         return pipelines
 
     @property
-    def BGdataset_good(self):
+    def p8020_lesion_mPFC_post_sess(self):
         pipelines: List[MABData]
-        pipelines = (
-            self.BGM1 + self.BGF0 + self.BGM3 + self.BGM4 + self.BGF4 + self.BGM6
-        )
+        pipelines = self.p8020_lesion_mPFC_post_BGF2
         return pipelines
 
     @property
-    def ACdataset(self):
-        pipelines: List[MABData]
-        pipelines = self.Gavi + self.Haaland + self.Pedri + self.Xavi
-        return pipelines
-
-
-class MostlyUnstruc(Group):
-    group_tag = "unstruc"
-    dirstr_BG = "BGdataset/naive/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "intact"}
-    dirstr_AC = (
-        "ACdataset/impure_paradigm/intact/"  # directory base string for ACdataset
-    )
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "intact"}
+    def all_intact_sess(self):
+        return self.p100_intact_sess + self.p8020_intact_sess
 
     @property
-    def BGM0(self):
-        return self._process(self.dirstr_BG + "BGM0", **self.kwargs_BG)
-
-    # @property
-    # def BGM2(self): # BAD animal
-    #     return self._process("BGdataset/BGM2")
-
-    @property
-    def BGF1(self):
-        return self._process(self.dirstr_BG + "BGF1", **self.kwargs_BG)
-
-    @property
-    def BGF2(self):
-        return self._process(self.dirstr_BG + "BGF2", **self.kwargs_BG)
-
-    @property
-    def BGF3(self):
-        return self._process(self.dirstr_BG + "BGF3", **self.kwargs_BG)
-
-    @property
-    def BGM5(self):
-        return self._process(self.dirstr_BG + "BGM5", **self.kwargs_BG)
-
-    @property
-    def BGF5(self):
-        return self._process(self.dirstr_BG + "BGF5", **self.kwargs_BG)
-
-    # -------- Aarushi dataset ----------
-
-    @property
-    def Messi(self):  # male
-        return self._process(self.dirstr_AC + "Messi", **self.kwargs_AC)
-
-    @property
-    def Neymar(self):  # male
-        return self._process(self.dirstr_AC + "Neymar", **self.kwargs_AC)
-
-    @property
-    def Son(self):  # male
-        return self._process(self.dirstr_AC + "Son", **self.kwargs_AC)
-
-    @property
-    def allsess(self):
-        pipelines: List[MABData]
-        pipelines = (
-            self.BGM0
-            + self.BGF1
-            + self.BGF2
-            + self.BGF3
-            + self.BGM5
-            + self.BGF5
-            + self.Messi
-            + self.Neymar
-            + self.Son
-        )
-        return pipelines
-
-    @property
-    def good_sess(self):
-        pipelines: List[MABData]
-        pipelines = (
-            self.BGM0
-            + self.BGF1
-            + self.BGF2
-            + self.BGM5
-            + self.BGF5
-            + self.Messi
-            + self.Son
-        )
-        return pipelines
-
-    @property
-    def BGdataset(self):
-        pipelines: List[MABData]
-        pipelines = (
-            self.BGM0 + self.BGF1 + self.BGF2 + self.BGF3 + self.BGM5 + self.BGF5
-        )
-        return pipelines
-
-    @property
-    def BGdataset_good(self):
-        pipelines: List[MABData]
-        pipelines = self.BGM0 + self.BGF1 + self.BGF2 + self.BGM5 + self.BGF5
-        return pipelines
-
-    @property
-    def ACdataset(self):
-        pipelines: List[MABData]
-        pipelines = self.Messi + self.Son
-        return pipelines
-
-
-class MostlyStrucExpertLesioned(Group):
-    group_tag = "struc_lesioned"
-    dirstr_BG = "BGdataset/expert_lesion_mPFC/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "expert_lesion_mPFC"}
-
-    dirstr_AC = "ACdataset/impure_paradigm/expert_lesion_OFC/"  # directory base string for ACdataset
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "expert_lesion_OFC"}
-
-    @property
-    def Gavi(self):
-        return self._process(self.dirstr_AC + "Gavi", **self.kwargs_AC)
-
-    @property
-    def Pedri(self):
-        return self._process(self.dirstr_AC + "Pedri", **self.kwargs_AC)
-
-    @property
-    def Xavi(self):
-        return self._process(self.dirstr_AC + "Xavi", **self.kwargs_AC)
-
-    @property
-    def Haaland(self):
-        return self._process(self.dirstr_AC + "Haaland", **self.kwargs_AC)
-
-    @property
-    def allsess(self):
-        pipelines: List[MABData]
-        pipelines = self.Gavi + self.Pedri + self.Xavi + self.Haaland
-        return pipelines
-
-
-class MostlyUnstrucExpertLesioned(Group):
-    group_tag = "unstruc_lesioned"
-    dirstr_BG = "BGdataset/expert_lesion_mPFC/"  # directory base string for BGdataset
-    kwargs_BG = {"data_tag": "BGdataset", "lesion_tag": "expert_lesion_mPFC"}
-
-    dirstr_AC = "ACdataset/impure_paradigm/expert_lesion_OFC/"  # directory base string for ACdataset
-    kwargs_AC = {"data_tag": "ACdataset", "lesion_tag": "expert_lesion_OFC"}
-
-    @property
-    def BGF2(self):
-        return self._process(self.dirstr_BG + "BGF2", **self.kwargs_BG)
-
-    @property
-    def Messi(self):
-        return self._process(self.dirstr_AC + "Messi", **self.kwargs_AC)
-
-    @property
-    def Son(self):
-        return self._process(self.dirstr_AC + "Son", **self.kwargs_AC)
-
-    @property
-    def allsess(self):
-        pipelines: List[MABData]
-        pipelines = self.BGF2 + self.Messi + self.Son
-        return pipelines
-
-    # @property
-    # def good_sess(self):
-    #     pipelines: List[MABData]
-    #     pipelines = self.BGF2
-    #     return pipelines
-
-    @property
-    def BGdataset(self):
-        pipelines: List[MABData]
-        pipelines = self.BGF2
-        return pipelines
+    def all_good_intact_sess(self):
+        return self.p100_good_intact_sess + self.p8020_good_intact_sess
 
 
 class MostlyStrucShortBlocks(Group):
@@ -885,10 +842,6 @@ rnn_exps10 = LSTMData(
 
 struc = Struc()
 unstruc = Unstruc()
-mostly_struc = MostlyStruc()
-mostly_unstruc = MostlyUnstruc()
-mostly_struc_expert_lesioned = MostlyStrucExpertLesioned()
-mostly_unstruc_expert_lesioned = MostlyUnstrucExpertLesioned()
 mostly_struc_short_blocks = MostlyStrucShortBlocks()
 mostly_unstruc_short_blocks = MostlyUnstrucShortBlocks()
 
