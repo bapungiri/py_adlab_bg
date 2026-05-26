@@ -17,6 +17,7 @@ class GroupData:
     bias: VersionedAccessor
     cheeku: VersionedAccessor
     fit_multi_policy: VersionedAccessor
+    fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
     fit_si: VersionedAccessor
@@ -32,6 +33,7 @@ class GroupData:
     perf_AAdataset: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_all_corr_uncorr: VersionedAccessor
+    perf_difficulty_level: VersionedAccessor
     perf_easy_hard_transitions: VersionedAccessor
     perf_easy_to_hard: VersionedAccessor
     perf_fit_multi_policy: VersionedAccessor

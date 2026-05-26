@@ -199,6 +199,8 @@ class Struc(Group):
     Notes
     ----------
     20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    22-05-2026: Unified/Reorganized properties to group by paradigm and lesion status for better readability/scalability.
+
     """
 
     def process_wrapper(self, DCinst: DatasetCondition, animal_name: str, sex: str):
@@ -288,9 +290,9 @@ class Struc(Group):
     # def GrumpExp2(self):
     #     return self._process("AAdataset/grump/GrumpExp2Structured")
 
-    # @property
-    # def Gronckle_intact(self):
-    #     return self.process_wrapper(Datasets.AS.P100_intact, "Gronckle")
+    @property
+    def p100_intact_Gronckle(self):
+        return self.process_wrapper(Datasets.AS.P100_intact, "Gronckle")
 
     @property
     def p100_intact_Toothless(self):
@@ -338,6 +340,7 @@ class Struc(Group):
             self.P100_intact_Bewilderbeast
             + self.P100_intact_Aguero
             + self.P100_intact_Sterling
+            + self.P100_intact_Gronckle
             + self.P100_intact_Toothless
             + self.P100_intact_Buffalord
         )
@@ -351,6 +354,7 @@ class Struc(Group):
             self.p100_intact_Bewilderbeast
             + self.p100_intact_Aguero
             + self.p100_intact_Sterling
+            + self.p100_intact_Gronckle
             + self.p100_intact_Toothless
             + self.p100_intact_Buffalord
         )
@@ -428,6 +432,7 @@ class Unstruc(Group):
     Notes
     ----------
     20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    22-05-2026: Unified/Reorganized properties to group by paradigm and lesion status for better readability/scalability.
     """
 
     def process_wrapper(self, DCinst: DatasetCondition, animal_name: str, sex: str):
