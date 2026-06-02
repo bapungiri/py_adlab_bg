@@ -214,58 +214,50 @@ class Struc(Group):
     # Paradigm 100
     @property
     def p100_intact_Bewilderbeast(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Bewilderbeast", "male")
-
-    # @property
-    # def Bewilderbeast2(self): # Bewilderbeast2 is bad data
-    #     # Aarushi's old data path
-    #     # return self._process("AAdataset/bewilderbeast/BewilderbeastExp1Structured")
-    #     return self._process(
-    #         "ACdataset/Bewilderbeast/post_lesion",
-    #         data_tag="ACdataset",
-    #         lesion_tag="post_lesion_OFC",
-    #     )
+        return self.process_wrapper(Datasets.AC.P100_intact, "Bewilderbeast", "female")
 
     @property
     def p100_intact_Aguero(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Aguero", "male")
+        return self.process_wrapper(Datasets.AC.P100_intact, "Aguero", "female")
 
     @property
     def p100_intact_Sterling(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Sterling", "male")
+        return self.process_wrapper(Datasets.AC.P100_intact, "Sterling", "female")
 
     @property
     def p100_lesion_OFC_post_Aguero(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_post, "Aguero", "male")
+        return self.process_wrapper(
+            Datasets.AC.P100_lesion_OFC_post, "Aguero", "female"
+        )
 
     @property
     def p100_lesion_OFC_pre_Phil(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Phil", "male")
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Phil", "female")
 
     @property
     def p100_lesion_OFC_pre_Rodri(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Rodri", "male")
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Rodri", "female")
 
     # Paradigm 8020
     @property
     def p8020_intact_Gavi(self):
-        return self.process_wrapper(Datasets.AC.P8020_intact, "Gavi", "male")
+        return self.process_wrapper(Datasets.AC.P8020_intact, "Gavi", "female")
 
     @property
-    def p8020_intact_Haaland(self):  # male
+    def p8020_intact_Haaland(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_intact, "Haaland", "male")
 
     @property
-    def p8020_intact_Pedri(self):  # female
+    def p8020_intact_Pedri(self):
         return self.process_wrapper(Datasets.AC.P8020_intact, "Pedri", "female")
 
     @property
-    def p8020_intact_Xavi(self):  # male
+    def p8020_intact_Xavi(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_intact, "Xavi", "male")
 
     @property
     def p8020_lesion_OFC_post_Gavi(self):
-        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Gavi", "male")
+        return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Gavi", "female")
 
     @property
     def p8020_lesion_OFC_post_Pedri(self):
@@ -274,11 +266,11 @@ class Struc(Group):
         )
 
     @property
-    def p8020_lesion_OFC_post_Xavi(self):
+    def p8020_lesion_OFC_post_Xavi(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Xavi", "male")
 
     @property
-    def p8020_lesion_OFC_post_Haaland(self):
+    def p8020_lesion_OFC_post_Haaland(self):  # sex: later
         return self.process_wrapper(
             Datasets.AC.P8020_lesion_OFC_post, "Haaland", "male"
         )
@@ -286,25 +278,20 @@ class Struc(Group):
     # ===================================
     #   Anirudh's dataset
     # ==================================
-    # @property
-    # def GrumpExp2(self):
-    #     return self._process("AAdataset/grump/GrumpExp2Structured")
+
+    # Bad animals: Grump (intact), Brat(intact)
 
     @property
     def p100_intact_Gronckle(self):
-        return self.process_wrapper(Datasets.AS.P100_intact, "Gronckle")
+        return self.process_wrapper(Datasets.AS.P100_intact, "Gronckle", "female")
 
     @property
     def p100_intact_Toothless(self):
-        return self.process_wrapper(Datasets.AS.P100_intact, "Toothless", "male")
-
-    # @property
-    # def bratexp2(self): # bad animal
-    #     return self._process("AAdataset/brat/bratexp2structured")
+        return self.process_wrapper(Datasets.AS.P100_intact, "Toothless", "female")
 
     @property
     def p100_intact_Buffalord(self):
-        return self.process_wrapper(Datasets.AS.P100_intact, "Buffalord", "male")
+        return self.process_wrapper(Datasets.AS.P100_intact, "Buffalord", "female")
 
     # ===================================
     #     BG dataset
@@ -337,12 +324,12 @@ class Struc(Group):
     def p100_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.P100_intact_Bewilderbeast
-            + self.P100_intact_Aguero
-            + self.P100_intact_Sterling
-            + self.P100_intact_Gronckle
-            + self.P100_intact_Toothless
-            + self.P100_intact_Buffalord
+            self.p100_intact_Bewilderbeast
+            + self.p100_intact_Aguero
+            + self.p100_intact_Sterling
+            + self.p100_intact_Gronckle
+            + self.p100_intact_Toothless
+            + self.p100_intact_Buffalord
         )
         return pipelines
 
@@ -376,7 +363,8 @@ class Struc(Group):
     def p8020_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.p8020_intact_BGF0
+            self.p8020_intact_BGM1
+            + self.p8020_intact_BGF0
             + self.p8020_intact_BGM3
             + self.p8020_intact_BGM4
             + self.p8020_intact_BGF4
@@ -393,7 +381,8 @@ class Struc(Group):
         # same as p8020_intact_sess for now since no biased animals are excluded from good_sess in Struc group. If we want to exclude biased animals, we can modify this property accordingly.
         pipelines: List[MABData]
         pipelines = (
-            self.p8020_intact_BGF0
+            self.p8020_intact_BGM1
+            + self.p8020_intact_BGF0
             + self.p8020_intact_BGM3
             + self.p8020_intact_BGM4
             + self.p8020_intact_BGF4
@@ -424,6 +413,16 @@ class Struc(Group):
     def all_good_intact_sess(self):
         return self.p100_good_intact_sess + self.p8020_good_intact_sess
 
+    @property
+    def all_good_sess(self):
+        return (
+            self.p100_good_intact_sess
+            + self.p8020_good_intact_sess
+            + self.p100_lesion_OFC_pre_sess
+            + self.p100_lesion_OFC_post_sess
+            + self.p8020_lesion_OFC_post_sess
+        )
+
 
 class Unstruc(Group):
     group_tag = "unstruc"
@@ -443,48 +442,49 @@ class Unstruc(Group):
     # ====================================
     # ======= Aarushi's dataset =======
     # =====================================
+    # Bad animals: Torres, Neymar
     @property
     def p100_intact_Aggro(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Aggro", "male")
+        return self.process_wrapper(Datasets.AC.P100_intact, "Aggro", "female")
 
     @property
     def p100_intact_Auroma(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Auroma", "male")
+        return self.process_wrapper(Datasets.AC.P100_intact, "Auroma", "female")
 
     @property
-    def p100_intact_Torres(self):
-        return self.process_wrapper(Datasets.AC.P100_intact, "Torres", "male")
-
-    @property
-    def p100_lesion_OFC_pre_Debruyne(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Debruyne", "male")
+    def p100_lesion_OFC_pre_Debruyne(self):  #
+        return self.process_wrapper(
+            Datasets.AC.P100_lesion_OFC_pre, "Debruyne", "female"
+        )
 
     @property
     def p100_lesion_OFC_pre_Kompany(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_pre, "Kompany", "male")
+        return self.process_wrapper(
+            Datasets.AC.P100_lesion_OFC_pre, "Kompany", "female"
+        )
 
     @property
     def p100_lesion_OFC_post_Aggro(self):
-        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_post, "Aggro", "male")
+        return self.process_wrapper(Datasets.AC.P100_lesion_OFC_post, "Aggro", "female")
 
     @property
-    def p8020_intact_Messi(self):  # male
+    def p8020_intact_Messi(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_intact, "Messi", "male")
 
     @property
-    def p8020_intact_Neymar(self):  # male
+    def p8020_intact_Neymar(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_intact, "Neymar", "male")
 
     @property
-    def p8020_intact_Son(self):  # male
+    def p8020_intact_Son(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_intact, "Son", "male")
 
     @property
-    def p8020_lesion_OFC_post_Messi(self):
+    def p8020_lesion_OFC_post_Messi(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Messi", "male")
 
     @property
-    def p8020_lesion_OFC_post_Son(self):
+    def p8020_lesion_OFC_post_Son(self):  # sex: later
         return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Son", "male")
 
     # @property
@@ -494,9 +494,10 @@ class Unstruc(Group):
     # ==================================
     # ======= Anirudh's dataset =======
     # ==========================================
-    @property
-    def p100_intact_Grump(self):
-        return self.process_wrapper(Datasets.AS.P100_intact, "Grump", "male")
+    # @property
+    # def p100_intact_Grump(self):
+    #     # Grump has bad data 27-05-2026
+    #     return self.process_wrapper(Datasets.AS.P100_intact, "Grump", "male")
 
     # @property
     # def Toothless(self):
@@ -560,24 +561,14 @@ class Unstruc(Group):
     @property
     def p100_intact_sess(self):
         pipelines: List[MABData]
-        pipelines = (
-            self.p100_intact_Aggro
-            + self.p100_intact_Auroma
-            + self.p100_intact_Torres
-            + self.p100_intact_Grump
-        )
+        pipelines = self.p100_intact_Aggro + self.p100_intact_Auroma
         return pipelines
 
     @property
     def p100_good_intact_sess(self):
-        # Same as p100_intact_sess for now since no biased animals are excluded from good_sess in Unstruc group. If we want to exclude biased animals, we can modify this property accordingly.
+        # Same as p100_intact_sess as no biased animals were found.
         pipelines: List[MABData]
-        pipelines = (
-            self.p100_intact_Aggro
-            + self.p100_intact_Auroma
-            + self.p100_intact_Torres
-            + self.p100_intact_Grump
-        )
+        pipelines = self.p100_intact_Aggro + self.p100_intact_Auroma
         return pipelines
 
     @property
@@ -596,7 +587,8 @@ class Unstruc(Group):
     def p8020_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
-            self.p8020_intact_BGF1
+            self.p8020_intact_BGM0
+            + self.p8020_intact_BGF1
             + self.p8020_intact_BGF2
             + self.p8020_intact_BGF3  # biased
             + self.p8020_intact_BGM5
@@ -612,7 +604,8 @@ class Unstruc(Group):
         # Biased animals are excluded from good_sess.
         pipelines: List[MABData]
         pipelines = (
-            self.p8020_intact_BGF1
+            self.p8020_intact_BGM0
+            + self.p8020_intact_BGF1
             + self.p8020_intact_BGF2
             + self.p8020_intact_BGM5
             + self.p8020_intact_BGF5
@@ -640,6 +633,17 @@ class Unstruc(Group):
     @property
     def all_good_intact_sess(self):
         return self.p100_good_intact_sess + self.p8020_good_intact_sess
+
+    @property
+    def all_good_sess(self):
+        return (
+            self.p100_good_intact_sess
+            + self.p8020_good_intact_sess
+            + self.p100_lesion_OFC_pre_sess
+            + self.p100_lesion_OFC_post_sess
+            + self.p8020_lesion_OFC_post_sess
+            + self.p8020_lesion_mPFC_post_sess
+        )
 
 
 class MostlyStrucShortBlocks(Group):

@@ -44,6 +44,7 @@ class GroupData:
     perf_mat_fit_multi_policy: VersionedAccessor
     perf_meta_learning: VersionedAccessor
     perf_old_vs_new: VersionedAccessor
+    perf_per_day: VersionedAccessor
     perf_probability_matrix: VersionedAccessor
     perf_short_blocks: VersionedAccessor
     perf_sliding: VersionedAccessor
