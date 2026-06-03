@@ -72,7 +72,7 @@ class MABData:
             self.animal = neuropy.core.Animal.from_dict(d)
             self.name = self.animal.name + self.animal.day
 
-        if "model" in self.sub_name:
+        if "Model" in self.sub_name:
             self.b2a = Bandit2Arm.from_csv(
                 fp.with_suffix(".csv"),
                 probs=["arm1_reward_prob", "arm2_reward_prob"],
@@ -155,7 +155,10 @@ class DatasetCondition:
 
     @property
     def dirstr(self):
-        return self.basedir / self.lesion_tag
+        if self.lesion_tag == "rnn":
+            return self.basedir
+        else:
+            return self.basedir / self.lesion_tag
 
     @property
     def kwargs(self):
@@ -190,6 +193,9 @@ class Datasets:
 
     class AS:
         P100_intact = DatasetCondition("ASdataset", "100", "intact")
+
+    class RNN:
+        P8020 = DatasetCondition("RNNdataset", "8020", "rnn")
 
 
 class Struc(Group):
@@ -696,6 +702,54 @@ class MostlyUnstrucShortBlocks(Group):
         return pipelines
 
 
+class StrucRNN(Group):
+    group_tag = "struc"
+    """_summary_
+
+    Notes
+    ----------
+    20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    22-05-2026: Unified/Reorganized properties to group by paradigm and lesion status for better readability/scalability.
+
+    """
+
+    def process_wrapper(self, DCinst: DatasetCondition, model_name: str, sex="rnn"):
+        return super()._process(
+            DCinst.dirstr / model_name, sex_tag=sex, **DCinst.kwargs
+        )
+
+    @property
+    def p8020_rnn_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P8020, f"BGModelS{_}")[0]
+            for _ in range(20)
+        ]
+
+
+class UnstrucRNN(Group):
+    group_tag = "unstruc"
+    """_summary_
+
+    Notes
+    ----------
+    20-11-2025: Updated Bewilderbeast and Gronckle data paths to Aarushi's new data. Commented old paths and animals who were subjected to change of environment (Brat and Grump). Removed "Exp1" suffix from property names.
+    22-05-2026: Unified/Reorganized properties to group by paradigm and lesion status for better readability/scalability.
+
+    """
+
+    def process_wrapper(self, DCinst: DatasetCondition, model_name: str, sex="rnn"):
+        return super()._process(
+            DCinst.dirstr / model_name, sex_tag=sex, **DCinst.kwargs
+        )
+
+    @property
+    def p8020_rnn_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P8020, f"BGModelU{_}")[0]
+            for _ in range(20)
+        ]
+
+
 class LSTMData:
     """
     Get RNN experiments for structured and unstructured environments.
@@ -851,6 +905,8 @@ rnn_exps10 = LSTMData(
 
 struc = Struc()
 unstruc = Unstruc()
+struc_rnn = StrucRNN()
+unstruc_rnn = UnstrucRNN()
 mostly_struc_short_blocks = MostlyStrucShortBlocks()
 mostly_unstruc_short_blocks = MostlyUnstrucShortBlocks()
 
