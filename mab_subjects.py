@@ -722,7 +722,22 @@ class StrucRNN(Group):
     def p8020_rnn_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P8020, f"BGModelS{_}")[0]
-            for _ in range(20)
+            for _ in range(40)
+        ]
+
+    @property
+    def p8020_good_rnn_sess(self):
+        """Top-performing structured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``struc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P8020.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["struc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P8020, model_name)[0]
+            for model_name in best_models
         ]
 
 
@@ -746,7 +761,22 @@ class UnstrucRNN(Group):
     def p8020_rnn_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P8020, f"BGModelU{_}")[0]
-            for _ in range(20)
+            for _ in range(40)
+        ]
+
+    @property
+    def p8020_good_rnn_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P8020.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["unstruc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P8020, model_name)[0]
+            for model_name in best_models
         ]
 
 

@@ -53,6 +53,7 @@ class GroupData:
     qlearnH: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
+    rnn_lr_search_perf: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
     switch_prob_by_delta_prob: VersionedAccessor
