@@ -79,6 +79,8 @@ class MABData:
                 choices="chosen_action",
                 rewards="reward",
                 session_ids="session_id",
+                block_ids="block_id",
+                window_ids="window_id",
             )
         else:
             csv_data = pd.read_csv(fp.with_suffix(".csv"))
@@ -195,6 +197,7 @@ class Datasets:
         P100_intact = DatasetCondition("ASdataset", "100", "intact")
 
     class RNN:
+        P100 = DatasetCondition("RNNdataset", "100", "rnn")
         P8020 = DatasetCondition("RNNdataset", "8020", "rnn")
 
 
