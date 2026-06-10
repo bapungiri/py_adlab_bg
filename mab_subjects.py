@@ -158,7 +158,13 @@ class DatasetCondition:
     @property
     def dirstr(self):
         if self.lesion_tag == "rnn":
-            return self.basedir
+            # folder = "Train20000_Test1000_LR0.0001_20260606_155227" # bad
+            # folder = "Train30000_Test1000_LR0.0001_20260606_155550" # bad
+            # folder = "Train40000_Test1000_LR0.0001_20260608_104610" # good
+            # folder = "Train50000_Test1000_LR0.0001_20260608_122244" # better
+            # folder = "Train60000_Test1000_LR0.0001_20260608_140532"  # even better
+            folder = "Train70000_Test1000_LR0.0001_20260608_162810"  # best so far but increment is small from 60000, will check if further training improves performance.
+            return self.basedir / folder
         else:
             return self.basedir / self.lesion_tag
 
