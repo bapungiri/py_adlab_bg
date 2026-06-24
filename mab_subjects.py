@@ -158,13 +158,17 @@ class DatasetCondition:
     @property
     def dirstr(self):
         if self.lesion_tag == "rnn":
-            # folder = "Train20000_Test1000_LR0.0001_20260606_155227" # bad
-            # folder = "Train30000_Test1000_LR0.0001_20260606_155550" # bad
-            # folder = "Train40000_Test1000_LR0.0001_20260608_104610" # good
-            # folder = "Train50000_Test1000_LR0.0001_20260608_122244" # better
-            # folder = "Train60000_Test1000_LR0.0001_20260608_140532"  # even better
-            folder = "Train70000_Test1000_LR0.0001_20260608_162810"  # best so far but increment is small from 60000, will check if further training improves performance.
+            if self.paradigm == "8020":
+                # folder = "Train20000_Test1000_LR0.0001_20260606_155227" # bad
+                # folder = "Train30000_Test1000_LR0.0001_20260606_155550" # bad
+                # folder = "Train40000_Test1000_LR0.0001_20260608_104610" # good
+                # folder = "Train50000_Test1000_LR0.0001_20260608_122244" # better
+                # folder = "Train60000_Test1000_LR0.0001_20260608_140532"  # even better
+                folder = "Train70000_Test1000_LR0.0001_20260608_162810"  # best so far but increment is small from 60000, will check if further training improves performance.
+            if self.paradigm == "100":
+                folder = "Train70000_Test1000_LR0.0001_20260616_164322"
             return self.basedir / folder
+
         else:
             return self.basedir / self.lesion_tag
 
@@ -728,6 +732,28 @@ class StrucRNN(Group):
         )
 
     @property
+    def p100_rnn_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P100, f"BGModelS{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p100_good_rnn_sess(self):
+        """Top-performing structured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``struc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P100.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["struc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P100, model_name)[0]
+            for model_name in best_models
+        ]
+
+    @property
     def p8020_rnn_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P8020, f"BGModelS{_}")[0]
@@ -765,6 +791,28 @@ class UnstrucRNN(Group):
         return super()._process(
             DCinst.dirstr / model_name, sex_tag=sex, **DCinst.kwargs
         )
+
+    @property
+    def p100_rnn_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P100, f"BGModelU{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p100_good_rnn_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P100.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["unstruc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P100, model_name)[0]
+            for model_name in best_models
+        ]
 
     @property
     def p8020_rnn_sess(self):

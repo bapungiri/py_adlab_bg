@@ -20,6 +20,7 @@ class GroupData:
     fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
+    fit_qlearn_policy: VersionedAccessor
     fit_si: VersionedAccessor
     fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
@@ -54,6 +55,7 @@ class GroupData:
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
     rnn_lr_search_perf: VersionedAccessor
+    simulated_policies_perf: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
     switch_prob_by_delta_prob: VersionedAccessor
