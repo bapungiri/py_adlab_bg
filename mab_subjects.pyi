@@ -20,6 +20,8 @@ class GroupData:
     fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
+    fit_qlearn_easy_hard: VersionedAccessor
+    fit_qlearn_per_prob: VersionedAccessor
     fit_qlearn_policy: VersionedAccessor
     fit_si: VersionedAccessor
     fit_si_sim: VersionedAccessor
