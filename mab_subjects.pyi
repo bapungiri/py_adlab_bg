@@ -16,6 +16,7 @@ class GroupData:
     def load(self, stem: str) -> dict: ...
     bias: VersionedAccessor
     cheeku: VersionedAccessor
+    compressibility_ratio: VersionedAccessor
     fit_multi_policy: VersionedAccessor
     fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor

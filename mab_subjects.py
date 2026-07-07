@@ -340,6 +340,12 @@ class Struc(Group):
         return self.process_wrapper(Datasets.BG.P8020_intact, "BGM6", "male")
 
     @property
+    def p8020_lesion_mPFC_post_BGF0(self):
+        return self.process_wrapper(
+            Datasets.BG.P8020_lesion_mPFC_post, "BGF0", "female"
+        )
+
+    @property
     def p100_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
@@ -422,6 +428,12 @@ class Struc(Group):
             + self.p8020_lesion_OFC_post_Pedri
             + self.p8020_lesion_OFC_post_Xavi
         )
+        return pipelines
+
+    @property
+    def p8020_lesion_mPFC_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = self.p8020_lesion_mPFC_post_BGF0
         return pipelines
 
     @property
