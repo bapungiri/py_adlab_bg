@@ -35,11 +35,15 @@ class GroupData:
     logreg_AAdataset: VersionedAccessor
     model_recovery: VersionedAccessor
     nll_fit_multi_policy: VersionedAccessor
+    nll_history_rnn_fit: VersionedAccessor
     param_recovery_qlearn: VersionedAccessor
     param_recovery_si: VersionedAccessor
+    pca_mean_rnn_fit: VersionedAccessor
+    pca_rnn_fit: VersionedAccessor
     perf_AAdataset: VersionedAccessor
     perf_AAdataset_Block1: VersionedAccessor
     perf_all_corr_uncorr: VersionedAccessor
+    perf_animal_vs_rnn_fit: VersionedAccessor
     perf_difficulty_level: VersionedAccessor
     perf_easy_hard_transitions: VersionedAccessor
     perf_easy_to_hard: VersionedAccessor

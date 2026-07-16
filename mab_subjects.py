@@ -3,7 +3,7 @@ import os
 import numpy as np
 import neuropy
 from banditpy.core import Bandit2Arm
-from banditpy.models import BanditTrainer2Arm
+from banditpy.models import BanditTrainer2Arm, VanillaRNNFit2Arm
 from typing import List
 import pandas as pd
 from dataclasses import dataclass
@@ -116,6 +116,36 @@ class MABData:
                     stops=["stop"],
                     datetime=["stop_time"],
                 )
+
+    @property
+    def rnn_fit1(self):
+        file = self.filePrefix.with_name(
+            self.filePrefix.stem + "_RNNfit_N32_LR0.001_E500_Swindow.pt"
+        )
+        if file.is_file():
+            return VanillaRNNFit2Arm.load(file, device="cpu")
+        else:
+            raise FileNotFoundError(f"No RNN fit file found at {file}")
+
+    @property
+    def rnn_fit2(self):
+        file = self.filePrefix.with_name(
+            self.filePrefix.stem + "_RNNfit_N32_LR0.001_E500_Ssession.pt"
+        )
+        if file.is_file():
+            return VanillaRNNFit2Arm.load(file, device="cpu")
+        else:
+            raise FileNotFoundError(f"No RNN fit file found at {file}")
+
+    @property
+    def rnn_fit3(self):
+        file = self.filePrefix.with_name(
+            self.filePrefix.stem + "_RNNfit_N48_LR0.001_E500_Ssession.pt"
+        )
+        if file.is_file():
+            return VanillaRNNFit2Arm.load(file, device="cpu")
+        else:
+            raise FileNotFoundError(f"No RNN fit file found at {file}")
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
@@ -507,7 +537,7 @@ class Unstruc(Group):
         return self.process_wrapper(Datasets.AC.P8020_intact, "Neymar", "male")
 
     @property
-    def p8020_intact_Son(self):  # sex: later
+    def p8020_intact_Son(self):
         return self.process_wrapper(Datasets.AC.P8020_intact, "Son", "male")
 
     @property
@@ -515,7 +545,7 @@ class Unstruc(Group):
         return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Messi", "male")
 
     @property
-    def p8020_lesion_OFC_post_Son(self):  # sex: later
+    def p8020_lesion_OFC_post_Son(self):
         return self.process_wrapper(Datasets.AC.P8020_lesion_OFC_post, "Son", "male")
 
     # @property
