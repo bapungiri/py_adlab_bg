@@ -18,6 +18,7 @@ class GroupData:
     cheeku: VersionedAccessor
     compressibility_ratio: VersionedAccessor
     fit_multi_policy: VersionedAccessor
+    fit_multi_policy_combinations: VersionedAccessor
     fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
@@ -31,6 +32,8 @@ class GroupData:
     fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
     fit_ucb: VersionedAccessor
+    gcca_rnn_fit: VersionedAccessor
+    gcca_rnn_fit_separate: VersionedAccessor
     logreg: VersionedAccessor
     logreg_AAdataset: VersionedAccessor
     model_recovery: VersionedAccessor
@@ -61,10 +64,14 @@ class GroupData:
     perf_sliding: VersionedAccessor
     perf_swp_fit_multi_policy: VersionedAccessor
     perf_vs_lesion: VersionedAccessor
+    phase_portrait_lesion_model_vs_rnn: VersionedAccessor
+    phase_portrait_model_vs_rnn: VersionedAccessor
     qlearnH: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
+    rnn_fit_accuracy: VersionedAccessor
     rnn_lr_search_perf: VersionedAccessor
+    rnn_models_fit_accuracy: VersionedAccessor
     simulated_policies_perf: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
@@ -74,6 +81,7 @@ class GroupData:
     switch_prob_seq: VersionedAccessor
     switch_prob_seq_previous: VersionedAccessor
     switch_pure_prob_seq: VersionedAccessor
+    switching_reward_rate: VersionedAccessor
     switchprob_si: VersionedAccessor
     swp_AAdataset_Block1: VersionedAccessor
     swp_by_quartiles: VersionedAccessor

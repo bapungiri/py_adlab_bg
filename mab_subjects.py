@@ -73,7 +73,7 @@ class MABData:
             self.name = self.animal.name + self.animal.day
 
         if "Model" in self.sub_name:
-            self.b2a = Bandit2Arm.from_csv(
+            self.b2a: Bandit2Arm = Bandit2Arm.from_csv(
                 fp.with_suffix(".csv"),
                 probs=["arm1_reward_prob", "arm2_reward_prob"],
                 choices="chosen_action",
@@ -221,6 +221,7 @@ class Datasets:
         )
         P8020_sham_pre = DatasetCondition("BGdataset", "8020", "sham_pre")
         P8020_sham_post = DatasetCondition("BGdataset", "8020", "sham_post")
+        P9005_intact = DatasetCondition("BGdataset", "9005", "intact")
 
     class AC:
         P100_intact = DatasetCondition("ACdataset", "100", "intact")
