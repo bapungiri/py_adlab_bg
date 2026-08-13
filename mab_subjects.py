@@ -197,6 +197,10 @@ class DatasetCondition:
                 folder = "Train70000_Test1000_LR0.0001_20260608_162810"  # best so far but increment is small from 60000, will check if further training improves performance.
             if self.paradigm == "100":
                 folder = "Train70000_Test1000_LR0.0001_20260616_164322"
+            if self.paradigm == "9010":
+                folder = "Train70000_Test1000_LR0.0001_20260806_171057"
+            if self.paradigm == "9505":
+                folder = "Train70000_Test1000_LR0.0001_20260806_171030"
             return self.basedir / folder
 
         else:
@@ -221,7 +225,7 @@ class Datasets:
         )
         P8020_sham_pre = DatasetCondition("BGdataset", "8020", "sham_pre")
         P8020_sham_post = DatasetCondition("BGdataset", "8020", "sham_post")
-        P9005_intact = DatasetCondition("BGdataset", "9005", "intact")
+        P9505_intact = DatasetCondition("BGdataset", "9505", "intact")
 
     class AC:
         P100_intact = DatasetCondition("ACdataset", "100", "intact")
@@ -239,6 +243,8 @@ class Datasets:
 
     class RNN:
         P100 = DatasetCondition("RNNdataset", "100", "rnn")
+        P9505 = DatasetCondition("RNNdataset", "9505", "rnn")
+        P9010 = DatasetCondition("RNNdataset", "9010", "rnn")
         P8020 = DatasetCondition("RNNdataset", "8020", "rnn")
 
 
@@ -775,14 +781,14 @@ class StrucRNN(Group):
         )
 
     @property
-    def p100_rnn_sess(self):
+    def p100_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P100, f"BGModelS{_}")[0]
             for _ in range(40)
         ]
 
     @property
-    def p100_good_rnn_sess(self):
+    def p100_good_sess(self):
         """Top-performing structured RNN models selected by asymptotic performance.
 
         Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
@@ -797,14 +803,58 @@ class StrucRNN(Group):
         ]
 
     @property
-    def p8020_rnn_sess(self):
+    def p9505_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P9505, f"BGModelS{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p9505_good_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P9505.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["struc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P9505, model_name)[0]
+            for model_name in best_models
+        ]
+
+    @property
+    def p9010_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P9010, f"BGModelS{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p9010_good_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P9010.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["struc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P9010, model_name)[0]
+            for model_name in best_models
+        ]
+
+    @property
+    def p8020_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P8020, f"BGModelS{_}")[0]
             for _ in range(40)
         ]
 
     @property
-    def p8020_good_rnn_sess(self):
+    def p8020_good_sess(self):
         """Top-performing structured RNN models selected by asymptotic performance.
 
         Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
@@ -836,14 +886,14 @@ class UnstrucRNN(Group):
         )
 
     @property
-    def p100_rnn_sess(self):
+    def p100_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P100, f"BGModelU{_}")[0]
             for _ in range(40)
         ]
 
     @property
-    def p100_good_rnn_sess(self):
+    def p100_good_sess(self):
         """Top-performing unstructured RNN models selected by asymptotic performance.
 
         Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
@@ -858,14 +908,58 @@ class UnstrucRNN(Group):
         ]
 
     @property
-    def p8020_rnn_sess(self):
+    def p9505_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P9505, f"BGModelU{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p9505_good_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P9505.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["unstruc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P9505, model_name)[0]
+            for model_name in best_models
+        ]
+
+    @property
+    def p9010_sess(self):
+        return [
+            self.process_wrapper(Datasets.RNN.P9010, f"BGModelU{_}")[0]
+            for _ in range(40)
+        ]
+
+    @property
+    def p9010_good_sess(self):
+        """Top-performing unstructured RNN models selected by asymptotic performance.
+
+        Best models are identified in ``mab_rnn_train.ipynb`` by evaluating
+        mean optimal-choice probability over trials 100–200 and saving the top
+        20 model names to ``best_models.csv`` (column ``unstruc``).
+        """
+        csv_path = self.basedir / Datasets.RNN.P9010.dirstr / "best_models.csv"
+        best_models = pd.read_csv(csv_path)["unstruc"].tolist()
+        return [
+            self.process_wrapper(Datasets.RNN.P9010, model_name)[0]
+            for model_name in best_models
+        ]
+
+    @property
+    def p8020_sess(self):
         return [
             self.process_wrapper(Datasets.RNN.P8020, f"BGModelU{_}")[0]
             for _ in range(40)
         ]
 
     @property
-    def p8020_good_rnn_sess(self):
+    def p8020_good_sess(self):
         """Top-performing unstructured RNN models selected by asymptotic performance.
 
         Best models are identified in ``mab_rnn_train.ipynb`` by evaluating

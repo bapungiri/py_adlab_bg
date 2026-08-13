@@ -32,6 +32,7 @@ class GroupData:
     fit_si_sim: VersionedAccessor
     fit_thompson_split: VersionedAccessor
     fit_ucb: VersionedAccessor
+    gcca_meta_rnn: VersionedAccessor
     gcca_rnn_fit: VersionedAccessor
     gcca_rnn_fit_separate: VersionedAccessor
     logreg: VersionedAccessor
