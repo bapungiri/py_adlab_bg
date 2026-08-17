@@ -59,3 +59,23 @@ class Palette2Arm:
             "unstruc": adjust_lightness(self.unstruc, self.lightness_scale),
             "struc": adjust_lightness(self.struc, self.lightness_scale),
         }
+
+    def struc_lesion_vs_intact(self):
+        """
+        Return a dict mapping group → adjusted color for lesion vs intact comparison.
+        """
+        return {
+            "intact": adjust_lightness("#3baaa1", self.lightness_scale),
+            "lesion_mPFC_post": adjust_lightness("#88c6c1", self.lightness_scale),
+            "lesion_OFC_post": adjust_lightness("#88c6c1", self.lightness_scale),
+        }
+
+    def unstruc_lesion_vs_intact(self):
+        """
+        Return a dict mapping group → adjusted color for lesion vs intact comparison.
+        """
+        return {
+            "intact": adjust_lightness("#f55673", self.lightness_scale),
+            "lesion_mPFC_post": adjust_lightness("#e08e9e", self.lightness_scale),
+            "lesion_OFC_post": adjust_lightness("#e08e9e", self.lightness_scale),
+        }

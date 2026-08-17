@@ -383,6 +383,10 @@ class Struc(Group):
         )
 
     @property
+    def p8020_lesion_mPFC_post_BGM6(self):
+        return self.process_wrapper(Datasets.BG.P8020_lesion_mPFC_post, "BGM6", "male")
+
+    @property
     def p100_intact_sess(self):
         pipelines: List[MABData]
         pipelines = (
@@ -461,6 +465,21 @@ class Struc(Group):
         pipelines: List[MABData]
         pipelines = (
             self.p8020_lesion_OFC_post_Gavi
+            + self.p8020_lesion_OFC_post_Haaland
+            + self.p8020_lesion_OFC_post_Pedri
+            + self.p8020_lesion_OFC_post_Xavi
+        )
+        return pipelines
+
+    @property
+    def p8020_lesion_OFC_pre_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_Gavi
+            + self.p8020_intact_Haaland
+            + self.p8020_intact_Pedri
+            + self.p8020_intact_Xavi
+            + self.p8020_lesion_OFC_post_Gavi
             + self.p8020_lesion_OFC_post_Haaland
             + self.p8020_lesion_OFC_post_Pedri
             + self.p8020_lesion_OFC_post_Xavi
@@ -686,6 +705,17 @@ class Unstruc(Group):
     def p8020_lesion_OFC_post_sess(self):
         pipelines: List[MABData]
         pipelines = self.p8020_lesion_OFC_post_Messi + self.p8020_lesion_OFC_post_Son
+        return pipelines
+
+    @property
+    def p8020_lesion_OFC_pre_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_Messi
+            + self.p8020_intact_Son
+            + self.p8020_lesion_OFC_post_Messi
+            + self.p8020_lesion_OFC_post_Son
+        )
         return pipelines
 
     @property
