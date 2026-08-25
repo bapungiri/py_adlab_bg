@@ -352,6 +352,12 @@ class Struc(Group):
     # ===================================
     #     BG dataset
     # ===================================
+    # Paradigm 9505
+    @property
+    def p9505_intact_BGF7(self):
+        return self.process_wrapper(Datasets.BG.P9505_intact, "BGF7", "female")
+
+    # Paradigm 8020
     @property
     def p8020_intact_BGM1(self):
         return self.process_wrapper(Datasets.BG.P8020_intact, "BGM1", "male")
@@ -611,6 +617,13 @@ class Unstruc(Group):
     # ========================
     # BG dataset
     # ===========================
+
+    # Paradigm 9505
+    @property
+    def p9505_intact_BGM8(self):
+        return self.process_wrapper(Datasets.BG.P9505_intact, "BGM8", "male")
+
+    # Paradigm 8020
     @property
     def p8020_intact_BGM0(self):
         return self.process_wrapper(Datasets.BG.P8020_intact, "BGM0", "male")

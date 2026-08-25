@@ -17,11 +17,13 @@ class GroupData:
     bias: VersionedAccessor
     cheeku: VersionedAccessor
     compressibility_ratio: VersionedAccessor
+    fit_MoARegime_policy_combinations: VersionedAccessor
     fit_multi_policy: VersionedAccessor
     fit_multi_policy_combinations: VersionedAccessor
     fit_multi_policy_lesion: VersionedAccessor
     fit_qlearnH: VersionedAccessor
     fit_qlearnH_sim: VersionedAccessor
+    fit_qlearnRegimeDiffStays_policy_combinations: VersionedAccessor
     fit_qlearn_combinations_lesion: VersionedAccessor
     fit_qlearn_corr_uncorr: VersionedAccessor
     fit_qlearn_easy_hard: VersionedAccessor
