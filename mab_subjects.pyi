@@ -15,9 +15,11 @@ class GroupData:
     def save(self, data: Any, basename: str, clean: bool = True) -> str: ...
     def load(self, stem: str) -> dict: ...
     bias: VersionedAccessor
+    breaks_vs_swp: VersionedAccessor
     cheeku: VersionedAccessor
     compressibility_ratio: VersionedAccessor
     fit_MoARegime_policy_combinations: VersionedAccessor
+    fit_Qlearn2Regime_policy_combinations: VersionedAccessor
     fit_multi_policy: VersionedAccessor
     fit_multi_policy_combinations: VersionedAccessor
     fit_multi_policy_lesion: VersionedAccessor
@@ -69,6 +71,10 @@ class GroupData:
     perf_vs_lesion: VersionedAccessor
     phase_portrait_lesion_model_vs_rnn: VersionedAccessor
     phase_portrait_model_vs_rnn: VersionedAccessor
+    poster_perf_difficulty_level: VersionedAccessor
+    poster_perf_probability_matrix: VersionedAccessor
+    poster_perf_vs_mpfc_lesion: VersionedAccessor
+    poster_perf_vs_ofc_lesion: VersionedAccessor
     qlearnH: VersionedAccessor
     reward_prob: VersionedAccessor
     reward_probability_matrix: VersionedAccessor
@@ -76,9 +82,12 @@ class GroupData:
     rnn_lr_search_perf: VersionedAccessor
     rnn_models_fit_accuracy: VersionedAccessor
     simulated_policies_perf: VersionedAccessor
+    state_traj_Qlearn2Regime: VersionedAccessor
+    state_traj_Qlearn2Regime_avg: VersionedAccessor
     switch_density: VersionedAccessor
     switch_prob: VersionedAccessor
     switch_prob_by_delta_prob: VersionedAccessor
+    switch_prob_by_trial_100trials: VersionedAccessor
     switch_prob_logreg: VersionedAccessor
     switch_prob_logreg_AAdataset: VersionedAccessor
     switch_prob_seq: VersionedAccessor
@@ -87,5 +96,6 @@ class GroupData:
     switching_reward_rate: VersionedAccessor
     switchprob_si: VersionedAccessor
     swp_AAdataset_Block1: VersionedAccessor
+    swp_after_reward: VersionedAccessor
     swp_by_quartiles: VersionedAccessor
     swp_trial_history: VersionedAccessor

@@ -8,12 +8,21 @@ from typing import List
 import pandas as pd
 from dataclasses import dataclass
 
+figpath_base = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
+figpath_posters = figpath_base / "posters"
 figpath = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
 iapath = Path(
     "C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures/india_alliance"
 )
 
 pkpath = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures/pk")
+
+
+@dataclass
+class FigPath:
+    base: Path = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
+    posters: Path = base / "posters"
+    fellowships: Path = base / "fellowships"
 
 
 class MABData:
@@ -495,7 +504,18 @@ class Struc(Group):
     @property
     def p8020_lesion_mPFC_post_sess(self):
         pipelines: List[MABData]
-        pipelines = self.p8020_lesion_mPFC_post_BGF0
+        pipelines = self.p8020_lesion_mPFC_post_BGF0 + self.p8020_lesion_mPFC_post_BGM6
+        return pipelines
+
+    @property
+    def p8020_lesion_mPFC_pre_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_BGF0
+            + self.p8020_lesion_mPFC_post_BGF0
+            + self.p8020_intact_BGM6
+            + self.p8020_lesion_mPFC_post_BGM6
+        )
         return pipelines
 
     @property
@@ -623,6 +643,10 @@ class Unstruc(Group):
     def p9505_intact_BGM8(self):
         return self.process_wrapper(Datasets.BG.P9505_intact, "BGM8", "male")
 
+    @property
+    def p9505_intact_BGM9(self):
+        return self.process_wrapper(Datasets.BG.P9505_intact, "BGM8", "male")
+
     # Paradigm 8020
     @property
     def p8020_intact_BGM0(self):
@@ -653,10 +677,24 @@ class Unstruc(Group):
         return self.process_wrapper(Datasets.BG.P8020_intact, "BGF5", "female")
 
     @property
+    def p8020_intact_BGM7(self):
+        return self.process_wrapper(Datasets.BG.P8020_intact, "BGM7", "male")
+
+    @property
     def p8020_lesion_mPFC_post_BGF2(self):
         return self.process_wrapper(
             Datasets.BG.P8020_lesion_mPFC_post, "BGF2", "female"
         )
+
+    @property
+    def p8020_lesion_mPFC_post_BGF5(self):
+        return self.process_wrapper(
+            Datasets.BG.P8020_lesion_mPFC_post, "BGF5", "female"
+        )
+
+    @property
+    def p8020_lesion_mPFC_post_BGM7(self):
+        return self.process_wrapper(Datasets.BG.P8020_lesion_mPFC_post, "BGM7", "male")
 
     @property
     def p100_intact_sess(self):
@@ -709,6 +747,7 @@ class Unstruc(Group):
             + self.p8020_intact_BGF2
             + self.p8020_intact_BGM5
             + self.p8020_intact_BGF5
+            + self.p8020_intact_BGM7
             + self.p8020_intact_Messi
             + self.p8020_intact_Son
         )
@@ -734,7 +773,24 @@ class Unstruc(Group):
     @property
     def p8020_lesion_mPFC_post_sess(self):
         pipelines: List[MABData]
-        pipelines = self.p8020_lesion_mPFC_post_BGF2
+        pipelines = (
+            self.p8020_lesion_mPFC_post_BGF2
+            + self.p8020_lesion_mPFC_post_BGF5
+            + self.p8020_lesion_mPFC_post_BGM7
+        )
+        return pipelines
+
+    @property
+    def p8020_lesion_mPFC_pre_post_sess(self):
+        pipelines: List[MABData]
+        pipelines = (
+            self.p8020_intact_BGF2
+            + self.p8020_lesion_mPFC_post_BGF2
+            + self.p8020_intact_BGF5
+            + self.p8020_lesion_mPFC_post_BGF5
+            + self.p8020_intact_BGM7
+            + self.p8020_lesion_mPFC_post_BGM7
+        )
         return pipelines
 
     @property
