@@ -14,6 +14,12 @@ class GroupData:
     def __init__(self, keep_versions: int = 3): ...
     def save(self, data: Any, basename: str, clean: bool = True) -> str: ...
     def load(self, stem: str) -> dict: ...
+    abstract_perf_combinations: VersionedAccessor
+    abstract_perf_difficulty_level: VersionedAccessor
+    abstract_perf_tier: VersionedAccessor
+    abstract_swp_tier: VersionedAccessor
+    abstract_tau_tier: VersionedAccessor
+    abstract_tau_tier_double: VersionedAccessor
     bias: VersionedAccessor
     breaks_vs_swp: VersionedAccessor
     cheeku: VersionedAccessor

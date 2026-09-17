@@ -23,6 +23,7 @@ class FigPath:
     base: Path = Path("C:/Users/asheshlab/OneDrive/academia/analyses/adlab/figures")
     posters: Path = base / "posters"
     fellowships: Path = base / "fellowships"
+    abstracts: Path = base / "abstracts"
 
 
 class MABData:
