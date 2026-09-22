@@ -79,16 +79,16 @@ class Struc(AnimalGroup):
         return self.sess(paradigm="8020", lesion="lesion_OFC_post")
 
     @property
-    def p8020_lesion_OFC_pre_post_sess(self):
-        return self.pre_post_sess(paradigm="8020", lesion_tag="lesion_OFC_post")
+    def p8020_lesion_OFC_intact_post_sess(self):
+        return self.intact_post_sess(paradigm="8020", lesion_tag="lesion_OFC_post")
 
     @property
     def p8020_lesion_mPFC_post_sess(self):
         return self.sess(paradigm="8020", lesion="lesion_mPFC_post")
 
     @property
-    def p8020_lesion_mPFC_pre_post_sess(self):
-        return self.pre_post_sess(paradigm="8020", lesion_tag="lesion_mPFC_post")
+    def p8020_lesion_mPFC_intact_post_sess(self):
+        return self.intact_post_sess(paradigm="8020", lesion_tag="lesion_mPFC_post")
 
     @property
     def all_intact_sess(self):
@@ -172,16 +172,16 @@ class Unstruc(AnimalGroup):
         return self.sess(paradigm="8020", lesion="lesion_OFC_post")
 
     @property
-    def p8020_lesion_OFC_pre_post_sess(self):
-        return self.pre_post_sess(paradigm="8020", lesion_tag="lesion_OFC_post")
+    def p8020_lesion_OFC_intact_post_sess(self):
+        return self.intact_post_sess(paradigm="8020", lesion_tag="lesion_OFC_post")
 
     @property
     def p8020_lesion_mPFC_post_sess(self):
         return self.sess(paradigm="8020", lesion="lesion_mPFC_post")
 
     @property
-    def p8020_lesion_mPFC_pre_post_sess(self):
-        return self.pre_post_sess(paradigm="8020", lesion_tag="lesion_mPFC_post")
+    def p8020_lesion_mPFC_intact_post_sess(self):
+        return self.intact_post_sess(paradigm="8020", lesion_tag="lesion_mPFC_post")
 
     @property
     def all_intact_sess(self):

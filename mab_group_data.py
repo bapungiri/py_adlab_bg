@@ -131,6 +131,7 @@ class GroupData:
         switchprob_si: VersionedAccessor
         swp_AAdataset_Block1: VersionedAccessor
         swp_after_reward: VersionedAccessor
+        swp_by_previous_block_tier: VersionedAccessor
         swp_by_quartiles: VersionedAccessor
         swp_trial_history: VersionedAccessor
         # === END AUTO-GENERATED BASENAME ANNOTATIONS ===

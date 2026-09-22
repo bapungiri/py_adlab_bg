@@ -379,7 +379,7 @@ class AnimalGroup(Group):
         a = matches[0]
         return self.process_wrapper(a.condition, a.name, a.sex)[0]
 
-    def pre_post_sess(
+    def intact_post_sess(
         self,
         *,
         paradigm: str,
@@ -387,7 +387,11 @@ class AnimalGroup(Group):
         quality: Quality = ("good", "biased"),
     ) -> List[MABData]:
         """Sessions for animals with BOTH an 'intact' and a `lesion_tag` entry
-        -- i.e. their own before/after comparison."""
+        -- i.e. their own before/after comparison. Named 'intact_post' (not
+        'pre_post') because it always pairs 'intact' with a `_post` lesion
+        tag -- `_pre`-lesioned animals never have an intact baseline to
+        pair against, so there's no meaningful 'pre_post' comparison to
+        make."""
         lesioned_names = {
             a.name
             for a in self._rows(paradigm=paradigm, lesion=lesion_tag, quality=quality)
