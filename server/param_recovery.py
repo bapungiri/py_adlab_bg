@@ -12,9 +12,7 @@ from joblib import Parallel, delayed
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Parameter recovery for Qlearn"
-    )
+    parser = argparse.ArgumentParser(description="Parameter recovery for Qlearn")
     parser.add_argument(
         "--max-subjects", type=int, default=1000, help="Number of simulations"
     )
@@ -63,7 +61,15 @@ def main():
     print(f"Prob correlation: {pearsonr(probs_unstruc[:, 0], probs_unstruc[:, 1])[0]}")
     print(f"Prob correlation: {pearsonr(probs_struc[:, 0], probs_struc[:, 1])[0]}")
 
-    policy1_bounds = main_policy().get_bounds()
+    # Only sample/set ground truth for params the fit actually optimizes.
+    # get_bounds() also returns inactive params (e.g. StaticBeta's epsilon,
+    # which defaults to 0 and isn't touched by fit()), so using it directly
+    # here would inject real lapse-rate noise into the simulated data while
+    # the fit still assumes epsilon=0 -- silently corrupting other estimates.
+    _probe_policy = main_policy()
+    active_names = _probe_policy.active_parameter_names()
+    all_bounds = _probe_policy.get_bounds()
+    policy1_bounds = {name: all_bounds[name] for name in active_names}
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
 
     # Rate/scale-like params span orders of magnitude, so a linear-uniform
@@ -121,7 +127,9 @@ def main():
 
         df = pd.DataFrame()
         df["param"] = list(policy1_bounds.keys())
-        df["true_value"] = [_true_value(policy1, param) for param in policy1_bounds.keys()]
+        df["true_value"] = [
+            _true_value(policy1, param) for param in policy1_bounds.keys()
+        ]
         df["estimated_value_unstruc"] = [
             model_unstruc.params[param] for param in policy1_bounds.keys()
         ]
