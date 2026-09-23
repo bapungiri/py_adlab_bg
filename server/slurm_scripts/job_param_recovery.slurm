@@ -52,7 +52,8 @@ export PYTHONUNBUFFERED=1
 export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/BanditPy:/mnt/pve/Homes/bapun/Codes/py_adlab_bg:$PYTHONPATH
 
 # --- Run param recovery with configured parallelism ---
-python ../param_recovery.py \
+cd ${PROJECT_ROOT}
+python param_recovery.py \
     --max-subjects ${MAX_SUBJECTS} \
     --n-jobs-subject ${N_JOBS_SUBJECT} \
     --n-jobs-inner ${N_JOBS_INNER}
