@@ -3,7 +3,7 @@ import numpy as np
 import mab_subjects
 import pandas as pd
 from banditpy.models import DecisionModel
-from banditpy.models.policy import StateInference, Qlearn, ThompsonShared
+from banditpy.models.policy import StateInference, Qlearn, ThompsonShared, Qlearn2Regime
 from banditpy.utils.probs import generate_probs_2arm
 from banditpy.models.optim import OptunaOptimizer
 from scipy.stats import pearsonr
@@ -11,8 +11,22 @@ from numpy.random import default_rng
 from joblib import Parallel, delayed
 
 
+POLICY_REGISTRY = {
+    "Qlearn": Qlearn,
+    "Qlearn2Regime": Qlearn2Regime,
+    "StateInference": StateInference,
+    "ThompsonShared": ThompsonShared,
+}
+
+
 def parse_args():
-    parser = argparse.ArgumentParser(description="Parameter recovery for Qlearn")
+    parser = argparse.ArgumentParser(description="Parameter recovery")
+    parser.add_argument(
+        "--policy",
+        choices=list(POLICY_REGISTRY),
+        default="Qlearn",
+        help="Policy class to simulate/recover",
+    )
     parser.add_argument(
         "--max-subjects", type=int, default=1000, help="Number of simulations"
     )
@@ -39,7 +53,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    main_policy = Qlearn
+    main_policy = POLICY_REGISTRY[args.policy]
 
     n_simulations = args.max_subjects
 
@@ -144,7 +158,7 @@ def main():
 
     recovery_df = pd.concat(results, ignore_index=True)
     mab_subjects.GroupData().save(
-        recovery_df, "param_recovery_qlearn", write_stub=False
+        recovery_df, f"param_recovery_{args.policy.lower()}", write_stub=False
     )
 
 

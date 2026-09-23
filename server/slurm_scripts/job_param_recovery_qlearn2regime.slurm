@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=ParamRecQlearn
+#SBATCH --job-name=ParamRecQ2Regime
 #SBATCH --cpus-per-task=20        # N_JOBS_SUBJECT * N_JOBS_INNER
 #SBATCH --mem=32G
 #SBATCH --time=1-00:00:00
@@ -54,7 +54,7 @@ export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/
 # --- Run param recovery with configured parallelism ---
 cd ${PROJECT_ROOT}
 python param_recovery.py \
-    --policy Qlearn \
+    --policy Qlearn2Regime \
     --max-subjects ${MAX_SUBJECTS} \
     --n-jobs-subject ${N_JOBS_SUBJECT} \
     --n-jobs-inner ${N_JOBS_INNER}
