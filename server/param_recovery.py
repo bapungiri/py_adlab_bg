@@ -3,7 +3,13 @@ import numpy as np
 import mab_subjects
 import pandas as pd
 from banditpy.models import DecisionModel
-from banditpy.models.policy import StateInference, Qlearn, ThompsonShared, Qlearn2Regime
+from banditpy.models.policy import (
+    StateInference,
+    Qlearn,
+    ThompsonShared,
+    Qlearn2Regime,
+    Qlearn3Regime,
+)
 from banditpy.utils.probs import generate_probs_2arm
 from banditpy.models.optim import OptunaOptimizer
 from scipy.stats import pearsonr
@@ -14,6 +20,7 @@ from joblib import Parallel, delayed
 POLICY_REGISTRY = {
     "Qlearn": Qlearn,
     "Qlearn2Regime": Qlearn2Regime,
+    "Qlearn3Regime": Qlearn3Regime,
     "StateInference": StateInference,
     "ThompsonShared": ThompsonShared,
 }
@@ -89,7 +96,7 @@ def main():
     # Rate/scale-like params span orders of magnitude, so a linear-uniform
     # draw over-samples large values relative to small ones; log-uniform
     # gives equal weight to equal ratios instead.
-    LOG_SCALE_PARAMS = {"beta"}
+    LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2"}
 
     def sample_true_param(rng, name, lower, upper):
         if name in LOG_SCALE_PARAMS:
