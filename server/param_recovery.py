@@ -3,7 +3,7 @@ import numpy as np
 import mab_subjects
 import pandas as pd
 from banditpy.models import DecisionModel
-from banditpy.models.policy import StateInference2Arm, Qlearn2Arm, ThompsonShared2Arm
+from banditpy.models.policy import StateInference, Qlearn, ThompsonShared
 from banditpy.utils.probs import generate_probs_2arm
 from banditpy.models.optim import OptunaOptimizer
 from scipy.stats import pearsonr
@@ -13,7 +13,7 @@ from joblib import Parallel, delayed
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Parameter recovery for StateInference2Arm"
+        description="Parameter recovery for Qlearn"
     )
     parser.add_argument(
         "--max-subjects", type=int, default=1000, help="Number of simulations"
@@ -41,7 +41,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    main_policy = Qlearn2Arm
+    main_policy = Qlearn
 
     n_simulations = args.max_subjects
 
@@ -66,12 +66,22 @@ def main():
     policy1_bounds = main_policy().get_bounds()
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
 
+    # Rate/scale-like params span orders of magnitude, so a linear-uniform
+    # draw over-samples large values relative to small ones; log-uniform
+    # gives equal weight to equal ratios instead.
+    LOG_SCALE_PARAMS = {"beta"}
+
+    def sample_true_param(rng, name, lower, upper):
+        if name in LOG_SCALE_PARAMS:
+            return float(np.exp(rng.uniform(np.log(lower), np.log(upper))))
+        return float(rng.uniform(lower, upper))
+
     def run_simulation(seed_seq):
         rng = default_rng(seed_seq)
         policy1 = main_policy()
         param_dict = {}
         for param, (lower, upper) in policy1_bounds.items():
-            param_dict[param] = rng.uniform(lower, upper)
+            param_dict[param] = sample_true_param(rng, param, lower, upper)
 
         policy1.set_params(param_dict)
 
@@ -101,9 +111,17 @@ def main():
         )
         model_struc.fit(**fit_kwargs)
 
+        def _true_value(policy, name):
+            # Some params (e.g. 'beta') live on policy.beta_schedule.params
+            # rather than policy.params -- policy1_bounds combines both.
+            try:
+                return policy.params[name]
+            except KeyError:
+                return policy.beta_schedule.params[name]
+
         df = pd.DataFrame()
         df["param"] = list(policy1_bounds.keys())
-        df["true_value"] = [policy1.params[param] for param in policy1_bounds.keys()]
+        df["true_value"] = [_true_value(policy1, param) for param in policy1_bounds.keys()]
         df["estimated_value_unstruc"] = [
             model_unstruc.params[param] for param in policy1_bounds.keys()
         ]
