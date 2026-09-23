@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=ParamRecQ3Regime
 #SBATCH --cpus-per-task=20        # N_JOBS_SUBJECT * N_JOBS_INNER
-#SBATCH --mem=32G
-#SBATCH --time=1-00:00:00
+#SBATCH --mem=8G
+#SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=/dev/null
