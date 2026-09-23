@@ -2,7 +2,7 @@
 #SBATCH --job-name=ParamRecQlearn
 #SBATCH --cpus-per-task=20        # N_JOBS_SUBJECT * N_JOBS_INNER
 #SBATCH --mem=8G
-#SBATCH --time=02:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=/dev/null
