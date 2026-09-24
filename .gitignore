@@ -38,9 +38,8 @@ test-results.xml
 xunit-test-results.xml
 build/ci/performance/performance-results.json
 !build/
-debug*.log
-ptvsd*.log
-pydevd*.log
+# Run logs (sync/*.log and the debug*/ptvsd*/pydevd* logs this replaces)
+*.log
 nodeLanguageServer/**
 nodeLanguageServer.*/**
 ModulesPath/__pycache__
