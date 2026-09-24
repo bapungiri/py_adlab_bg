@@ -179,34 +179,50 @@ def rebuild(dry_run=False, animal=None, force=False, triggered_by="manual"):
         _log("rebuild", "nothing stale", dry_run, triggered_by)
         return True
 
-    done = failed = 0
+    done = failed = fellback = 0
     for d in targets:
         raw = d / "raw_data"
         pooled = d / f"{d.name}.csv"
         rel = d.relative_to(LOCAL_ROOT)
-        sources = session_sources(raw)
-        n_csv = sum(1 for v in sources.values() if v.name.endswith(CSV_SUFFIX))
-        tag = f"{rel} sessions={len(sources)} from_csv={n_csv} from_dat={len(sources)-n_csv}"
 
         if dry_run:
-            print(f"  would rebuild {tag}")
+            sources = session_sources(raw)
+            print(f"  would rebuild {rel} sessions={len(sources)}")
             done += 1
             continue
 
         t0 = time.time()
         try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+            # Keep the fallback warnings: a .csv that could not be read is
+            # worth knowing about even though its .dat covers for it. The
+            # rest (pandas dtype guesses, rogue-session notes) is noise.
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
                 task = raw2ArmIO(raw)
             task.to_df().to_csv(pooled)
         except Exception as e:
             failed += 1
             print(f"  FAILED {rel}: {type(e).__name__}: {e}", file=sys.stderr)
             continue
-        done += 1
-        print(f"  rebuilt {tag} trials={task.n_trials} ({time.time()-t0:.0f}s)")
 
-    _log("rebuild", f"rebuilt={done} failed={failed}", dry_run, triggered_by)
+        # Which source each session actually came from, not merely which
+        # file existed -- an unreadable .csv silently falls back to its .dat.
+        used = task.metadata.get("sources", {})
+        n_csv = sum(1 for v in used.values() if v.endswith(CSV_SUFFIX))
+        n_bad = sum(1 for w in caught if "falling back to .dat" in str(w.message))
+        fellback += n_bad
+        note = f" unreadable_csv={n_bad}" if n_bad else ""
+        done += 1
+        print(
+            f"  rebuilt {rel} sessions={len(used)} from_csv={n_csv} "
+            f"from_dat={len(used)-n_csv} trials={task.n_trials}{note} "
+            f"({time.time()-t0:.0f}s)"
+        )
+
+    detail = f"rebuilt={done} failed={failed}"
+    if fellback:
+        detail += f" unreadable_csv={fellback}"
+    _log("rebuild", detail, dry_run, triggered_by)
     return failed == 0
 
 
