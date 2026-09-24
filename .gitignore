@@ -38,8 +38,11 @@ test-results.xml
 xunit-test-results.xml
 build/ci/performance/performance-results.json
 !build/
-# Run logs (sync/*.log and the debug*/ptvsd*/pydevd* logs this replaces)
+# Run logs (the debug*/ptvsd*/pydevd* logs this replaces). The sync logs
+# are the audit trail of what was pulled, rebuilt and pushed, so they are
+# kept: they are append-only and a few hundred bytes each.
 *.log
+!sync/*.log
 nodeLanguageServer/**
 nodeLanguageServer.*/**
 ModulesPath/__pycache__
