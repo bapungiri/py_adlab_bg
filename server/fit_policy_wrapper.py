@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import mab_subjects
 
@@ -28,18 +29,34 @@ from fit_policy_core import fit_experiments
 #     + mab_subjects.struc_rnn.p8020_good_rnn_sess
 # )
 
-EXPS = (
-    mab_subjects.unstruc.p8020_lesion_mPFC_intact_post_sess
-    + mab_subjects.struc.p8020_lesion_mPFC_intact_post_sess
+# Named (sessions, save name) configs, picked with --preset so several can
+# run as separate SLURM jobs: sbatch job_fit_policy.slurm <preset>
+PRESETS = {
+    "lesion_mPFC": (
+        lambda: mab_subjects.unstruc.p8020_lesion_mPFC_intact_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_intact_post_sess,
+        "fit_qlearn_high_low_lesion_mPFC",
+    ),
+    "p9505": (
+        lambda: mab_subjects.unstruc.p9505_good_intact_sess
+        + mab_subjects.struc.p9505_good_intact_sess,
+        "fit_qlearn_high_low_p9505",
+    ),
     # mab_subjects.unstruc.p8020_good_intact_sess
     # + mab_subjects.struc.p8020_good_intact_sess
     # + mab_subjects.unstruc.p8020_lesion_OFC_post_sess
     # + mab_subjects.struc.p8020_lesion_OFC_post_sess
-    # + mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
-    # + mab_subjects.struc.p8020_lesion_mPFC_post_sess
     # + mab_subjects.unstruc_rnn.p8020_good_rnn_sess
     # + mab_subjects.struc_rnn.p8020_good_rnn_sess
-)
+}
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--preset", choices=PRESETS, default="lesion_mPFC")
+args = parser.parse_args()
+
+get_exps, SAVE_NAME = PRESETS[args.preset]
+EXPS = get_exps()
+print(f"Preset {args.preset}: {len(EXPS)} sessions -> {SAVE_NAME}")
 
 
 FIT_KWARGS = {
@@ -69,7 +86,6 @@ OPTIMIZER = OptunaOptimizer(n_trials=80)
 
 PARALLEL_JOBS = len(EXPS)
 FILTER_BY_DATETIME = True  # only ever applied to lesion_tag == "intact" sessions
-SAVE_NAME = "fit_qlearn_high_low_lesion_mPFC"
 FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
 
 

@@ -42,11 +42,9 @@ export PYTHONUNBUFFERED=1
 # --- Export custom PYTHONPATH ---
 export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/BanditPy:/mnt/pve/Homes/bapun/Codes/py_adlab_bg:$PYTHONPATH
 
-# --- Run pilot: 16 subjects in parallel, each with 7-core inner jobs ---
-python ../fit_policy_wrapper.py \
-    --max-subjects 80 \
-    --n-jobs-subject 15 \
-    --n-jobs-inner 5
+# --- Run: preset from first arg (see PRESETS in fit_policy_wrapper.py) ---
+# usage: sbatch job_fit_policy.slurm <preset>
+python ../fit_policy_wrapper.py --preset "${1:-lesion_mPFC}"
 
 # --- Log job end ---
 echo "Job finished at: $(date)"
