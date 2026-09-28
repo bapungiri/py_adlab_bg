@@ -155,6 +155,16 @@ def fit_blocks(
     # model_all.cross_validate(n_folds=5, optimizer=optimizer, n_jobs=5)
     model_all.fit(optimizer=optimizer, **fit_kwargs)
 
+    # -------- High-low tier (exactly one arm >= 0.5), as in mab_builders.preprocess --------
+    n_high = (task.probs >= 0.5).sum(axis=1)
+    task_high_low = task._filtered(n_high == 1)
+    model_high_low = DecisionModel(
+        task_high_low,
+        policy=policy_ctor(),
+        reset_mode=task_high_low.is_window_start,
+    )
+    model_high_low.fit(optimizer=optimizer, **fit_kwargs)
+
     # model_block1 = DecisionModel(
     #     task_block1,
     #     policy=policy_ctor(),
@@ -172,6 +182,7 @@ def fit_blocks(
     # ------ compiling models ----------
     models = {
         "all": model_all,
+        "high_low": model_high_low,
         # "low_high": model_low_high,
         # "low_low": model_low_low,
         # "high_high": model_high_high,

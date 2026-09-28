@@ -2,10 +2,10 @@ from pathlib import Path
 import mab_subjects
 
 from banditpy.models.policy import (
-    # Qlearn,
+    Qlearn,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
-    Qlearn2Regime,
+    # Qlearn2Regime,
     # MoARegime,
     # QlearnHierarchical,
     # QlearnAdaptiveLR,
@@ -29,8 +29,10 @@ from fit_policy_core import fit_experiments
 # )
 
 EXPS = (
-    mab_subjects.unstruc.p8020_good_intact_sess
-    + mab_subjects.struc.p8020_good_intact_sess
+    mab_subjects.unstruc.p8020_lesion_mPFC_intact_post_sess
+    + mab_subjects.struc.p8020_lesion_mPFC_intact_post_sess
+    # mab_subjects.unstruc.p8020_good_intact_sess
+    # + mab_subjects.struc.p8020_good_intact_sess
     # + mab_subjects.unstruc.p8020_lesion_OFC_post_sess
     # + mab_subjects.struc.p8020_lesion_OFC_post_sess
     # + mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
@@ -51,12 +53,12 @@ FIT_KWARGS = {
 }
 
 POLICIES = [
-    # Qlearn,
+    Qlearn,
     # QlearnAdaptiveLR,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
     # MoARegime,
-    Qlearn2Regime,
+    # Qlearn2Regime,
     # QlearnHierarchical,
     # BayesianUCB,
     # ThompsonSplit2Arm,
@@ -66,8 +68,8 @@ POLICIES = [
 OPTIMIZER = OptunaOptimizer(n_trials=80)
 
 PARALLEL_JOBS = len(EXPS)
-FILTER_BY_DATETIME = True  # False for lesion, True for intact-experts
-SAVE_NAME = "fit_Qlearn2Regime_policy_combinations"
+FILTER_BY_DATETIME = True  # only ever applied to lesion_tag == "intact" sessions
+SAVE_NAME = "fit_qlearn_high_low_lesion_mPFC"
 FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
 
 
