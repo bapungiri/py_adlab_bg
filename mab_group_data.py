@@ -29,6 +29,12 @@ class VersionedAccessor:
         fp = self.parent._latest_version(self.basename)
         return self.parent.load(fp)["data"]
 
+    # metadata of the newest version (None for versions saved without meta)
+    @property
+    def meta(self):
+        fp = self.parent._latest_version(self.basename)
+        return self.parent.load(fp).get("meta")
+
     # calling the object returns latest
     def __call__(self):
         return self.latest
@@ -63,6 +69,8 @@ class GroupData:
         fit_qlearn_combinations_lesion: VersionedAccessor
         fit_qlearn_corr_uncorr: VersionedAccessor
         fit_qlearn_easy_hard: VersionedAccessor
+        fit_qlearn_high_low_lesion_mPFC: VersionedAccessor
+        fit_qlearn_high_low_p9505: VersionedAccessor
         fit_qlearn_low_high_combinations: VersionedAccessor
         fit_qlearn_per_prob: VersionedAccessor
         fit_qlearn_policy: VersionedAccessor
@@ -79,6 +87,8 @@ class GroupData:
         nll_fit_multi_policy: VersionedAccessor
         nll_history_rnn_fit: VersionedAccessor
         param_recovery_qlearn: VersionedAccessor
+        param_recovery_qlearn2regime: VersionedAccessor
+        param_recovery_qlearn3regime: VersionedAccessor
         param_recovery_si: VersionedAccessor
         pca_mean_rnn_fit: VersionedAccessor
         pca_rnn_fit: VersionedAccessor
@@ -102,6 +112,8 @@ class GroupData:
         perf_short_blocks: VersionedAccessor
         perf_sliding: VersionedAccessor
         perf_swp_fit_multi_policy: VersionedAccessor
+        perf_tier: VersionedAccessor
+        perf_tier_mPFC_lesion: VersionedAccessor
         perf_vs_lesion: VersionedAccessor
         phase_portrait_lesion_model_vs_rnn: VersionedAccessor
         phase_portrait_model_vs_rnn: VersionedAccessor
@@ -131,6 +143,7 @@ class GroupData:
         switchprob_si: VersionedAccessor
         swp_AAdataset_Block1: VersionedAccessor
         swp_after_reward: VersionedAccessor
+        swp_by_prev_best_arm: VersionedAccessor
         swp_by_previous_block_tier: VersionedAccessor
         swp_by_quartiles: VersionedAccessor
         swp_trial_history: VersionedAccessor
@@ -204,13 +217,23 @@ class GroupData:
             raise FileNotFoundError(f"No versions found for '{basename}'")
         return files[-1].stem  # no .npy
 
-    def save(self, data, basename: str, clean: bool = True, write_stub: bool = True):
+    def save(
+        self,
+        data,
+        basename: str,
+        clean: bool = True,
+        write_stub: bool = True,
+        meta: dict | None = None,
+    ):
         # convert DataFrame to dict
         if isinstance(data, pd.DataFrame):
             data = data.to_dict()
 
         filename = self._versioned_name(basename)
-        np.save(self.path / filename, {"data": data})
+        payload = {"data": data}
+        if meta is not None:
+            payload["meta"] = meta
+        np.save(self.path / filename, payload)
         print(f"[GroupData] Saved: {filename}")
 
         # register new basename if new
