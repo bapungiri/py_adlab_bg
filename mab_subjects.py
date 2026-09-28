@@ -25,6 +25,7 @@ class Struc(AnimalGroup):
         Animal("Aguero", Datasets.AC.P100_lesion_OFC_post, "female"),
         Animal("Phil", Datasets.AC.P100_lesion_OFC_pre, "female"),
         Animal("Rodri", Datasets.AC.P100_lesion_OFC_pre, "female"),
+        # .............
         Animal("Gavi", Datasets.AC.P8020_intact, "female"),
         Animal("Haaland", Datasets.AC.P8020_intact, "male"),
         Animal("Pedri", Datasets.AC.P8020_intact, "female"),
@@ -40,12 +41,17 @@ class Struc(AnimalGroup):
         Animal("Buffalord", Datasets.AS.P100_intact, "female"),
         # --- BG dataset ---
         Animal("BGF7", Datasets.BG.P9505_intact, "female"),
+        Animal("BGF8", Datasets.BG.P9505_intact, "female"),
+        Animal("BGM10", Datasets.BG.P9505_intact, "male"),
+        # Animal("BGF11", Datasets.BG.P9505_intact, "female"),
+        # ............
         Animal("BGM1", Datasets.BG.P8020_intact, "male"),
         Animal("BGF0", Datasets.BG.P8020_intact, "female"),
         Animal("BGM3", Datasets.BG.P8020_intact, "male"),
         Animal("BGM4", Datasets.BG.P8020_intact, "male"),
         Animal("BGF4", Datasets.BG.P8020_intact, "female"),
         Animal("BGM6", Datasets.BG.P8020_intact, "male"),
+        Animal("BGF10", Datasets.BG.P8020_intact, "female"),
         Animal("BGF0", Datasets.BG.P8020_lesion_mPFC_post, "female"),
         Animal("BGM6", Datasets.BG.P8020_lesion_mPFC_post, "male"),
     ]
@@ -65,6 +71,14 @@ class Struc(AnimalGroup):
     @property
     def p100_lesion_OFC_post_sess(self):
         return self.sess(paradigm="100", lesion="lesion_OFC_post")
+
+    @property
+    def p9505_intact_sess(self):
+        return self.sess(paradigm="9505", lesion="intact")
+
+    @property
+    def p9505_good_intact_sess(self):
+        return self.sess(paradigm="9505", lesion="intact", quality="good")
 
     @property
     def p8020_intact_sess(self):
@@ -130,6 +144,8 @@ class Unstruc(AnimalGroup):
         # --- BG dataset ---
         Animal("BGM8", Datasets.BG.P9505_intact, "male"),
         Animal("BGM9", Datasets.BG.P9505_intact, "male"),
+        Animal("BGF9", Datasets.BG.P9505_intact, "female"),
+        # ............
         Animal("BGM0", Datasets.BG.P8020_intact, "male"),
         # BGM2 excluded -- bad animal
         Animal("BGF1", Datasets.BG.P8020_intact, "female"),
@@ -158,6 +174,14 @@ class Unstruc(AnimalGroup):
     @property
     def p100_lesion_OFC_post_sess(self):
         return self.sess(paradigm="100", lesion="lesion_OFC_post")
+
+    @property
+    def p9505_intact_sess(self):
+        return self.sess(paradigm="9505", lesion="intact")
+
+    @property
+    def p9505_good_intact_sess(self):
+        return self.sess(paradigm="9505", lesion="intact", quality="good")
 
     @property
     def p8020_intact_sess(self):
