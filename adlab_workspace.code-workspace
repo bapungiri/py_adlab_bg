@@ -16,7 +16,13 @@
 			"path": "../StatPlotAnnot"
 		},
 		{
-			"path": "\\\\10.36.17.152\\bapun\\Codes\\py_adlab_server"
+			"path": "../AutoTrainerModularPi5"
+		},
+		{
+			"path": "../AutoTrainerModularBG"
+		},
+		{
+			"path": "../OpConDashboard"
 		}
 	],
 	"settings": {

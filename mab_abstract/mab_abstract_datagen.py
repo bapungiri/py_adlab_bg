@@ -103,6 +103,7 @@ def build_abstract_perf_tier(trial_filter=None, by="choice", trial_window=10):
         by=by, equalize_by="combo", trial_window=trial_window
     )
 
+
     perf_df = []
     for exp in exps:
         print(exp.sub_name)
@@ -122,8 +123,7 @@ def build_abstract_perf_tier(trial_filter=None, by="choice", trial_window=10):
         df = pd.DataFrame(
             dict(
                 trial_id=[
-                    f"{start}-{stop}"
-                    for start, stop in zip(trial_starts, trial_stops)
+                    f"{start}-{stop}" for start, stop in zip(trial_starts, trial_stops)
                 ],
                 perf=perf,
                 perf_low_low=perf_low_low,
@@ -373,9 +373,7 @@ def build_abstract_tau_tier(trial_filter=None, by="choice", model="single"):
                 tau1, tau2, weight = _fit_tau_double(perf)
                 fit_result = dict(tau1_value=tau1, tau2_value=tau2, weight=weight)
 
-            rows.append(
-                dict(tau_type=tau_type, **fit_result, **exp.common_kwargs)
-            )
+            rows.append(dict(tau_type=tau_type, **fit_result, **exp.common_kwargs))
 
     tau_df = pd.DataFrame(rows)
     save_name = "abstract_tau_tier" if model == "single" else "abstract_tau_tier_double"

@@ -3,3 +3,7 @@
 [2026-09-22 14:07:49] push-csv dry_run=False triggered_by=manual files_transferred=324 bytes_transferred=90,798,944 rc=0
 [2026-09-24 10:57:28] push-csv dry_run=True triggered_by=post-nas-rebuild files_transferred=2,304 bytes_transferred=583,852,890 rc=0
 [2026-09-24 11:03:20] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=2,304 bytes_transferred=583,852,890 rc=0
+[2026-09-26 16:54:36] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=66 bytes_transferred=53,597,579 rc=0
+[2026-09-27 12:53:06] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=4 bytes_transferred=845,887 rc=0
+[2026-09-27 13:50:34] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=41 bytes_transferred=55,649,229 rc=0
+[2026-09-27 14:06:07] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=2 bytes_transferred=2,541,342 rc=0
