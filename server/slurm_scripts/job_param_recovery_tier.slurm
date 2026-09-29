@@ -1,16 +1,16 @@
 #!/bin/bash
 #SBATCH --job-name=ParamRecTierQlearn
-#SBATCH --cpus-per-task=20        # N_JOBS_SUBJECT * N_JOBS_INNER
-#SBATCH --mem=8G
-#SBATCH --time=2-00:00:00
+#SBATCH --cpus-per-task=50        # N_JOBS_SUBJECT * N_JOBS_INNER
+#SBATCH --mem=20G
+#SBATCH --time=5-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=/dev/null
 #SBATCH --error=/dev/null
 
 # --- Job parallel config ---
-MAX_SUBJECTS=10
-N_JOBS_SUBJECT=10
+MAX_SUBJECTS=100
+N_JOBS_SUBJECT=25
 N_JOBS_INNER=2
 
 # --- Resolve paths ---
