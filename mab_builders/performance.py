@@ -3,7 +3,7 @@
 import numpy as np
 
 from ._core import group_builder
-from .preprocess import make_tiered_task
+from .preprocess import make_tiered_task, prep_task
 from mab_data_core import MABData
 from banditpy.core import Bandit2Arm
 
@@ -69,3 +69,26 @@ def perf_tier(
         tier_perf=np.concatenate([perf for perf, _ in curves.values()]),
         n_sessions=np.repeat([n_sess for _, n_sess in curves.values()], n),
     )
+
+
+@group_builder("perf_probability_matrix")
+def perf_probability_matrix(
+    exp: MABData,
+    n_last_trials: int = 90,
+    min_sessions: int = 2,
+    require_expert: bool | str = False,
+    kwargs_trial_filter: dict = dict(min_trials=100, clip_max=100),
+):
+    """Performance grid over probability combinations, one row per exp.
+
+    'perf_mat' holds the mean of the last 'n_last_trials' of each combination's
+    performance curve (Bandit2Arm.get_performance_prob_grid), indexed by the
+    sorted unique arm probabilities in 'probs'. Combinations with fewer than
+    'min_sessions' sessions, and the diagonal, are NaN. See 'prep_task' for
+    'require_expert'.
+    """
+    task = prep_task(exp, require_expert, kwargs_trial_filter)
+    perf_mat, unique_probs = task.get_performance_prob_grid(
+        n_last_trials=n_last_trials, min_sessions=min_sessions
+    )
+    return dict(probs=[unique_probs], perf_mat=[perf_mat])

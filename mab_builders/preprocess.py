@@ -2,24 +2,60 @@
 
 import numpy as np
 
+DEFAULT_KWARGS_EXPERT = dict(
+    day_start_hour=19,
+    threshold_pct=65,
+    n_consecutive=3,
+    min_trials_per_day=500,
+)
+
+
+def prep_task(
+    exp,
+    require_expert=True,
+    kwargs_trial_filter: dict = dict(min_trials=100, clip_max=100),
+    kwargs_expert: dict = DEFAULT_KWARGS_EXPERT,
+):
+    """Return one exp's Bandit2Arm task, optionally trimmed to post-expertise
+    trials, with 'kwargs_trial_filter' applied.
+
+    require_expert : bool or "auto"
+        If True, trim to trials from the animal's expertise day onward
+        (skipped for RNN datasets, which have no real datetime). If "auto",
+        trim only when exp.lesion_tag == "intact", so lesion sessions are kept
+        whole. False keeps all trials.
+    """
+    task = exp.b2a
+
+    if require_expert == "auto":
+        require_expert = exp.lesion_tag == "intact"
+
+    if require_expert and exp.data_tag != "RNNdataset":
+        task.auto_block_window_ids()
+        _, expert_datetime, _, _ = task.get_expertise_day(
+            by="datetime", **kwargs_expert
+        )
+        task = task.filter_by_datetime(start=expert_datetime)
+    elif require_expert:
+        print(
+            f"{exp.sub_name}(data_tag={exp.data_tag}), Not an animal, skipping expertise filtering."
+        )
+
+    return task.filter_by_trials(**kwargs_trial_filter)
+
 
 def make_tiered_task(
     exp,
     require_expert=True,
     min_sessions=3,
     kwargs_trial_filter: dict = dict(min_trials=100, clip_max=100),
-    kwargs_expert: dict = dict(
-        day_start_hour=19,
-        threshold_pct=65,
-        n_consecutive=3,
-        min_trials_per_day=500,
-    ),
+    kwargs_expert: dict = DEFAULT_KWARGS_EXPERT,
 ):
     """Prep one exp's Bandit2Arm task for a tiered abstract GroupData product.
 
-    Sets block/window IDs, optionally trims to post-expertise trials, applies
-    trial_filter, then splits into low-low/high-low/high-high probability
-    tiers and dependent/independent combinations.
+    Runs 'prep_task' (optional expertise trimming + trial filter), then splits
+    into low-low/high-low/high-high probability tiers and dependent/independent
+    combinations.
 
     Parameters
     ----------
@@ -44,23 +80,7 @@ def make_tiered_task(
         'dependent', 'independent') to a (task, n_sessions) tuple, where task
         is a Bandit2Arm or None if n_sessions < min_sessions.
     """
-    task = exp.b2a
-
-    if require_expert == "auto":
-        require_expert = exp.lesion_tag == "intact"
-
-    if require_expert and exp.data_tag != "RNNdataset":
-        task.auto_block_window_ids()
-        _, expert_datetime, _, _ = task.get_expertise_day(
-            by="datetime", **kwargs_expert
-        )
-        task = task.filter_by_datetime(start=expert_datetime)
-    elif require_expert:
-        print(
-            f"{exp.sub_name}(data_tag={exp.data_tag}), Not an animal, skipping expertise filtering."
-        )
-
-    task = task.filter_by_trials(**kwargs_trial_filter)
+    task = prep_task(exp, require_expert, kwargs_trial_filter, kwargs_expert)
 
     n_high = (task.probs >= 0.5).sum(axis=1)  # 0, 1, or 2 arms at/above 0.5
     is_corr = corr_mask(task)

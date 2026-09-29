@@ -113,6 +113,7 @@ class GroupData:
         perf_sliding: VersionedAccessor
         perf_swp_fit_multi_policy: VersionedAccessor
         perf_tier: VersionedAccessor
+        perf_tier_expert: VersionedAccessor
         perf_tier_mPFC_lesion: VersionedAccessor
         perf_vs_lesion: VersionedAccessor
         phase_portrait_lesion_model_vs_rnn: VersionedAccessor
@@ -146,6 +147,7 @@ class GroupData:
         swp_by_prev_best_arm: VersionedAccessor
         swp_by_previous_block_tier: VersionedAccessor
         swp_by_quartiles: VersionedAccessor
+        swp_probability_matrix: VersionedAccessor
         swp_trial_history: VersionedAccessor
         # === END AUTO-GENERATED BASENAME ANNOTATIONS ===
         pass
