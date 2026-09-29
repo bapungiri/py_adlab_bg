@@ -13,7 +13,7 @@ None of this changes when an animal is added -- that only ever touches the
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Tuple, Union
 
 import neuropy
 import numpy as np
@@ -38,6 +38,7 @@ class MABData:
         data_tag=None,
         lesion_tag=None,
         sex_tag=None,
+        exclude=(),
     ):
         basepath = Path(basepath)
         try:
@@ -123,6 +124,22 @@ class MABData:
                     datetime=["stop_time"],
                 )
 
+        self.exclude = tuple(exclude)
+        if self.exclude:
+            self.b2a = self._drop_excluded(self.b2a, self.exclude)
+
+    @staticmethod
+    def _drop_excluded(task, exclude):
+        """Drop trials inside each (start, stop, reason) datetime span (inclusive),
+        e.g. bias-correction periods that aren't part of the task protocol."""
+        if task.datetime is None:
+            raise ValueError("exclude needs datetime in the task data")
+        dt = task.datetime.astype("datetime64[s]")
+        keep = np.ones(len(dt), dtype=bool)
+        for start, stop, _reason in exclude:
+            keep &= ~((dt >= np.datetime64(start)) & (dt <= np.datetime64(stop)))
+        return task._filtered(keep)
+
     @property
     def rnn_fit1(self):
         file = self.filePrefix.with_name(
@@ -166,7 +183,13 @@ class Group:
         basedir = Path("/mnt/pve/Homes/bapun/Data")
 
     def _process(
-        self, rel_path, data_tag=None, paradigm_tag=None, lesion_tag=None, sex_tag=None
+        self,
+        rel_path,
+        data_tag=None,
+        paradigm_tag=None,
+        lesion_tag=None,
+        sex_tag=None,
+        exclude=(),
     ):
         return [
             MABData(
@@ -176,15 +199,18 @@ class Group:
                 paradigm_tag=paradigm_tag,
                 lesion_tag=lesion_tag,
                 sex_tag=sex_tag,
+                exclude=exclude,
             )
         ]
 
-    def process_wrapper(self, condition: "DatasetCondition", name: str, sex: str):
+    def process_wrapper(
+        self, condition: "DatasetCondition", name: str, sex: str, exclude=()
+    ):
         """Turn one (condition, name) pair into its MABData -- shared by
         AnimalGroup (table-driven animal groups) and RNNModelGroup
         (procedurally-named RNN model groups)."""
         return self._process(
-            condition.dirstr / name, sex_tag=sex, **condition.kwargs
+            condition.dirstr / name, sex_tag=sex, exclude=exclude, **condition.kwargs
         )
 
 
@@ -272,6 +298,9 @@ class Animal:
     condition: DatasetCondition
     sex: str
     quality: str = "good"  # "good" | "biased" -- a truly bad animal just has no row
+    # datetime spans dropped from this animal's data at load, as
+    # ((start, stop, reason), ...) -- e.g. off-protocol bias-correction sessions
+    exclude: Tuple[Tuple[str, str, str], ...] = ()
 
 
 class AnimalGroup(Group):
@@ -352,7 +381,7 @@ class AnimalGroup(Group):
         for a in self._rows(
             paradigm=paradigm, lesion=lesion, quality=quality, names=names
         ):
-            out += self.process_wrapper(a.condition, a.name, a.sex)
+            out += self.process_wrapper(a.condition, a.name, a.sex, a.exclude)
         return out
 
     def animal(
@@ -377,7 +406,7 @@ class AnimalGroup(Group):
                 f"({len(matches)} matches) -- pass paradigm/lesion to disambiguate"
             )
         a = matches[0]
-        return self.process_wrapper(a.condition, a.name, a.sex)[0]
+        return self.process_wrapper(a.condition, a.name, a.sex, a.exclude)[0]
 
     def intact_post_sess(
         self,

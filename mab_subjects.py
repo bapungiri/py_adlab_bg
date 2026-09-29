@@ -151,7 +151,18 @@ class Unstruc(AnimalGroup):
         Animal("BGF1", Datasets.BG.P8020_intact, "female"),
         Animal("BGF2", Datasets.BG.P8020_intact, "female"),
         Animal("BGF3", Datasets.BG.P8020_intact, "female", quality="biased"),
-        Animal("BGM5", Datasets.BG.P8020_intact, "male"),
+        Animal(
+            "BGM5",
+            Datasets.BG.P8020_intact,
+            "male",
+            exclude=(
+                (
+                    "2025-11-19T12:00",
+                    "2025-11-20T12:00",
+                    "bias correction (0.1/0.8 only)",
+                ),
+            ),
+        ),
         Animal("BGF5", Datasets.BG.P8020_intact, "female"),
         Animal("BGM7", Datasets.BG.P8020_intact, "male"),
         Animal("BGF2", Datasets.BG.P8020_lesion_mPFC_post, "female"),
