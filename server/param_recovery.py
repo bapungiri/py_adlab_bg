@@ -26,6 +26,34 @@ POLICY_REGISTRY = {
 }
 
 
+# Same arm probabilities as generate_probs_2arm; tiers follow fit_policy_core's
+# n_high rule (number of arms with p >= 0.5).
+ARM_PROBS = np.array([0.2, 0.3, 0.4, 0.6, 0.7, 0.8])
+TIER_N_HIGH = {"low_low": 0, "high_low": 1, "high_high": 2}
+
+
+def n_high_arms(probs):
+    return (np.asarray(probs) >= 0.5).sum(axis=1)
+
+
+def generate_probs_tiers(n_blocks_per_tier, rng):
+    """Mixed schedule with 'n_blocks_per_tier' blocks of each tier, shuffled.
+
+    Pairs are drawn uniformly from the ordered, unequal pairs of 'ARM_PROBS'
+    within each tier.
+    """
+    pairs = np.array([(a, b) for a in ARM_PROBS for b in ARM_PROBS if a != b])
+    pairs_n_high = n_high_arms(pairs)
+    blocks = []
+    for n_high in TIER_N_HIGH.values():
+        tier_pairs = pairs[pairs_n_high == n_high]
+        idx = rng.integers(len(tier_pairs), size=n_blocks_per_tier)
+        blocks.append(tier_pairs[idx])
+    probs = np.vstack(blocks)
+    rng.shuffle(probs)
+    return probs
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Parameter recovery")
     parser.add_argument(
@@ -33,6 +61,22 @@ def parse_args():
         choices=list(POLICY_REGISTRY),
         default="Qlearn",
         help="Policy class to simulate/recover",
+    )
+    parser.add_argument(
+        "--design",
+        choices=["struc_unstruc", "tier"],
+        default="struc_unstruc",
+        help=(
+            "struc_unstruc: fit structured and unstructured schedules separately; "
+            "tier: simulate one mixed low-low/high-low/high-high schedule and "
+            "fit all blocks plus each tier separately"
+        ),
+    )
+    parser.add_argument(
+        "--n-blocks-per-tier",
+        type=int,
+        default=200,
+        help="Blocks per tier in the mixed schedule (--design tier only)",
     )
     parser.add_argument(
         "--max-subjects", type=int, default=1000, help="Number of simulations"
@@ -77,10 +121,14 @@ def main():
         "es_slack": 0.01,
     }
 
-    probs_unstruc, probs_struc = generate_probs_2arm(N=n_sessions, frac_impurity=0.2)
-
-    print(f"Prob correlation: {pearsonr(probs_unstruc[:, 0], probs_unstruc[:, 1])[0]}")
-    print(f"Prob correlation: {pearsonr(probs_struc[:, 0], probs_struc[:, 1])[0]}")
+    if args.design == "struc_unstruc":
+        probs_unstruc, probs_struc = generate_probs_2arm(
+            N=n_sessions, frac_impurity=0.2
+        )
+        print(
+            f"Prob correlation: {pearsonr(probs_unstruc[:, 0], probs_unstruc[:, 1])[0]}"
+        )
+        print(f"Prob correlation: {pearsonr(probs_struc[:, 0], probs_struc[:, 1])[0]}")
 
     # Only sample/set ground truth for params the fit actually optimizes.
     # get_bounds() also returns inactive params (e.g. StaticBeta's epsilon,
@@ -103,14 +151,25 @@ def main():
             return float(np.exp(rng.uniform(np.log(lower), np.log(upper))))
         return float(rng.uniform(lower, upper))
 
-    def run_simulation(seed_seq):
-        rng = default_rng(seed_seq)
-        policy1 = main_policy()
+    def _true_value(policy, name):
+        # Some params (e.g. 'beta') live on policy.beta_schedule.params
+        # rather than policy.params -- policy1_bounds combines both.
+        try:
+            return policy.params[name]
+        except KeyError:
+            return policy.beta_schedule.params[name]
+
+    def sample_true_policy(rng):
+        policy = main_policy()
         param_dict = {}
         for param, (lower, upper) in policy1_bounds.items():
             param_dict[param] = sample_true_param(rng, param, lower, upper)
+        policy.set_params(param_dict)
+        return policy
 
-        policy1.set_params(param_dict)
+    def run_simulation_struc_unstruc(seed_seq):
+        rng = default_rng(seed_seq)
+        policy1 = sample_true_policy(rng)
 
         task_unstruc = DecisionModel.simulate_policy(
             policy=policy1,
@@ -138,14 +197,6 @@ def main():
         )
         model_struc.fit(**fit_kwargs)
 
-        def _true_value(policy, name):
-            # Some params (e.g. 'beta') live on policy.beta_schedule.params
-            # rather than policy.params -- policy1_bounds combines both.
-            try:
-                return policy.params[name]
-            except KeyError:
-                return policy.beta_schedule.params[name]
-
         df = pd.DataFrame()
         df["param"] = list(policy1_bounds.keys())
         df["true_value"] = [
@@ -159,14 +210,62 @@ def main():
         ]
         return df
 
-    results = Parallel(n_jobs=args.n_jobs_subject)(
-        delayed(run_simulation)(child_seed_seqs[i]) for i in range(n_simulations)
-    )
+    def run_simulation_tier(sim_id, seed_seq):
+        rng = default_rng(seed_seq)
+        policy1 = sample_true_policy(rng)
+        probs = generate_probs_tiers(args.n_blocks_per_tier, rng)
+
+        # Every simulated block is its own session (policy resets between
+        # blocks), so tier subsets can be fit with reset_mode="session".
+        task = DecisionModel.simulate_policy(
+            policy=policy1,
+            reward_schedule=probs,
+            min_trials_per_block=min_trials_per_block,
+            prob_switch=prob_switch,
+            seed=rng.integers(2**32),
+        )
+        trial_n_high = n_high_arms(task.probs)
+        scope_tasks = {"all": task}
+        for tier, n_high in TIER_N_HIGH.items():
+            scope_tasks[tier] = task._filtered(trial_n_high == n_high)
+
+        param_names = list(policy1_bounds.keys())
+        true_values = [_true_value(policy1, param) for param in param_names]
+        dfs = []
+        for scope, scope_task in scope_tasks.items():
+            model = DecisionModel(
+                task=scope_task, policy=main_policy(), reset_mode="session"
+            )
+            model.fit(**fit_kwargs)
+            dfs.append(
+                pd.DataFrame(
+                    {
+                        "sim_id": sim_id,
+                        "scope": scope,
+                        "n_trials": len(scope_task.choices),
+                        "param": param_names,
+                        "true_value": true_values,
+                        "estimated_value": [model.params[p] for p in param_names],
+                    }
+                )
+            )
+        return pd.concat(dfs, ignore_index=True)
+
+    if args.design == "tier":
+        results = Parallel(n_jobs=args.n_jobs_subject)(
+            delayed(run_simulation_tier)(i, child_seed_seqs[i])
+            for i in range(n_simulations)
+        )
+        save_name = f"param_recovery_tier_{args.policy.lower()}"
+    else:
+        results = Parallel(n_jobs=args.n_jobs_subject)(
+            delayed(run_simulation_struc_unstruc)(child_seed_seqs[i])
+            for i in range(n_simulations)
+        )
+        save_name = f"param_recovery_{args.policy.lower()}"
 
     recovery_df = pd.concat(results, ignore_index=True)
-    mab_subjects.GroupData().save(
-        recovery_df, f"param_recovery_{args.policy.lower()}", write_stub=False
-    )
+    mab_subjects.GroupData().save(recovery_df, save_name, write_stub=False)
 
 
 if __name__ == "__main__":
