@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import mab_subjects
 import pandas as pd
+from banditpy.core import Bandit2Arm
 from banditpy.models import DecisionModel
 from banditpy.models.policy import (
     StateInference,
@@ -54,6 +55,27 @@ def generate_probs_tiers(n_blocks_per_tier, rng):
     return probs
 
 
+def concat_tasks(tasks):
+    """Stack simulated 'Bandit2Arm' tasks, offsetting session/block ids so
+    they stay unique across tasks."""
+    probs, choices, rewards, session_ids, block_ids = [], [], [], [], []
+    offset = 0
+    for task in tasks:
+        probs.append(task.probs)
+        choices.append(task.choices)
+        rewards.append(task.rewards)
+        session_ids.append(task.session_ids + offset)
+        block_ids.append(task.block_ids + offset)
+        offset = max(session_ids[-1].max(), block_ids[-1].max())
+    return Bandit2Arm(
+        probs=np.vstack(probs),
+        choices=np.concatenate(choices),
+        rewards=np.concatenate(rewards),
+        session_ids=np.concatenate(session_ids),
+        block_ids=np.concatenate(block_ids),
+    )
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Parameter recovery")
     parser.add_argument(
@@ -64,12 +86,14 @@ def parse_args():
     )
     parser.add_argument(
         "--design",
-        choices=["struc_unstruc", "tier"],
+        choices=["struc_unstruc", "tier", "tier_params"],
         default="struc_unstruc",
         help=(
             "struc_unstruc: fit structured and unstructured schedules separately; "
             "tier: simulate one mixed low-low/high-low/high-high schedule and "
-            "fit all blocks plus each tier separately"
+            "fit all blocks plus each tier separately; "
+            "tier_params: like tier, but each tier is simulated with its own "
+            "true params"
         ),
     )
     parser.add_argument(
@@ -251,7 +275,59 @@ def main():
             )
         return pd.concat(dfs, ignore_index=True)
 
-    if args.design == "tier":
+    def run_simulation_tier_params(sim_id, seed_seq):
+        rng = default_rng(seed_seq)
+        probs = generate_probs_tiers(args.n_blocks_per_tier, rng)
+        probs_n_high = n_high_arms(probs)
+
+        # One independent true param set per tier. Each simulated block is its
+        # own session (policy resets between blocks), so stacking the per-tier
+        # tasks gives a valid mixed task for reset_mode="session" fits.
+        param_names = list(policy1_bounds.keys())
+        true_values = {}
+        scope_tasks = {}
+        for tier, n_high in TIER_N_HIGH.items():
+            tier_policy = sample_true_policy(rng)
+            true_values[tier] = [_true_value(tier_policy, p) for p in param_names]
+            scope_tasks[tier] = DecisionModel.simulate_policy(
+                policy=tier_policy,
+                reward_schedule=probs[probs_n_high == n_high],
+                min_trials_per_block=min_trials_per_block,
+                prob_switch=prob_switch,
+                seed=rng.integers(2**32),
+            )
+        scope_tasks = {"all": concat_tasks(scope_tasks.values()), **scope_tasks}
+
+        dfs = []
+        for scope, scope_task in scope_tasks.items():
+            model = DecisionModel(
+                task=scope_task, policy=main_policy(), reset_mode="session"
+            )
+            model.fit(**fit_kwargs)
+            df = pd.DataFrame(
+                {
+                    "sim_id": sim_id,
+                    "scope": scope,
+                    "n_trials": len(scope_task.choices),
+                    "param": param_names,
+                    # 'all' has no single ground truth; compare it against
+                    # the true_<tier> columns instead.
+                    "true_value": true_values.get(scope, np.nan),
+                    "estimated_value": [model.params[p] for p in param_names],
+                }
+            )
+            for tier in TIER_N_HIGH:
+                df[f"true_{tier}"] = true_values[tier]
+            dfs.append(df)
+        return pd.concat(dfs, ignore_index=True)
+
+    if args.design == "tier_params":
+        results = Parallel(n_jobs=args.n_jobs_subject)(
+            delayed(run_simulation_tier_params)(i, child_seed_seqs[i])
+            for i in range(n_simulations)
+        )
+        save_name = f"param_recovery_tier_params_{args.policy.lower()}"
+    elif args.design == "tier":
         results = Parallel(n_jobs=args.n_jobs_subject)(
             delayed(run_simulation_tier)(i, child_seed_seqs[i])
             for i in range(n_simulations)
