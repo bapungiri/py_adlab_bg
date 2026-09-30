@@ -76,6 +76,32 @@ def concat_tasks(tasks):
     )
 
 
+# Qlearn variants: params to enable/disable on top of the class defaults.
+# Each variant saves to its own GroupData basename ('_<variant>' suffix),
+# so versions/cleanup of one variant never touch another.
+QLEARN_VARIANTS = {
+    "default": {"enable": [], "disable": []},  # alpha_c, alpha_u, bias, beta
+    "nobias": {"enable": [], "disable": ["bias"]},  # bias fixed at 0
+    "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},  # + perseverance
+}
+
+
+def make_policy_factory(policy_cls, variant):
+    if variant != "default" and policy_cls is not Qlearn:
+        raise ValueError(f"--variant {variant} is only defined for Qlearn")
+    spec = QLEARN_VARIANTS[variant]
+
+    def make_policy():
+        policy = policy_cls()
+        for name in spec["enable"]:
+            getattr(policy.params, name).enable()
+        for name in spec["disable"]:
+            getattr(policy.params, name).disable()
+        return policy
+
+    return make_policy
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Parameter recovery")
     parser.add_argument(
@@ -95,6 +121,12 @@ def parse_args():
             "tier_params: like tier, but each tier is simulated with its own "
             "true params"
         ),
+    )
+    parser.add_argument(
+        "--variant",
+        choices=list(QLEARN_VARIANTS),
+        default="default",
+        help="Qlearn variant (which params are fitted); non-default adds a suffix to the save name",
     )
     parser.add_argument(
         "--n-blocks-per-tier",
@@ -128,7 +160,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    main_policy = POLICY_REGISTRY[args.policy]
+    main_policy = make_policy_factory(POLICY_REGISTRY[args.policy], args.variant)
 
     n_simulations = args.max_subjects
 
@@ -341,6 +373,8 @@ def main():
         )
         save_name = f"param_recovery_{args.policy.lower()}"
 
+    if args.variant != "default":
+        save_name = f"{save_name}_{args.variant}"
     recovery_df = pd.concat(results, ignore_index=True)
     mab_subjects.GroupData().save(recovery_df, save_name, write_stub=False)
 

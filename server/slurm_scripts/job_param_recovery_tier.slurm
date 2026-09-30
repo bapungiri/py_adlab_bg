@@ -12,6 +12,9 @@
 MAX_SUBJECTS=100
 N_JOBS_SUBJECT=25
 N_JOBS_INNER=2
+# Qlearn variant (default | nobias | sticky), from the first sbatch argument:
+#   sbatch --job-name=ParamRecTierQlearnSticky job_param_recovery_tier.slurm sticky
+VARIANT=${1:-default}
 
 # --- Resolve paths ---
 SCRIPT_DIR=/mnt/pve/Homes/bapun/Codes/py_adlab_bg/server/slurm_scripts
@@ -55,6 +58,7 @@ export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/
 cd ${PROJECT_ROOT}
 python param_recovery.py \
     --design tier \
+    --variant ${VARIANT} \
     --policy Qlearn \
     --max-subjects ${MAX_SUBJECTS} \
     --n-jobs-subject ${N_JOBS_SUBJECT} \
