@@ -135,8 +135,14 @@ def main():
     n_sessions = 200
     min_trials_per_block = 100
     prob_switch = 0.02
+    # Rate/scale-like params span orders of magnitude, so a linear-uniform
+    # draw over-samples large values relative to small ones; log-uniform
+    # gives equal weight to equal ratios instead. Used both for the true
+    # values and for the Optuna search.
+    LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2"}
+
     fit_kwargs = {
-        "optimizer": OptunaOptimizer(n_trials=80),
+        "optimizer": OptunaOptimizer(n_trials=80, log_params=LOG_SCALE_PARAMS),
         "n_starts": 5,
         "n_jobs": args.n_jobs_inner,
         "early_stop": True,
@@ -164,11 +170,6 @@ def main():
     all_bounds = _probe_policy.get_bounds()
     policy1_bounds = {name: all_bounds[name] for name in active_names}
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
-
-    # Rate/scale-like params span orders of magnitude, so a linear-uniform
-    # draw over-samples large values relative to small ones; log-uniform
-    # gives equal weight to equal ratios instead.
-    LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2"}
 
     def sample_true_param(rng, name, lower, upper):
         if name in LOG_SCALE_PARAMS:
