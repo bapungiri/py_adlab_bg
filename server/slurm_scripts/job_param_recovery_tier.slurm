@@ -10,11 +10,14 @@
 
 # --- Job parallel config ---
 MAX_SUBJECTS=100
-N_JOBS_SUBJECT=25
-N_JOBS_INNER=2
-# Qlearn variant (default | nobias | sticky), from the first sbatch argument:
-#   sbatch --job-name=ParamRecTierQlearnSticky job_param_recovery_tier.slurm sticky
+N_JOBS_SUBJECT=${N_JOBS_SUBJECT:-25}
+N_JOBS_INNER=${N_JOBS_INNER:-2}
+# Positional args: variant (default | nobias | sticky), optimizer (optuna | lbfgs), n_starts.
+# Parallelism can be overridden from the environment, e.g.:
+#   N_JOBS_SUBJECT=10 N_JOBS_INNER=5 sbatch --job-name=ParamRecTierQlearnStickyLbfgs job_param_recovery_tier.slurm sticky lbfgs 5
 VARIANT=${1:-default}
+OPTIMIZER=${2:-optuna}
+N_STARTS=${3:-5}
 
 # --- Resolve paths ---
 SCRIPT_DIR=/mnt/pve/Homes/bapun/Codes/py_adlab_bg/server/slurm_scripts
@@ -59,6 +62,8 @@ cd ${PROJECT_ROOT}
 python param_recovery.py \
     --design tier \
     --variant ${VARIANT} \
+    --optimizer ${OPTIMIZER} \
+    --n-starts ${N_STARTS} \
     --policy Qlearn \
     --max-subjects ${MAX_SUBJECTS} \
     --n-jobs-subject ${N_JOBS_SUBJECT} \

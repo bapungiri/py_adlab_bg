@@ -12,7 +12,7 @@ from banditpy.models.policy import (
     Qlearn3Regime,
 )
 from banditpy.utils.probs import generate_probs_2arm
-from banditpy.models.optim import OptunaOptimizer
+from banditpy.models.optim import LBFGSOptimizer, OptunaOptimizer
 from scipy.stats import pearsonr
 from numpy.random import default_rng
 from joblib import Parallel, delayed
@@ -155,6 +155,16 @@ def parse_args():
         default=None,
         help="Optional random seed for reproducible simulations",
     )
+    parser.add_argument(
+        "--optimizer",
+        choices=["optuna", "lbfgs"],
+        default="optuna",
+        help="optuna: TPE, 80 trials per start with early stopping; "
+        "lbfgs: L-BFGS-B without early stopping (pruned NLLs would corrupt its gradients)",
+    )
+    parser.add_argument(
+        "--n-starts", type=int, default=5, help="Optimizer restarts per fit"
+    )
     return parser.parse_args()
 
 
@@ -173,15 +183,25 @@ def main():
     # values and for the Optuna search.
     LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2"}
 
-    fit_kwargs = {
-        "optimizer": OptunaOptimizer(n_trials=80, log_params=LOG_SCALE_PARAMS),
-        "n_starts": 5,
-        "n_jobs": args.n_jobs_inner,
-        "early_stop": True,
-        "es_warmup_trials": 3000,
-        "es_check_every": 250,
-        "es_slack": 0.01,
-    }
+    if args.optimizer == "optuna":
+        fit_kwargs = {
+            "optimizer": OptunaOptimizer(n_trials=80, log_params=LOG_SCALE_PARAMS),
+            "early_stop": True,
+            "es_warmup_trials": 3000,
+            "es_check_every": 250,
+            "es_slack": 0.01,
+        }
+    else:
+        fit_kwargs = {"optimizer": LBFGSOptimizer(), "early_stop": False}
+    fit_kwargs.update(n_starts=args.n_starts, n_jobs=args.n_jobs_inner)
+
+    def fit_columns(model, true_theta=None):
+        """How the fit was run (model.fit_info) plus its NLL, and the NLL at
+        the true params when there is a single ground truth."""
+        cols = dict(model.fit_info, nll=float(model.nll))
+        if true_theta is not None:
+            cols["nll_true"] = float(model._nll(np.asarray(true_theta)))
+        return cols
 
     if args.design == "struc_unstruc":
         probs_unstruc, probs_struc = generate_probs_2arm(
@@ -265,6 +285,13 @@ def main():
         df["estimated_value_struc"] = [
             model_struc.params[param] for param in policy1_bounds.keys()
         ]
+        true_theta = df["true_value"].to_numpy()
+        for grp, model in (("unstruc", model_unstruc), ("struc", model_struc)):
+            cols = fit_columns(model, true_theta)
+            df[f"nll_{grp}"] = cols.pop("nll")
+            df[f"nll_true_{grp}"] = cols.pop("nll_true")
+        for k, v in cols.items():  # fit settings, identical for both fits
+            df[k] = v
         return df
 
     def run_simulation_tier(sim_id, seed_seq):
@@ -303,6 +330,7 @@ def main():
                         "param": param_names,
                         "true_value": true_values,
                         "estimated_value": [model.params[p] for p in param_names],
+                        **fit_columns(model, true_values),
                     }
                 )
             )
@@ -347,6 +375,7 @@ def main():
                     # the true_<tier> columns instead.
                     "true_value": true_values.get(scope, np.nan),
                     "estimated_value": [model.params[p] for p in param_names],
+                    **fit_columns(model, true_values.get(scope)),
                 }
             )
             for tier in TIER_N_HIGH:
