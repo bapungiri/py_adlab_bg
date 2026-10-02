@@ -9,8 +9,11 @@
 #SBATCH --error=/dev/null
 
 # --- Job parallel config ---
-# struc_unstruc design: separate structured / unstructured schedules (200 blocks each),
-# fit separately. Saves to param_recovery_qlearn[_<variant>].
+# Structured / unstructured task designs (200 blocks per task). DESIGN from the environment:
+#   struc_unstruc (default): fit each task      -> param_recovery_qlearn[_<variant>]
+#   struc_unstruc_tier: + fit each tier per task -> param_recovery_struc_unstruc_tier_qlearn[_<variant>]
+#   tier_mix: per-tier true params, tasks mixed from tiers -> param_recovery_tier_mix_qlearn[_<variant>]
+DESIGN=${DESIGN:-struc_unstruc}
 MAX_SUBJECTS=100
 N_JOBS_SUBJECT=${N_JOBS_SUBJECT:-25}
 N_JOBS_INNER=${N_JOBS_INNER:-2}
@@ -62,7 +65,7 @@ export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/
 # --- Run param recovery with configured parallelism ---
 cd ${PROJECT_ROOT}
 python param_recovery.py \
-    --design struc_unstruc \
+    --design ${DESIGN} \
     --variant ${VARIANT} \
     --optimizer ${OPTIMIZER} \
     --n-starts ${N_STARTS} \
