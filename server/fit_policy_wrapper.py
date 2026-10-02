@@ -1,6 +1,8 @@
 import argparse
 import os
+import sys
 from pathlib import Path
+import pandas as pd
 import mab_subjects
 
 from banditpy.models.policy import (
@@ -104,29 +106,98 @@ PRESETS = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--preset", choices=PRESETS, default="lesion_mPFC")
+parser.add_argument(
+    "--task-index",
+    type=int,
+    default=None,
+    help="SLURM array mode: fit only session i and write a partial result",
+)
+parser.add_argument(
+    "--merge",
+    metavar="RUN_ID",
+    default=None,
+    help="merge the partial results of array run RUN_ID into one GroupData save",
+)
+parser.add_argument(
+    "--count", action="store_true", help="print the number of sessions and exit"
+)
 args = parser.parse_args()
 
 PRESET = PRESETS[args.preset]
 EXPS = PRESET["exps"]()
 SAVE_NAME = PRESET["save_name"]
-FIT_KWARGS = PRESET["fit_kwargs"]
+FIT_KWARGS = dict(PRESET["fit_kwargs"])
+if args.count:
+    print(len(EXPS))
+    sys.exit(0)
 
+FILTER_BY_DATETIME = True  # legacy 30-day rule, only when require_expert is None
+FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
+# Array runs write one file per session here, then a merge job combines them.
+PARTIALS_DIR = FALLBACK_DIR / "partials" / SAVE_NAME
+_cpus = int(os.environ.get("SLURM_CPUS_PER_TASK", FIT_KWARGS["n_jobs"] * len(EXPS)))
+
+
+def save_groupdata(df):
+    try:
+        mab_subjects.GroupData().save(df, SAVE_NAME, write_stub=False)
+    except Exception:
+        df.to_csv(FALLBACK_DIR / f"{SAVE_NAME}.csv", index=False)
+
+
+# ----------------------------------------------------------
+# Merge mode: combine an array run's partials
+# ----------------------------------------------------------
+if args.merge is not None:
+    run_dir = PARTIALS_DIR / args.merge
+    files = sorted(run_dir.glob("*.pkl"))
+    done = {int(f.name.split("_", 1)[0]) for f in files}
+    missing = sorted(set(range(len(EXPS))) - done)
+    if missing:
+        names = [EXPS[i].sub_name for i in missing]
+        sys.exit(f"Not merging {run_dir}: missing tasks {missing} ({names})")
+    params_df = pd.concat([pd.read_pickle(f) for f in files], ignore_index=True)
+    print(f"Merging {len(files)} partials from {run_dir} -> {SAVE_NAME}")
+    save_groupdata(params_df)
+    sys.exit(0)
+
+# ----------------------------------------------------------
+# Array mode: one session per task
+# ----------------------------------------------------------
+if args.task_index is not None:
+    exp = EXPS[args.task_index]
+    # Optimizer starts use the task's own CPUs.
+    FIT_KWARGS["n_jobs"] = max(1, min(FIT_KWARGS["n_starts"], _cpus))
+    print(
+        f"Preset {args.preset}: task {args.task_index}/{len(EXPS) - 1} = {exp.sub_name} "
+        f"({exp.data_tag}, {exp.lesion_tag}); {FIT_KWARGS['n_jobs']} cores"
+    )
+    params_df = fit_experiments(
+        exps=[exp],
+        policies=PRESET["policies"],
+        fit_kwargs=FIT_KWARGS,
+        optimizer=PRESET["optimizer"],
+        n_jobs=1,
+        filter_by_datetime=FILTER_BY_DATETIME,
+        require_expert=PRESET["require_expert"],
+    )
+    run_dir = PARTIALS_DIR / os.environ.get("SLURM_ARRAY_JOB_ID", "local")
+    run_dir.mkdir(parents=True, exist_ok=True)
+    out = run_dir / f"{args.task_index:03d}_{exp.sub_name}_{exp.lesion_tag}.pkl"
+    params_df.to_pickle(out)
+    print(f"Wrote {out}")
+    sys.exit(0)
+
+# ----------------------------------------------------------
+# Single-job mode: all sessions in one allocation
+# ----------------------------------------------------------
 # Subjects fit in parallel: as many as the SLURM allocation fits, given each
 # subject uses fit_kwargs["n_jobs"] cores for its optimizer starts.
-_cpus = int(os.environ.get("SLURM_CPUS_PER_TASK", FIT_KWARGS["n_jobs"] * len(EXPS)))
 PARALLEL_JOBS = max(1, min(len(EXPS), _cpus // FIT_KWARGS["n_jobs"]))
 print(
     f"Preset {args.preset}: {len(EXPS)} sessions -> {SAVE_NAME}; "
     f"{PARALLEL_JOBS} in parallel x {FIT_KWARGS['n_jobs']} cores"
 )
-
-FILTER_BY_DATETIME = True  # legacy 30-day rule, only when require_expert is None
-FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
-
-
-# ----------------------------------------------------------
-# Run
-# ----------------------------------------------------------
 params_df = fit_experiments(
     exps=EXPS,
     policies=PRESET["policies"],
@@ -136,8 +207,4 @@ params_df = fit_experiments(
     filter_by_datetime=FILTER_BY_DATETIME,
     require_expert=PRESET["require_expert"],
 )
-
-try:
-    mab_subjects.GroupData().save(params_df, SAVE_NAME, write_stub=False)
-except Exception:
-    params_df.to_csv(FALLBACK_DIR / f"{SAVE_NAME}.csv", index=False)
+save_groupdata(params_df)

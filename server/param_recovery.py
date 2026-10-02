@@ -1,4 +1,6 @@
 import argparse
+import os
+from pathlib import Path
 import numpy as np
 import mab_subjects
 import pandas as pd
@@ -16,6 +18,11 @@ from banditpy.models.optim import LBFGSOptimizer, OptunaOptimizer
 from scipy.stats import pearsonr
 from numpy.random import default_rng
 from joblib import Parallel, delayed
+
+# Per-task results of SLURM array runs (--task-index), combined by --merge.
+PARTIALS_ROOT = Path(
+    os.environ.get("RECOVERY_PARTIALS_DIR", "/mnt/pve/Homes/bapun/Data/results/partials")
+)
 
 POLICY_REGISTRY = {
     "Qlearn": Qlearn,
@@ -191,6 +198,18 @@ def parse_args():
         type=int,
         default=None,
         help="Optional random seed for reproducible simulations",
+    )
+    parser.add_argument(
+        "--task-index",
+        type=int,
+        default=None,
+        help="SLURM array mode: simulate and fit only subject i, write a partial result",
+    )
+    parser.add_argument(
+        "--merge",
+        metavar="RUN_ID",
+        default=None,
+        help="merge the partial results of array run RUN_ID into one GroupData save",
     )
     parser.add_argument(
         "--optimizer",
@@ -504,32 +523,53 @@ def main():
         return pd.concat(dfs, ignore_index=True)
 
     if args.design in ("struc_unstruc_tier", "tier_mix"):
-        results = Parallel(n_jobs=args.n_jobs_subject)(
-            delayed(run_simulation_task_tiers)(i, child_seed_seqs[i])
-            for i in range(n_simulations)
-        )
+        simulate_one = run_simulation_task_tiers
         save_name = f"param_recovery_{args.design}_{args.policy.lower()}"
     elif args.design == "tier_params":
-        results = Parallel(n_jobs=args.n_jobs_subject)(
-            delayed(run_simulation_tier_params)(i, child_seed_seqs[i])
-            for i in range(n_simulations)
-        )
+        simulate_one = run_simulation_tier_params
         save_name = f"param_recovery_tier_params_{args.policy.lower()}"
     elif args.design == "tier":
-        results = Parallel(n_jobs=args.n_jobs_subject)(
-            delayed(run_simulation_tier)(i, child_seed_seqs[i])
-            for i in range(n_simulations)
-        )
+        simulate_one = run_simulation_tier
         save_name = f"param_recovery_tier_{args.policy.lower()}"
     else:
-        results = Parallel(n_jobs=args.n_jobs_subject)(
-            delayed(run_simulation_struc_unstruc)(child_seed_seqs[i])
-            for i in range(n_simulations)
-        )
-        save_name = f"param_recovery_{args.policy.lower()}"
 
+        def simulate_one(i, seed_seq):
+            return run_simulation_struc_unstruc(seed_seq).assign(sim_id=i)
+
+        save_name = f"param_recovery_{args.policy.lower()}"
     if args.variant != "default":
         save_name = f"{save_name}_{args.variant}"
+
+    def run_one(i):
+        return simulate_one(i, child_seed_seqs[i])
+
+    # SLURM array runs write one file per simulated subject, then --merge
+    # combines them into a single GroupData save.
+    partials_dir = PARTIALS_ROOT / save_name
+
+    if args.merge is not None:
+        run_dir = partials_dir / args.merge
+        files = sorted(run_dir.glob("*.pkl"))
+        missing = sorted(set(range(n_simulations)) - {int(f.stem) for f in files})
+        if missing:
+            raise SystemExit(f"Not merging {run_dir}: {len(missing)} missing tasks, e.g. {missing[:10]}")
+        recovery_df = pd.concat([pd.read_pickle(f) for f in files], ignore_index=True)
+        print(f"Merging {len(files)} partials from {run_dir} -> {save_name}")
+        mab_subjects.GroupData().save(recovery_df, save_name, write_stub=False)
+        return
+
+    if args.task_index is not None:
+        run_dir = partials_dir / os.environ.get("SLURM_ARRAY_JOB_ID", "local")
+        run_dir.mkdir(parents=True, exist_ok=True)
+        df = run_one(args.task_index)
+        out = run_dir / f"{args.task_index:04d}.pkl"
+        df.to_pickle(out)
+        print(f"Wrote {out}")
+        return
+
+    results = Parallel(n_jobs=args.n_jobs_subject)(
+        delayed(run_one)(i) for i in range(n_simulations)
+    )
     recovery_df = pd.concat(results, ignore_index=True)
     mab_subjects.GroupData().save(recovery_df, save_name, write_stub=False)
 
