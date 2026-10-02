@@ -3,6 +3,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 
 from mab_subjects import MABData
+from mab_builders.preprocess import DEFAULT_KWARGS_EXPERT
 from banditpy.models import DecisionModel
 from banditpy.models.policy import StaticBeta, BasePolicy
 from numpy.random import default_rng
@@ -19,18 +20,40 @@ def fit_blocks(
     optimizer=None,
     filter_by_datetime: bool = True,
     test=None,
+    require_expert=None,
 ):
+    """Fit one subject on all blocks and on the high-low tier.
+
+    require_expert : None, bool or "auto"
+        None (legacy): intact sessions skip their first 30 days when they
+        span more than 30 days (and 'filter_by_datetime' is True).
+        True: trim to trials from the animal's expertise day onward, with the
+        same criteria as mab_builders.perf_tier (DEFAULT_KWARGS_EXPERT).
+        "auto": like True for intact sessions, keep lesion sessions whole.
+        False: keep all trials.
+    """
     task = exp.b2a
 
     # ------- Task filters --------
     if exp.data_tag != "RNNdataset":
         task.auto_block_window_ids()
-    if exp.lesion_tag == "intact":
-        start_date = task.datetime[0]
-        stop_date = task.datetime[-1]
-        n_days = pd.Timedelta(stop_date - start_date).days
-        if filter_by_datetime and n_days > 30:
-            task = task.filter_by_datetime(start=start_date + pd.Timedelta(days=30))
+    if require_expert is None:
+        if exp.lesion_tag == "intact":
+            start_date = task.datetime[0]
+            stop_date = task.datetime[-1]
+            n_days = pd.Timedelta(stop_date - start_date).days
+            if filter_by_datetime and n_days > 30:
+                task = task.filter_by_datetime(
+                    start=start_date + pd.Timedelta(days=30)
+                )
+    else:
+        if require_expert == "auto":
+            require_expert = exp.lesion_tag == "intact"
+        if require_expert and exp.data_tag != "RNNdataset":
+            _, expert_datetime, _, _ = task.get_expertise_day(
+                by="datetime", **DEFAULT_KWARGS_EXPERT
+            )
+            task = task.filter_by_datetime(start=expert_datetime)
 
     # Don't clip to prevent teleportation
     task = task.filter_by_trials(min_trials=100, clip_max=None)
@@ -219,6 +242,7 @@ def fit_subject(
     fit_kwargs,
     optimizer=None,
     filter_by_datetime: bool = True,
+    require_expert=None,
 ):
     frames = []
     for policy_ctor in policies:
@@ -228,6 +252,7 @@ def fit_subject(
             fit_kwargs=fit_kwargs,
             optimizer=optimizer,
             filter_by_datetime=filter_by_datetime,
+            require_expert=require_expert,
         )
         frames.append(df)
     return pd.concat(frames, ignore_index=True)
@@ -244,6 +269,7 @@ def fit_experiments(
     n_jobs=1,
     verbose=True,
     filter_by_datetime: bool = True,
+    require_expert=None,
 ):
     def _fit_one(exp):
         if verbose:
@@ -255,6 +281,7 @@ def fit_experiments(
             fit_kwargs=fit_kwargs,
             optimizer=optimizer,
             filter_by_datetime=filter_by_datetime,
+            require_expert=require_expert,
         )
 
         if verbose:

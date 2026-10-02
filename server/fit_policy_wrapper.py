@@ -1,4 +1,5 @@
 import argparse
+import os
 from pathlib import Path
 import mab_subjects
 
@@ -16,8 +17,17 @@ from banditpy.models.policy import (
     # BayesianUCB,
     StaticBeta,
 )
-from banditpy.models.optim import OptunaOptimizer
+from banditpy.models.optim import LBFGSOptimizer, OptunaOptimizer
 from fit_policy_core import fit_experiments
+
+
+def QlearnSticky():
+    """Qlearn with all six params (alpha_c, alpha_u, bias, alpha_h, sticky, beta)."""
+    policy = Qlearn()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
+    return policy
+
 
 # ---------------------------------------------------------------------
 # Experiment configuration
@@ -29,18 +39,60 @@ from fit_policy_core import fit_experiments
 #     + mab_subjects.struc_rnn.p8020_good_rnn_sess
 # )
 
-# Named (sessions, save name) configs, picked with --preset so several can
-# run as separate SLURM jobs: sbatch job_fit_policy.slurm <preset>
+# Fit settings shared by presets unless a preset overrides them.
+OPTUNA_DEFAULTS = dict(
+    policies=[Qlearn],
+    optimizer=OptunaOptimizer(n_trials=80),
+    fit_kwargs={"n_starts": 5, "n_jobs": 5, "early_stop": False, "progress": False},
+    require_expert=None,  # legacy: intact sessions skip their first 30 days
+)
+# 6-param Qlearn with L-BFGS-B: parameter recovery showed 10 starts are
+# needed for this model (5 left ~9% of fits unconverged).
+LBFGS_STICKY = dict(
+    policies=[QlearnSticky],
+    optimizer=LBFGSOptimizer(),
+    fit_kwargs={"n_starts": 10, "n_jobs": 10, "early_stop": False, "progress": False},
+)
+
+# Named configs, picked with --preset so several can run as separate SLURM
+# jobs: sbatch job_fit_policy.slurm <preset>. Each gives the sessions, the
+# GroupData save name and any overrides of OPTUNA_DEFAULTS.
 PRESETS = {
-    "lesion_mPFC": (
-        lambda: mab_subjects.unstruc.p8020_lesion_mPFC_intact_post_sess
+    "lesion_mPFC": dict(
+        OPTUNA_DEFAULTS,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_intact_post_sess
         + mab_subjects.struc.p8020_lesion_mPFC_intact_post_sess,
-        "fit_qlearn_high_low_lesion_mPFC",
+        save_name="fit_qlearn_high_low_lesion_mPFC",
     ),
-    "p9505": (
-        lambda: mab_subjects.unstruc.p9505_good_intact_sess
+    "p9505": dict(
+        OPTUNA_DEFAULTS,
+        exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
         + mab_subjects.struc.p9505_good_intact_sess,
-        "fit_qlearn_high_low_p9505",
+        save_name="fit_qlearn_high_low_p9505",
+    ),
+    # Intact sessions trimmed from the expertise day (as perf_tier).
+    "sticky_p8020_intact": dict(
+        LBFGS_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn_sticky_p8020_intact",
+        require_expert=True,
+    ),
+    # Lesion sessions only, kept whole.
+    "sticky_p8020_lesion_mPFC": dict(
+        LBFGS_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_post_sess,
+        save_name="fit_qlearn_sticky_p8020_lesion_mPFC",
+        require_expert=False,
+    ),
+    # Kept whole: 9505 data is still short.
+    "sticky_p9505": dict(
+        LBFGS_STICKY,
+        exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
+        + mab_subjects.struc.p9505_good_intact_sess,
+        save_name="fit_qlearn_sticky_p9505",
+        require_expert=False,
     ),
     # mab_subjects.unstruc.p8020_good_intact_sess
     # + mab_subjects.struc.p8020_good_intact_sess
@@ -54,38 +106,21 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--preset", choices=PRESETS, default="lesion_mPFC")
 args = parser.parse_args()
 
-get_exps, SAVE_NAME = PRESETS[args.preset]
-EXPS = get_exps()
-print(f"Preset {args.preset}: {len(EXPS)} sessions -> {SAVE_NAME}")
+PRESET = PRESETS[args.preset]
+EXPS = PRESET["exps"]()
+SAVE_NAME = PRESET["save_name"]
+FIT_KWARGS = PRESET["fit_kwargs"]
 
+# Subjects fit in parallel: as many as the SLURM allocation fits, given each
+# subject uses fit_kwargs["n_jobs"] cores for its optimizer starts.
+_cpus = int(os.environ.get("SLURM_CPUS_PER_TASK", FIT_KWARGS["n_jobs"] * len(EXPS)))
+PARALLEL_JOBS = max(1, min(len(EXPS), _cpus // FIT_KWARGS["n_jobs"]))
+print(
+    f"Preset {args.preset}: {len(EXPS)} sessions -> {SAVE_NAME}; "
+    f"{PARALLEL_JOBS} in parallel x {FIT_KWARGS['n_jobs']} cores"
+)
 
-FIT_KWARGS = {
-    "n_starts": 5,
-    "n_jobs": 5,
-    "early_stop": False,
-    # "es_warmup_trials": 3000,
-    # "es_check_every": 250,
-    # "es_slack": 0.01,
-    "progress": False,
-}
-
-POLICIES = [
-    Qlearn,
-    # QlearnAdaptiveLR,
-    # QlearnDiff,
-    # QlearnRegimeDiffStays,
-    # MoARegime,
-    # Qlearn2Regime,
-    # QlearnHierarchical,
-    # BayesianUCB,
-    # ThompsonSplit2Arm,
-    # ThompsonShared,
-    # StateInference,
-]
-OPTIMIZER = OptunaOptimizer(n_trials=80)
-
-PARALLEL_JOBS = len(EXPS)
-FILTER_BY_DATETIME = True  # only ever applied to lesion_tag == "intact" sessions
+FILTER_BY_DATETIME = True  # legacy 30-day rule, only when require_expert is None
 FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
 
 
@@ -94,11 +129,12 @@ FALLBACK_DIR = Path("/mnt/pve/Homes/bapun/Data/results")
 # ----------------------------------------------------------
 params_df = fit_experiments(
     exps=EXPS,
-    policies=POLICIES,
+    policies=PRESET["policies"],
     fit_kwargs=FIT_KWARGS,
-    optimizer=OPTIMIZER,
+    optimizer=PRESET["optimizer"],
     n_jobs=PARALLEL_JOBS,
     filter_by_datetime=FILTER_BY_DATETIME,
+    require_expert=PRESET["require_expert"],
 )
 
 try:
