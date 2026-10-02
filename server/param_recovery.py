@@ -17,7 +17,6 @@ from scipy.stats import pearsonr
 from numpy.random import default_rng
 from joblib import Parallel, delayed
 
-
 POLICY_REGISTRY = {
     "Qlearn": Qlearn,
     "Qlearn2Regime": Qlearn2Regime,
@@ -50,6 +49,34 @@ def generate_probs_tiers(n_blocks_per_tier, rng):
         tier_pairs = pairs[pairs_n_high == n_high]
         idx = rng.integers(len(tier_pairs), size=n_blocks_per_tier)
         blocks.append(tier_pairs[idx])
+    probs = np.vstack(blocks)
+    rng.shuffle(probs)
+    return probs
+
+
+# Tier proportions that generate_probs_2arm(frac_impurity=0.2) produces, used
+# by --design tier_mix to build structured/unstructured tasks from tiers.
+TIER_MIX = {
+    "unstruc": {"low_low": 0.20, "high_low": 0.60, "high_high": 0.20},
+    "struc": {"low_low": 0.05, "high_low": 0.90, "high_high": 0.05},
+}
+
+
+def generate_probs_tier_mix(n_blocks, proportions, rng):
+    """'n_blocks' blocks split across tiers by 'proportions', shuffled.
+
+    Like generate_probs_tiers, pairs are drawn uniformly within each tier,
+    so (unlike generate_probs_2arm) high_low blocks are not specifically
+    the pairs summing to 1.
+    """
+    pairs = np.array([(a, b) for a in ARM_PROBS for b in ARM_PROBS if a != b])
+    pairs_n_high = n_high_arms(pairs)
+    counts = {t: int(round(n_blocks * p)) for t, p in proportions.items()}
+    counts["high_low"] += n_blocks - sum(counts.values())  # rounding remainder
+    blocks = []
+    for tier, n in counts.items():
+        tier_pairs = pairs[pairs_n_high == TIER_N_HIGH[tier]]
+        blocks.append(tier_pairs[rng.integers(len(tier_pairs), size=n)])
     probs = np.vstack(blocks)
     rng.shuffle(probs)
     return probs
@@ -112,15 +139,25 @@ def parse_args():
     )
     parser.add_argument(
         "--design",
-        choices=["struc_unstruc", "tier", "tier_params"],
+        choices=["struc_unstruc", "tier", "tier_params", "struc_unstruc_tier", "tier_mix"],
         default="struc_unstruc",
         help=(
             "struc_unstruc: fit structured and unstructured schedules separately; "
             "tier: simulate one mixed low-low/high-low/high-high schedule and "
             "fit all blocks plus each tier separately; "
             "tier_params: like tier, but each tier is simulated with its own "
-            "true params"
+            "true params; "
+            "struc_unstruc_tier: structured and unstructured tasks from "
+            "generate_probs_2arm, each fit on all blocks and per tier; "
+            "tier_mix: same, but each task is built by mixing tier blocks in "
+            "TIER_MIX proportions (high_low pairs not restricted to sum-to-1)"
         ),
+    )
+    parser.add_argument(
+        "--n-blocks-per-task",
+        type=int,
+        default=200,
+        help="Blocks per task (--design struc_unstruc_tier / tier_mix)",
     )
     parser.add_argument(
         "--variant",
@@ -383,7 +420,96 @@ def main():
             dfs.append(df)
         return pd.concat(dfs, ignore_index=True)
 
-    if args.design == "tier_params":
+    def run_simulation_task_tiers(sim_id, seed_seq):
+        """Structured and unstructured tasks, each fit on all blocks and per tier.
+
+        struc_unstruc_tier: one true param set; tasks from generate_probs_2arm
+        (its own unseeded RNG, so schedules aren't reproducible with --seed).
+        tier_mix: one true param set *per tier*, shared by both tasks; each
+        task mixes tier blocks in TIER_MIX proportions. The 'all' fit then has
+        no single truth; compare it with the true_<tier> columns.
+        """
+        rng = default_rng(seed_seq)
+        param_names = list(policy1_bounds.keys())
+        per_tier = args.design == "tier_mix"
+        if per_tier:
+            tier_policies = {tier: sample_true_policy(rng) for tier in TIER_N_HIGH}
+            true_values = {
+                tier: [_true_value(pol, p) for p in param_names]
+                for tier, pol in tier_policies.items()
+            }
+        else:
+            policy1 = sample_true_policy(rng)
+            truth = [_true_value(policy1, p) for p in param_names]
+            probs_unstruc, probs_struc = generate_probs_2arm(
+                N=args.n_blocks_per_task, frac_impurity=0.2
+            )
+            schedules = {"unstruc": probs_unstruc, "struc": probs_struc}
+
+        def simulate(policy, probs):
+            return DecisionModel.simulate_policy(
+                policy=policy,
+                reward_schedule=probs,
+                min_trials_per_block=min_trials_per_block,
+                prob_switch=prob_switch,
+                seed=rng.integers(2**32),
+            )
+
+        dfs = []
+        for task_name in ("unstruc", "struc"):
+            if per_tier:
+                # Every block is its own session (policy resets between blocks),
+                # so stacking per-tier simulations is a valid mixed task.
+                probs = generate_probs_tier_mix(
+                    args.n_blocks_per_task, TIER_MIX[task_name], rng
+                )
+                probs_n_high = n_high_arms(probs)
+                task = concat_tasks(
+                    simulate(tier_policies[tier], probs[probs_n_high == n_high])
+                    for tier, n_high in TIER_N_HIGH.items()
+                    if (probs_n_high == n_high).any()
+                )
+            else:
+                task = simulate(policy1, schedules[task_name])
+
+            trial_n_high = n_high_arms(task.probs)
+            scope_tasks = {"all": task}
+            for tier, n_high in TIER_N_HIGH.items():
+                if (trial_n_high == n_high).any():
+                    scope_tasks[tier] = task._filtered(trial_n_high == n_high)
+
+            for scope, scope_task in scope_tasks.items():
+                model = DecisionModel(
+                    task=scope_task, policy=main_policy(), reset_mode="session"
+                )
+                model.fit(**fit_kwargs)
+                scope_truth = true_values.get(scope) if per_tier else truth
+                df = pd.DataFrame(
+                    {
+                        "sim_id": sim_id,
+                        "task": task_name,
+                        "scope": scope,
+                        "n_blocks": len(np.unique(scope_task.session_ids)),
+                        "n_trials": len(scope_task.choices),
+                        "param": param_names,
+                        "true_value": scope_truth if scope_truth is not None else np.nan,
+                        "estimated_value": [model.params[p] for p in param_names],
+                        **fit_columns(model, scope_truth),
+                    }
+                )
+                if per_tier:
+                    for tier in TIER_N_HIGH:
+                        df[f"true_{tier}"] = true_values[tier]
+                dfs.append(df)
+        return pd.concat(dfs, ignore_index=True)
+
+    if args.design in ("struc_unstruc_tier", "tier_mix"):
+        results = Parallel(n_jobs=args.n_jobs_subject)(
+            delayed(run_simulation_task_tiers)(i, child_seed_seqs[i])
+            for i in range(n_simulations)
+        )
+        save_name = f"param_recovery_{args.design}_{args.policy.lower()}"
+    elif args.design == "tier_params":
         results = Parallel(n_jobs=args.n_jobs_subject)(
             delayed(run_simulation_tier_params)(i, child_seed_seqs[i])
             for i in range(n_simulations)
