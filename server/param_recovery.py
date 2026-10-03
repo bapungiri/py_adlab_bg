@@ -1,4 +1,5 @@
 import argparse
+import fnmatch
 import os
 from pathlib import Path
 import numpy as np
@@ -200,6 +201,19 @@ def parse_args():
         help="Optional random seed for reproducible simulations",
     )
     parser.add_argument(
+        "--true-range",
+        action="append",
+        default=[],
+        metavar="NAME=LO,HI",
+        help="draw true values of NAME (glob allowed, e.g. 'beta_q*') from [LO, HI] "
+        "instead of the fit bounds; repeatable",
+    )
+    parser.add_argument(
+        "--tag",
+        default="",
+        help="suffix for the save name (letters, digits, underscores), e.g. truesticky0to5",
+    )
+    parser.add_argument(
         "--task-index",
         type=int,
         default=None,
@@ -277,6 +291,23 @@ def main():
     active_names = _probe_policy.active_parameter_names()
     all_bounds = _probe_policy.get_bounds()
     policy1_bounds = {name: all_bounds[name] for name in active_names}
+    # True values can be drawn from narrower ranges than the fit's bounds
+    # (--true-range NAME=LO,HI, NAME may be a glob such as 'beta_q*').
+    true_ranges = {}
+    for spec in args.true_range:
+        pattern, _, rng_txt = spec.partition("=")
+        lo, hi = (float(x) for x in rng_txt.split(","))
+        matched = fnmatch.filter(active_names, pattern)
+        if not matched:
+            raise SystemExit(f"--true-range {spec}: no fitted parameter matches '{pattern}'")
+        for name in matched:
+            b_lo, b_hi = policy1_bounds[name]
+            if lo < b_lo or hi > b_hi or lo >= hi:
+                raise SystemExit(f"--true-range {spec}: must lie within fit bounds [{b_lo}, {b_hi}]")
+            true_ranges[name] = (lo, hi)
+    sample_ranges = {**policy1_bounds, **true_ranges}
+    true_ranges_txt = ", ".join(f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in sample_ranges.items())
+    print("true values drawn from:", true_ranges_txt)
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
 
     def sample_true_param(rng, name, lower, upper):
@@ -295,7 +326,7 @@ def main():
     def sample_true_policy(rng):
         policy = main_policy()
         param_dict = {}
-        for param, (lower, upper) in policy1_bounds.items():
+        for param, (lower, upper) in sample_ranges.items():
             param_dict[param] = sample_true_param(rng, param, lower, upper)
         policy.set_params(param_dict)
         return policy
@@ -539,9 +570,11 @@ def main():
         save_name = f"param_recovery_{args.policy.lower()}"
     if args.variant != "default":
         save_name = f"{save_name}_{args.variant}"
+    if args.tag:
+        save_name = f"{save_name}_{args.tag}"
 
     def run_one(i):
-        return simulate_one(i, child_seed_seqs[i])
+        return simulate_one(i, child_seed_seqs[i]).assign(true_ranges=true_ranges_txt)
 
     # SLURM array runs write one file per simulated subject, then --merge
     # combines them into a single GroupData save.

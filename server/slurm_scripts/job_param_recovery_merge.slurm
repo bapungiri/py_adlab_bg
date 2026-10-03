@@ -23,6 +23,6 @@ export PYTHONUNBUFFERED=1
 export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/BanditPy:/mnt/pve/Homes/bapun/Codes/py_adlab_bg:$PYTHONPATH
 
 cd /mnt/pve/Homes/bapun/Codes/py_adlab_bg/server
-python param_recovery.py --policy Qlearn --design "$DESIGN" --variant "$VARIANT" \
-    --max-subjects "$MAX_SUBJECTS" --merge "$1"
+python param_recovery.py --policy "${POLICY:-Qlearn}" --design "$DESIGN" --variant "$VARIANT" \
+    --max-subjects "$MAX_SUBJECTS" --merge "$1" ${EXTRA_ARGS}
 echo "Merge finished at: $(date)"
