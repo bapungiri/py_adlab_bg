@@ -32,4 +32,6 @@ export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/
 cd /mnt/pve/Homes/bapun/Codes/py_adlab_bg/server
 python fit_policy_wrapper.py --preset "$1" --task-index "${SLURM_ARRAY_TASK_ID}"
 
-echo "Job finished at: $(date)"
+status=$?  # keep python's exit code so SLURM marks failures FAILED
+echo "Job finished at: $(date) (exit $status)"
+exit $status

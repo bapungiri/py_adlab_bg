@@ -28,4 +28,6 @@ python param_recovery.py --policy "${POLICY:-Qlearn}" --design "$DESIGN" --varia
     --optimizer "$OPTIMIZER" --n-starts "$N_STARTS" --max-subjects "$MAX_SUBJECTS" \
     --n-jobs-inner "${SLURM_CPUS_PER_TASK}" --task-index "${SLURM_ARRAY_TASK_ID}" ${EXTRA_ARGS}
 
-echo "Job finished at: $(date)"
+status=$?  # keep python's exit code so SLURM marks failures FAILED
+echo "Job finished at: $(date) (exit $status)"
+exit $status

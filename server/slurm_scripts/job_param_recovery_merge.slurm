@@ -25,4 +25,6 @@ export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/
 cd /mnt/pve/Homes/bapun/Codes/py_adlab_bg/server
 python param_recovery.py --policy "${POLICY:-Qlearn}" --design "$DESIGN" --variant "$VARIANT" \
     --max-subjects "$MAX_SUBJECTS" --merge "$1" ${EXTRA_ARGS}
-echo "Merge finished at: $(date)"
+status=$?  # keep python's exit code so SLURM marks failures FAILED
+echo "Merge finished at: $(date) (exit $status)"
+exit $status
