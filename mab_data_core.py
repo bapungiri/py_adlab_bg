@@ -170,6 +170,16 @@ class MABData:
         else:
             raise FileNotFoundError(f"No RNN fit file found at {file}")
 
+    @property
+    def rnn_fit4(self):
+        file = self.filePrefix.with_name(
+            self.filePrefix.stem + "_RNNfit_N6_LR0.001_E500_Ssession.pt"
+        )
+        if file.is_file():
+            return VanillaRNNFit2Arm.load(file, device="cpu")
+        else:
+            raise FileNotFoundError(f"No RNN fit file found at {file}")
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
 
