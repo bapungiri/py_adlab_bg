@@ -17,6 +17,12 @@ class FigPath:
     pk: Path = base / "pk"
 
 
+class NotesPath:
+    base: Path = Path(
+        "C:/Users/asheshlab/OneDrive/academia/obsidian_vaults/literature_notes"
+    )
+
+
 # Back-compat flat names for existing `mab_subjects.figpath`/`iapath`/`pkpath`
 # access -- derived from FigPath so each path only has one literal source.
 figpath = FigPath.base
