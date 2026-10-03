@@ -22,7 +22,9 @@ from joblib import Parallel, delayed
 
 # Per-task results of SLURM array runs (--task-index), combined by --merge.
 PARTIALS_ROOT = Path(
-    os.environ.get("RECOVERY_PARTIALS_DIR", "/mnt/pve/Homes/bapun/Data/results/partials")
+    os.environ.get(
+        "RECOVERY_PARTIALS_DIR", "/mnt/pve/Homes/bapun/Data/results/partials"
+    )
 )
 
 POLICY_REGISTRY = {
@@ -147,7 +149,13 @@ def parse_args():
     )
     parser.add_argument(
         "--design",
-        choices=["struc_unstruc", "tier", "tier_params", "struc_unstruc_tier", "tier_mix"],
+        choices=[
+            "struc_unstruc",
+            "tier",
+            "tier_params",
+            "struc_unstruc_tier",
+            "tier_mix",
+        ],
         default="struc_unstruc",
         help=(
             "struc_unstruc: fit structured and unstructured schedules separately; "
@@ -299,14 +307,20 @@ def main():
         lo, hi = (float(x) for x in rng_txt.split(","))
         matched = fnmatch.filter(active_names, pattern)
         if not matched:
-            raise SystemExit(f"--true-range {spec}: no fitted parameter matches '{pattern}'")
+            raise SystemExit(
+                f"--true-range {spec}: no fitted parameter matches '{pattern}'"
+            )
         for name in matched:
             b_lo, b_hi = policy1_bounds[name]
             if lo < b_lo or hi > b_hi or lo >= hi:
-                raise SystemExit(f"--true-range {spec}: must lie within fit bounds [{b_lo}, {b_hi}]")
+                raise SystemExit(
+                    f"--true-range {spec}: must lie within fit bounds [{b_lo}, {b_hi}]"
+                )
             true_ranges[name] = (lo, hi)
     sample_ranges = {**policy1_bounds, **true_ranges}
-    true_ranges_txt = ", ".join(f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in sample_ranges.items())
+    true_ranges_txt = ", ".join(
+        f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in sample_ranges.items()
+    )
     print("true values drawn from:", true_ranges_txt)
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
 
@@ -542,7 +556,9 @@ def main():
                         "n_blocks": len(np.unique(scope_task.session_ids)),
                         "n_trials": len(scope_task.choices),
                         "param": param_names,
-                        "true_value": scope_truth if scope_truth is not None else np.nan,
+                        "true_value": (
+                            scope_truth if scope_truth is not None else np.nan
+                        ),
                         "estimated_value": [model.params[p] for p in param_names],
                         **fit_columns(model, scope_truth),
                     }
@@ -585,7 +601,9 @@ def main():
         files = sorted(run_dir.glob("*.pkl"))
         missing = sorted(set(range(n_simulations)) - {int(f.stem) for f in files})
         if missing:
-            raise SystemExit(f"Not merging {run_dir}: {len(missing)} missing tasks, e.g. {missing[:10]}")
+            raise SystemExit(
+                f"Not merging {run_dir}: {len(missing)} missing tasks, e.g. {missing[:10]}"
+            )
         recovery_df = pd.concat([pd.read_pickle(f) for f in files], ignore_index=True)
         print(f"Merging {len(files)} partials from {run_dir} -> {save_name}")
         mab_subjects.GroupData().save(recovery_df, save_name, write_stub=False)
