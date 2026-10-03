@@ -9,7 +9,7 @@ from banditpy.models.policy import (
     Qlearn,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
-    # Qlearn2Regime,
+    Qlearn2Regime,
     # MoARegime,
     # QlearnHierarchical,
     # QlearnAdaptiveLR,
@@ -56,6 +56,13 @@ LBFGS_STICKY = dict(
     optimizer=LBFGSOptimizer(),
     fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
 )
+# 11-param 2-regime mixture of agents: recovery with 10 starts left 37-49%
+# of fits short of the truth, so use 24 (4 rounds on 6 CPUs).
+LBFGS_Q2R = dict(
+    policies=[Qlearn2Regime],
+    optimizer=LBFGSOptimizer(),
+    fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
+)
 
 # Named configs, picked with --preset so several can run as separate SLURM
 # jobs: sbatch job_fit_policy.slurm <preset>. Each gives the sessions, the
@@ -95,6 +102,28 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
         + mab_subjects.struc.p9505_good_intact_sess,
         save_name="fit_qlearn_sticky_p9505",
+        require_expert=False,
+    ),
+    # Qlearn2Regime on the same sessions and trimming as the sticky presets.
+    "q2r_p8020_intact": dict(
+        LBFGS_Q2R,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn2regime_p8020_intact",
+        require_expert=True,
+    ),
+    "q2r_p8020_lesion_mPFC": dict(
+        LBFGS_Q2R,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_post_sess,
+        save_name="fit_qlearn2regime_p8020_lesion_mPFC",
+        require_expert=False,
+    ),
+    "q2r_p9505": dict(
+        LBFGS_Q2R,
+        exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
+        + mab_subjects.struc.p9505_good_intact_sess,
+        save_name="fit_qlearn2regime_p9505",
         require_expert=False,
     ),
     # mab_subjects.unstruc.p8020_good_intact_sess
