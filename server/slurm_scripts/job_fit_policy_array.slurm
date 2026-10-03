@@ -2,7 +2,7 @@
 # One session (animal) per array task; submit with submit_fit_array.sh <preset>.
 # Each task writes a partial result; job_fit_policy_merge.slurm combines them.
 #SBATCH --job-name=FitArray
-#SBATCH --cpus-per-task=10        # = n_starts, so optimizer starts run in parallel
+#SBATCH --cpus-per-task=6         # even (whole cores); n_starts a multiple of this
 #SBATCH --mem=4G
 #SBATCH --time=1-00:00:00
 #SBATCH --nodes=1

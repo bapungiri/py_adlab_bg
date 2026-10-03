@@ -49,11 +49,12 @@ OPTUNA_DEFAULTS = dict(
     require_expert=None,  # legacy: intact sessions skip their first 30 days
 )
 # 6-param Qlearn with L-BFGS-B: parameter recovery showed 10 starts are
-# needed for this model (5 left ~9% of fits unconverged).
+# needed for this model (5 left ~9% of fits unconverged); 12 keeps it a
+# multiple of the 6 CPUs per array task, so no worker idles in the last round.
 LBFGS_STICKY = dict(
     policies=[QlearnSticky],
     optimizer=LBFGSOptimizer(),
-    fit_kwargs={"n_starts": 10, "n_jobs": 10, "early_stop": False, "progress": False},
+    fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
 )
 
 # Named configs, picked with --preset so several can run as separate SLURM

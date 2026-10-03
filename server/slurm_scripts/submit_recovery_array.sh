@@ -2,15 +2,15 @@
 # Submit a parameter-recovery run as a SLURM array (one simulated subject per
 # task) plus a merge job that runs only after every task succeeded.
 #
-# usage: ./submit_recovery_array.sh <design> <variant> [optimizer=lbfgs] [n_starts=10]
-#                                   [n_subjects=100] [cpus=10] [mem=2G] [max_concurrent]
+# usage: ./submit_recovery_array.sh <design> <variant> [optimizer=lbfgs] [n_starts=12]
+#                                   [n_subjects=100] [cpus=6] [mem=2G] [max_concurrent]
 #   e.g. ./submit_recovery_array.sh struc_unstruc_tier sticky
 # Optional environment: POLICY (default Qlearn), EXTRA_ARGS passed to param_recovery.py,
 #   e.g. EXTRA_ARGS='--true-range sticky=0,5 --tag truesticky0to5'
 set -e
 DESIGN="$1"; VARIANT="$2"
-OPTIMIZER="${3:-lbfgs}"; N_STARTS="${4:-10}"; MAX_SUBJECTS="${5:-100}"
-CPUS="${6:-10}"; MEM="${7:-2G}"; THROTTLE="${8:-}"
+OPTIMIZER="${3:-lbfgs}"; N_STARTS="${4:-12}"; MAX_SUBJECTS="${5:-100}"
+CPUS="${6:-6}"; MEM="${7:-2G}"; THROTTLE="${8:-}"
 [ -n "$DESIGN" ] && [ -n "$VARIANT" ] || { echo "usage: $0 <design> <variant> [optimizer] [n_starts] [n_subjects] [cpus] [mem] [max_concurrent]"; exit 1; }
 cd "$(dirname "$0")"
 POLICY="${POLICY:-Qlearn}"; EXTRA_ARGS="${EXTRA_ARGS:-}"

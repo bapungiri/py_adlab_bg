@@ -4,7 +4,7 @@
 #   DESIGN, VARIANT, OPTIMIZER, N_STARTS, MAX_SUBJECTS, POLICY (default Qlearn),
 #   EXTRA_ARGS (e.g. '--true-range sticky=0,5 --tag truesticky0to5')
 #SBATCH --job-name=RecArray
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=6
 #SBATCH --mem=2G
 #SBATCH --time=1-00:00:00
 #SBATCH --nodes=1

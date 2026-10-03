@@ -2,11 +2,11 @@
 # Submit a fit preset as a SLURM array (one session per task) plus a merge job
 # that runs only after every task succeeded.
 #
-# usage: ./submit_fit_array.sh <preset> [cpus_per_task=10] [mem=4G] [max_concurrent]
+# usage: ./submit_fit_array.sh <preset> [cpus_per_task=6] [mem=4G] [max_concurrent]
 #   e.g. ./submit_fit_array.sh sticky_p8020_intact
 #        ./submit_fit_array.sh sticky_p9505 5 4G 4
 set -e
-PRESET="$1"; CPUS="${2:-10}"; MEM="${3:-4G}"; THROTTLE="${4:-}"
+PRESET="$1"; CPUS="${2:-6}"; MEM="${3:-4G}"; THROTTLE="${4:-}"
 [ -n "$PRESET" ] || { echo "usage: $0 <preset> [cpus] [mem] [max_concurrent]"; exit 1; }
 cd "$(dirname "$0")"
 
