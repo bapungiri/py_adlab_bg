@@ -1,17 +1,18 @@
 #!/bin/bash
 # Array job: one (hidden_size, session) per task, see `python ../fit_rnn.py --list`.
 # 60 tasks = N48 + N6 x 30 sessions. 6 CPUs/task: 5 CV folds + full-data fit in parallel.
-# Largest session (BGM3, ~660k trials) measured ~29 s/epoch, ~1.1 GB per process.
+# Peak task memory (N48, server) ~ 1.85 GB + 43 MB per 1k trials (BGM3 ~660k -> ~30 GB);
+# submit per-size buckets with --mem overriding the 10G default below.
 # Submit from server/slurm_scripts/:
-#   sbatch --array=0-59%15 job_fit_rnn.slurm
-#   sbatch --array=0-59%15 job_fit_rnn.slurm --skip-existing   # resume
+#   sbatch --array=0-59 job_fit_rnn.slurm
+#   sbatch --array=0-59 job_fit_rnn.slurm --skip-existing   # resume
 #SBATCH --job-name=VRNN
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=10G
 #SBATCH --time=2-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --array=0-59%15
+#SBATCH --array=0-59
 #SBATCH --output=/mnt/pve/Homes/bapun/Data/logs/%x_%A_%a.out
 
 # --- Timestamp for logs ---
