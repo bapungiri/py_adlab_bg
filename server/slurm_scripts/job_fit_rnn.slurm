@@ -1,6 +1,6 @@
 #!/bin/bash
 # Array job: one (hidden_size, session) per task, see `python ../fit_rnn.py --list`.
-# 60 tasks = N48 + N6 x 30 sessions. 6 CPUs/task: 5 CV folds in parallel + main.
+# 60 tasks = N48 + N6 x 30 sessions. 6 CPUs/task: 5 CV folds + full-data fit in parallel.
 # Largest session (BGM3, ~660k trials) measured ~29 s/epoch, ~1.1 GB per process.
 # Submit from server/slurm_scripts/:
 #   sbatch --array=0-59%15 job_fit_rnn.slurm

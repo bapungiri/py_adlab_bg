@@ -6,10 +6,12 @@ Submit with 'sbatch --array=0-<n_tasks-1> job_fit_rnn.slurm'.
 
 import argparse
 import os
+from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
 import mab_subjects
 from banditpy.models import VanillaRNNFit2Arm
+from banditpy.models.rnn._mle_fit_base import _run_restart
 
 EXPS = (
     mab_subjects.unstruc.p8020_good_intact_sess
@@ -65,13 +67,32 @@ def fit_subject(
         segment_starts=SEGMENT_STARTS,
         device="cpu",
     )
-    # evaluate generalization
-    cv_results = rnn_fit.cross_validate(
-        k=5, lr=LR, n_epochs=n_epochs, n_jobs=n_jobs_inner
-    )
+    # Full-data fit runs in its own process alongside the CV folds, so all
+    # n_jobs_inner + 1 CPUs stay busy instead of idling during the final fit.
+    with ProcessPoolExecutor(max_workers=1) as pool:
+        full_fit = pool.submit(
+            _run_restart,
+            VanillaRNNFit2Arm,
+            rnn_fit._init_kwargs,
+            rnn_fit.task,
+            rnn_fit._seg_mask,
+            "cpu",
+            0,  # weight-init seed
+            n_epochs,
+            LR,
+            1e-5,  # lr_min, same as fit() default
+            False,
+        )
+        # evaluate generalization
+        cv_results = rnn_fit.cross_validate(
+            k=5, lr=LR, n_epochs=n_epochs, n_jobs=n_jobs_inner
+        )
+        _, final_nll, state_dict, nll_history = full_fit.result()
 
-    # retrain on all data and save model
-    rnn_fit.fit(n_epochs=n_epochs, lr=LR, progress_bar=False)
+    rnn_fit.model.load_state_dict(state_dict)
+    rnn_fit.model.eval()
+    rnn_fit.nll_history = nll_history
+    print(f"Full fit complete. Final NLL/trial: {final_nll:.4f}")
     rnn_fit.save(model_filename, extra={"cv": cv_results.to_dict("list")})
 
 
