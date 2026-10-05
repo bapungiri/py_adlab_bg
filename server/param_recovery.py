@@ -123,10 +123,21 @@ QLEARN_VARIANTS = {
 }
 
 
+# Qlearn2Regime: 'sticky' adds the shared perseverance trace and the learned
+# belief at window start (b_init).
+QLEARN2REGIME_VARIANTS = {
+    "default": {"enable": [], "disable": []},
+    "sticky": {"enable": ["alpha_h", "sticky", "b_init"], "disable": []},
+}
+
+
 def make_policy_factory(policy_cls, variant):
-    if variant != "default" and policy_cls is not Qlearn:
-        raise ValueError(f"--variant {variant} is only defined for Qlearn")
-    spec = QLEARN_VARIANTS[variant]
+    variants = {Qlearn: QLEARN_VARIANTS, Qlearn2Regime: QLEARN2REGIME_VARIANTS}.get(
+        policy_cls, {"default": {"enable": [], "disable": []}}
+    )
+    if variant not in variants:
+        raise ValueError(f"--variant {variant} is not defined for {policy_cls.__name__}")
+    spec = variants[variant]
 
     def make_policy():
         policy = policy_cls()
@@ -179,7 +190,7 @@ def parse_args():
         "--variant",
         choices=list(QLEARN_VARIANTS),
         default="default",
-        help="Qlearn variant (which params are fitted); non-default adds a suffix to the save name",
+        help="Qlearn/Qlearn2Regime variant (which params are fitted); non-default adds a suffix to the save name",
     )
     parser.add_argument(
         "--n-blocks-per-tier",

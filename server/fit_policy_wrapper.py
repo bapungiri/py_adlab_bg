@@ -31,6 +31,15 @@ def QlearnSticky():
     return policy
 
 
+def Qlearn2RegimeSticky():
+    """Qlearn2Regime + shared perseverance (alpha_h, sticky) + learned b_init."""
+    policy = Qlearn2Regime()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
+    policy.params.b_init.enable()
+    return policy
+
+
 # ---------------------------------------------------------------------
 # Experiment configuration
 # ---------------------------------------------------------------------
@@ -55,6 +64,11 @@ LBFGS_STICKY = dict(
     policies=[QlearnSticky],
     optimizer=LBFGSOptimizer(),
     fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
+)
+LBFGS_Q2R_STICKY = dict(
+    policies=[Qlearn2RegimeSticky],
+    optimizer=LBFGSOptimizer(),
+    fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
 )
 # 11-param 2-regime mixture of agents: recovery with 10 starts left 37-49%
 # of fits short of the truth, so use 24 (4 rounds on 6 CPUs).
@@ -124,6 +138,28 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
         + mab_subjects.struc.p9505_good_intact_sess,
         save_name="fit_qlearn2regime_p9505",
+        require_expert=False,
+    ),
+    # + perseverance and learned b_init (14 params).
+    "q2r_sticky_p8020_intact": dict(
+        LBFGS_Q2R_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn2regime_sticky_p8020_intact",
+        require_expert=True,
+    ),
+    "q2r_sticky_p8020_lesion_mPFC": dict(
+        LBFGS_Q2R_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_post_sess,
+        save_name="fit_qlearn2regime_sticky_p8020_lesion_mPFC",
+        require_expert=False,
+    ),
+    "q2r_sticky_p9505": dict(
+        LBFGS_Q2R_STICKY,
+        exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
+        + mab_subjects.struc.p9505_good_intact_sess,
+        save_name="fit_qlearn2regime_sticky_p9505",
         require_expert=False,
     ),
     # mab_subjects.unstruc.p8020_good_intact_sess
