@@ -1,0 +1,10 @@
+# Superseded or regenerable outputs (rebuild with the scripts in this folder)
+guide_array_64ch_Lshaped_mPFC_OFC_BG_mod.stl
+guide_array_64ch_Lshaped_mPFC_OFC_BG_mod2.stl
+guide_array_64ch_Lshaped_mPFC_OFC_BG_mod2.holes.csv
+guide_array_64ch_Lshaped_mPFC_OFC_BG_mod2_h360.stl
+guide_array_64ch_Lshaped_mPFC_OFC_BG_mod2_h360.holes.csv
+hole_coupon.stl
+plate_coupon.stl
+adhesion_test.stl
+__pycache__/
