@@ -13,7 +13,7 @@ from banditpy.models.policy import (
     # MoARegime,
     # QlearnHierarchical,
     # QlearnAdaptiveLR,
-    # StateInference,
+    StateInference,
     # ThompsonSplit,
     # ThompsonShared,
     # BayesianUCB,
@@ -28,6 +28,14 @@ def QlearnSticky():
     policy = Qlearn()
     policy.params.alpha_h.enable()
     policy.params.sticky.enable()
+    return policy
+
+
+def QlearnNoSticky():
+    """Qlearn without perseverance (alpha_c, alpha_u, bias, beta), as in the Optuna presets."""
+    policy = Qlearn()
+    policy.params.alpha_h.disable()
+    policy.params.sticky.disable()
     return policy
 
 
@@ -52,7 +60,7 @@ def Qlearn2RegimeSticky():
 
 # Fit settings shared by presets unless a preset overrides them.
 OPTUNA_DEFAULTS = dict(
-    policies=[Qlearn],
+    policies=[QlearnNoSticky],
     optimizer=OptunaOptimizer(n_trials=80),
     fit_kwargs={"n_starts": 5, "n_jobs": 5, "early_stop": False, "progress": False},
     require_expert=None,  # legacy: intact sessions skip their first 30 days
@@ -69,6 +77,12 @@ LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
     fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
+)
+# Two-state Bayesian inference of which port is good (c, y, b0, beta).
+LBFGS_SI = dict(
+    policies=[StateInference],
+    optimizer=LBFGSOptimizer(),
+    fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
 )
 # 11-param 2-regime mixture of agents: recovery with 10 starts left 37-49%
 # of fits short of the truth, so use 24 (4 rounds on 6 CPUs).
@@ -160,6 +174,28 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
         + mab_subjects.struc.p9505_good_intact_sess,
         save_name="fit_qlearn2regime_sticky_p9505",
+        require_expert=False,
+    ),
+    # State inference on the same sessions and trimming as the sticky presets.
+    "si_p8020_intact": dict(
+        LBFGS_SI,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_state_inference_p8020_intact",
+        require_expert=True,
+    ),
+    "si_p8020_lesion_mPFC": dict(
+        LBFGS_SI,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_post_sess,
+        save_name="fit_state_inference_p8020_lesion_mPFC",
+        require_expert=False,
+    ),
+    "si_p9505": dict(
+        LBFGS_SI,
+        exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
+        + mab_subjects.struc.p9505_good_intact_sess,
+        save_name="fit_state_inference_p9505",
         require_expert=False,
     ),
     # mab_subjects.unstruc.p8020_good_intact_sess
