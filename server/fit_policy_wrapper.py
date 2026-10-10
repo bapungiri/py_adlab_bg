@@ -124,6 +124,15 @@ PRESETS = {
         save_name="fit_qlearn_sticky_p8020_lesion_mPFC",
         require_expert=False,
     ),
+    # OFC lesion (post) sessions only, kept whole; intact baselines are in
+    # sticky_p8020_intact.
+    "sticky_p8020_lesion_OFC": dict(
+        LBFGS_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_OFC_post_sess
+        + mab_subjects.struc.p8020_lesion_OFC_post_sess,
+        save_name="fit_qlearn_sticky_p8020_lesion_OFC",
+        require_expert=False,
+    ),
     # Kept whole: 9505 data is still short.
     "sticky_p9505": dict(
         LBFGS_STICKY,
