@@ -4,7 +4,7 @@
 #SBATCH --job-name=FitArray
 #SBATCH --cpus-per-task=6         # even (whole cores); n_starts a multiple of this
 #SBATCH --mem=4G
-#SBATCH --time=2-00:00:00
+#SBATCH --time=5-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=/dev/null
