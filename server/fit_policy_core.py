@@ -21,8 +21,16 @@ def fit_blocks(
     filter_by_datetime: bool = True,
     test=None,
     require_expert=None,
+    scopes=("all", "high_low"),
 ):
-    """Fit one subject on all blocks and on the high-low tier.
+    """Fit one subject on each trial subset in 'scopes' (default: all blocks
+    and the high-low tier).
+
+    scopes : sequence of str
+        "all" (every block), "high_low" (exactly one arm >= 0.5, as in
+        mab_builders.preprocess) and/or "dependent" (arm probabilities sum to
+        1, as in mab_builders.preprocess.corr_mask). Each is fitted
+        separately, with resets at its own window starts.
 
     require_expert : None, bool or "auto"
         None (legacy): intact sessions skip their first 30 days when they
@@ -170,23 +178,21 @@ def fit_blocks(
 
     # -------- Block wise ----------------
 
-    model_all = DecisionModel(
-        task,
-        policy=policy_ctor(),
-        reset_mode=window_start,
-    )
-    # model_all.cross_validate(n_folds=5, optimizer=optimizer, n_jobs=5)
-    model_all.fit(optimizer=optimizer, **fit_kwargs)
-
-    # -------- High-low tier (exactly one arm >= 0.5), as in mab_builders.preprocess --------
     n_high = (task.probs >= 0.5).sum(axis=1)
-    task_high_low = task._filtered(n_high == 1)
-    model_high_low = DecisionModel(
-        task_high_low,
-        policy=policy_ctor(),
-        reset_mode=task_high_low.is_window_start,
-    )
-    model_high_low.fit(optimizer=optimizer, **fit_kwargs)
+    scope_masks = {
+        "all": np.ones(len(task.probs), dtype=bool),
+        "high_low": n_high == 1,
+        "dependent": task.probs.sum(axis=1).round(2) == 1.0,
+    }
+    models = {}
+    for scope in scopes:
+        task_scope = task if scope == "all" else task._filtered(scope_masks[scope])
+        models[scope] = DecisionModel(
+            task_scope,
+            policy=policy_ctor(),
+            reset_mode=task_scope.is_window_start,
+        )
+        models[scope].fit(optimizer=optimizer, **fit_kwargs)
 
     # model_block1 = DecisionModel(
     #     task_block1,
@@ -203,14 +209,6 @@ def fit_blocks(
     # model_block2.fit(optimizer=optimizer, **fit_kwargs)
 
     # ------ compiling models ----------
-    models = {
-        "all": model_all,
-        "high_low": model_high_low,
-        # "low_high": model_low_high,
-        # "low_low": model_low_low,
-        # "high_high": model_high_high,
-    }
-
     param_names = []
     param_values = []
     fit_scope = []
@@ -243,6 +241,7 @@ def fit_subject(
     optimizer=None,
     filter_by_datetime: bool = True,
     require_expert=None,
+    scopes=("all", "high_low"),
 ):
     frames = []
     for policy_ctor in policies:
@@ -253,6 +252,7 @@ def fit_subject(
             optimizer=optimizer,
             filter_by_datetime=filter_by_datetime,
             require_expert=require_expert,
+            scopes=scopes,
         )
         frames.append(df)
     return pd.concat(frames, ignore_index=True)
@@ -270,6 +270,7 @@ def fit_experiments(
     verbose=True,
     filter_by_datetime: bool = True,
     require_expert=None,
+    scopes=("all", "high_low"),
 ):
     def _fit_one(exp):
         if verbose:
@@ -282,6 +283,7 @@ def fit_experiments(
             optimizer=optimizer,
             filter_by_datetime=filter_by_datetime,
             require_expert=require_expert,
+            scopes=scopes,
         )
 
         if verbose:

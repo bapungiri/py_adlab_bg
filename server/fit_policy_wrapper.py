@@ -79,6 +79,8 @@ LBFGS_Q2R_STICKY = dict(
     fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
 )
 # Two-state Bayesian inference of which port is good (c, y, b0, beta).
+# 6-param Qlearn fitted on dependent blocks only (probabilities sum to 1).
+LBFGS_STICKY_DEP = dict(LBFGS_STICKY, scopes=("dependent",))
 LBFGS_SI = dict(
     policies=[StateInference],
     optimizer=LBFGSOptimizer(),
@@ -183,6 +185,28 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p9505_good_intact_sess
         + mab_subjects.struc.p9505_good_intact_sess,
         save_name="fit_qlearn2regime_sticky_p9505",
+        require_expert=False,
+    ),
+    # 6-param Qlearn, dependent blocks only, both groups.
+    "sticky_dep_p8020_intact": dict(
+        LBFGS_STICKY_DEP,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn_sticky_dependent_p8020_intact",
+        require_expert=True,
+    ),
+    "sticky_dep_p8020_lesion_mPFC": dict(
+        LBFGS_STICKY_DEP,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_mPFC_post_sess
+        + mab_subjects.struc.p8020_lesion_mPFC_post_sess,
+        save_name="fit_qlearn_sticky_dependent_p8020_lesion_mPFC",
+        require_expert=False,
+    ),
+    "sticky_dep_p8020_lesion_OFC": dict(
+        LBFGS_STICKY_DEP,
+        exps=lambda: mab_subjects.unstruc.p8020_lesion_OFC_post_sess
+        + mab_subjects.struc.p8020_lesion_OFC_post_sess,
+        save_name="fit_qlearn_sticky_dependent_p8020_lesion_OFC",
         require_expert=False,
     ),
     # State inference on the same sessions and trimming as the sticky presets.
@@ -291,6 +315,7 @@ if args.task_index is not None:
         n_jobs=1,
         filter_by_datetime=FILTER_BY_DATETIME,
         require_expert=PRESET["require_expert"],
+        scopes=PRESET.get("scopes", ("all", "high_low")),
     )
     run_dir = PARTIALS_DIR / os.environ.get("SLURM_ARRAY_JOB_ID", "local")
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -317,5 +342,6 @@ params_df = fit_experiments(
     n_jobs=PARALLEL_JOBS,
     filter_by_datetime=FILTER_BY_DATETIME,
     require_expert=PRESET["require_expert"],
+    scopes=PRESET.get("scopes", ("all", "high_low")),
 )
 save_groupdata(params_df)
