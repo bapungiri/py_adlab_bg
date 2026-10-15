@@ -16,10 +16,25 @@ import time
 
 import mab_subjects
 
+from .learning import tau_tier
 from .performance import perf_probability_matrix, perf_tier
-from .switching import swp_by_prev_best_arm, swp_probability_matrix
+from .switching import (
+    swp_around_flip,
+    swp_by_block,
+    swp_by_prev_best_arm,
+    swp_probability_matrix,
+    swp_tier,
+)
+from .task import prob_combinations
 
 RNN_PARADIGMS = ("P100", "P9505", "P9010", "P8020")
+
+# Cosyne 2026 abstract: 10-trial windows over the first 30 trials of each
+# session, intact sessions trimmed from the expertise day
+ABSTRACT_WINDOWED = dict(
+    require_expert="auto",
+    kwargs_trial_filter=dict(min_trials=100, clip_max=30),
+)
 
 # save name -> (builder, params). Params must be valid for every session type
 # (intact, lesion, RNN); add a separate entry (another save name) for variants.
@@ -30,7 +45,102 @@ PRODUCTS = {
     "perf_probability_matrix": (perf_probability_matrix, dict(n_last_trials=90)),
     "swp_by_prev_best_arm": (swp_by_prev_best_arm, dict()),
     "swp_probability_matrix": (swp_probability_matrix, dict(trials=(2, 100))),
+    "prob_combinations": (prob_combinations, dict()),
+    "abstract_perf_tier": (
+        perf_tier,
+        dict(kwargs_perf=dict(by="choice", trial_window=10), **ABSTRACT_WINDOWED),
+    ),
+    "abstract_swp_tier": (swp_tier, dict(trial_window=10, **ABSTRACT_WINDOWED)),
+    # per-trial (no windows) over the first 100 trials of each session
+    "abstract_swp_by_trial": (swp_tier, dict(require_expert="auto")),
+    "abstract_swp_by_prev_best_arm": (swp_by_prev_best_arm, dict(require_expert="auto")),
+    # per-trial, all blocks vs first / second block of each window
+    "swp_by_block_expert": (swp_by_block, dict(require_expert="auto")),
+    # previous block's last 10 trials -> new block's first 50, flipped vs same
+    "abstract_swp_around_flip": (swp_around_flip, dict(require_expert="auto")),
+    # same, built over 8020 animals + good 8020 RNN models
+    "abstract_swp_around_flip_rnn": (swp_around_flip, dict(require_expert="auto")),
+    # same, built over 8020 animals + good 8020 RNN models
+    "abstract_swp_by_prev_best_arm_rnn": (
+        swp_by_prev_best_arm,
+        dict(require_expert="auto"),
+    ),
+    "abstract_perf_probability_matrix": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert="auto"),
+    ),
+    # same grid, built over 8020 animals + good 8020 RNN models for animal - RNN
+    "abstract_perf_probability_matrix_rnn": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert="auto"),
+    ),
+    "abstract_swp_probability_matrix": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert="auto"),
+    ),
+    # same grids, built over the 8020 mPFC-lesion animals' intact + lesion sessions
+    "abstract_perf_probability_matrix_lesion_mPFC": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert="auto"),
+    ),
+    "abstract_swp_probability_matrix_lesion_mPFC": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert="auto"),
+    ),
+    # same grids, over the 8020 OFC-lesion animals' intact + lesion sessions
+    "abstract_perf_probability_matrix_lesion_OFC": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert="auto"),
+    ),
+    "abstract_swp_probability_matrix_lesion_OFC": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert="auto"),
+    ),
+    # same grid, built over 8020 animals + good 8020 RNN models
+    "abstract_swp_probability_matrix_rnn": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert="auto"),
+    ),
+    "abstract_tau_tier": (tau_tier, dict(model="single", require_expert="auto")),
+    "abstract_tau_tier_double": (tau_tier, dict(model="double", require_expert="auto")),
 }
+
+# Same analyses on the fitted QlearnSticky simulated on each animal's own task, one
+# product per (parameter source, analysis). Build with
+# exps=mab_builders.simulate.simulated_exps(..., params_from=<source>). The
+# simulated task is already expert-trimmed like the fit, so require_expert=False.
+SIM_PARAM_SOURCES = {  # simulate.simulated_exps params_from -> save-name infix
+    "own": "",
+    "own_group_median": "groupmedian_",
+    "other_group_median": "swapped_",
+}
+SIM_ANALYSES = {
+    "perf_probability_matrix": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert=False),
+    ),
+    "swp_probability_matrix": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert=False),
+    ),
+    "swp_by_prev_best_arm": (swp_by_prev_best_arm, dict(require_expert=False)),
+}
+for _infix in SIM_PARAM_SOURCES.values():
+    for _analysis, _entry in SIM_ANALYSES.items():
+        PRODUCTS[f"abstract_sim_qlearn_sticky_{_infix}{_analysis}"] = _entry
+    # the dependent-blocks fit (fit_qlearn_sticky_dependent_p8020_intact), simulated
+    # on dependent blocks only (simulated_exps(..., fit_scope="dependent"))
+    PRODUCTS[f"abstract_sim_qlearn_sticky_dep_{_infix}perf_probability_matrix"] = (
+        SIM_ANALYSES["perf_probability_matrix"]
+    )
+
+
+# Learning curves of each animal's fitted RNN simulated on the animal's own block
+# schedule (compare with perf_tier_expert). Build with
+# exps=mab_builders.simulate.rnn_simulated_exps(exps, "rnn_fit_n48_session") etc.;
+# the schedule is already trimmed, so require_expert=False.
+for _n in (48, 6):
+    PRODUCTS[f"sim_rnn_n{_n}_perf_tier"] = (perf_tier, dict(require_expert=False))
 
 
 def all_good_sessions(include_rnn=True):

@@ -50,7 +50,32 @@ class GroupData:
         # === BEGIN AUTO-GENERATED BASENAME ANNOTATIONS (written by _write_stub) ===
         abstract_perf_combinations: VersionedAccessor
         abstract_perf_difficulty_level: VersionedAccessor
+        abstract_perf_probability_matrix: VersionedAccessor
+        abstract_perf_probability_matrix_lesion_OFC: VersionedAccessor
+        abstract_perf_probability_matrix_lesion_mPFC: VersionedAccessor
+        abstract_perf_probability_matrix_rnn: VersionedAccessor
         abstract_perf_tier: VersionedAccessor
+        abstract_sim_qlearn_sticky_dep_groupmedian_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_dep_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_dep_swapped_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_groupmedian_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_groupmedian_swp_by_prev_best_arm: VersionedAccessor
+        abstract_sim_qlearn_sticky_groupmedian_swp_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_swapped_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_swapped_swp_by_prev_best_arm: VersionedAccessor
+        abstract_sim_qlearn_sticky_swapped_swp_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_swp_by_prev_best_arm: VersionedAccessor
+        abstract_sim_qlearn_sticky_swp_probability_matrix: VersionedAccessor
+        abstract_swp_around_flip: VersionedAccessor
+        abstract_swp_around_flip_rnn: VersionedAccessor
+        abstract_swp_by_prev_best_arm: VersionedAccessor
+        abstract_swp_by_prev_best_arm_rnn: VersionedAccessor
+        abstract_swp_by_trial: VersionedAccessor
+        abstract_swp_probability_matrix: VersionedAccessor
+        abstract_swp_probability_matrix_lesion_OFC: VersionedAccessor
+        abstract_swp_probability_matrix_lesion_mPFC: VersionedAccessor
+        abstract_swp_probability_matrix_rnn: VersionedAccessor
         abstract_swp_tier: VersionedAccessor
         abstract_tau_tier: VersionedAccessor
         abstract_tau_tier_double: VersionedAccessor
@@ -63,6 +88,10 @@ class GroupData:
         fit_multi_policy: VersionedAccessor
         fit_multi_policy_combinations: VersionedAccessor
         fit_multi_policy_lesion: VersionedAccessor
+        fit_qlearn2regime_p8020_lesion_mPFC: VersionedAccessor
+        fit_qlearn2regime_p9505: VersionedAccessor
+        fit_qlearn2regime_sticky_p8020_intact: VersionedAccessor
+        fit_qlearn2regime_sticky_p9505: VersionedAccessor
         fit_qlearnH: VersionedAccessor
         fit_qlearnH_sim: VersionedAccessor
         fit_qlearnRegimeDiffStays_policy_combinations: VersionedAccessor
@@ -74,11 +103,18 @@ class GroupData:
         fit_qlearn_low_high_combinations: VersionedAccessor
         fit_qlearn_per_prob: VersionedAccessor
         fit_qlearn_policy: VersionedAccessor
+        fit_qlearn_sticky_dependent_p8020_intact: VersionedAccessor
+        fit_qlearn_sticky_dependent_p8020_lesion_OFC: VersionedAccessor
+        fit_qlearn_sticky_dependent_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn_sticky_p8020_intact: VersionedAccessor
+        fit_qlearn_sticky_p8020_lesion_OFC: VersionedAccessor
         fit_qlearn_sticky_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn_sticky_p9505: VersionedAccessor
         fit_si: VersionedAccessor
         fit_si_sim: VersionedAccessor
+        fit_state_inference_p8020_intact: VersionedAccessor
+        fit_state_inference_p8020_lesion_mPFC: VersionedAccessor
+        fit_state_inference_p9505: VersionedAccessor
         fit_thompson_split: VersionedAccessor
         fit_ucb: VersionedAccessor
         gcca_meta_rnn: VersionedAccessor
@@ -92,11 +128,14 @@ class GroupData:
         optimizer_benchmark_qlearn: VersionedAccessor
         param_recovery_qlearn: VersionedAccessor
         param_recovery_qlearn2regime: VersionedAccessor
+        param_recovery_qlearn2regime_narrowtrue_24starts: VersionedAccessor
+        param_recovery_qlearn2regime_sticky_narrowtrue: VersionedAccessor
         param_recovery_qlearn3regime: VersionedAccessor
         param_recovery_qlearn_sticky: VersionedAccessor
         param_recovery_si: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn_sticky: VersionedAccessor
+        param_recovery_struc_unstruc_tier_qlearn_sticky_truesticky0to5: VersionedAccessor
         param_recovery_tier_mix_qlearn: VersionedAccessor
         param_recovery_tier_mix_qlearn_sticky: VersionedAccessor
         param_recovery_tier_params_qlearn: VersionedAccessor
@@ -135,12 +174,15 @@ class GroupData:
         poster_perf_probability_matrix: VersionedAccessor
         poster_perf_vs_mpfc_lesion: VersionedAccessor
         poster_perf_vs_ofc_lesion: VersionedAccessor
+        prob_combinations: VersionedAccessor
         qlearnH: VersionedAccessor
         reward_prob: VersionedAccessor
         reward_probability_matrix: VersionedAccessor
         rnn_fit_accuracy: VersionedAccessor
         rnn_lr_search_perf: VersionedAccessor
         rnn_models_fit_accuracy: VersionedAccessor
+        sim_rnn_n48_perf_tier: VersionedAccessor
+        sim_rnn_n6_perf_tier: VersionedAccessor
         simulated_policies_perf: VersionedAccessor
         state_traj_Qlearn2Regime: VersionedAccessor
         state_traj_Qlearn2Regime_avg: VersionedAccessor
@@ -157,6 +199,7 @@ class GroupData:
         switchprob_si: VersionedAccessor
         swp_AAdataset_Block1: VersionedAccessor
         swp_after_reward: VersionedAccessor
+        swp_by_block_expert: VersionedAccessor
         swp_by_prev_best_arm: VersionedAccessor
         swp_by_previous_block_tier: VersionedAccessor
         swp_by_quartiles: VersionedAccessor
