@@ -256,6 +256,11 @@ parser.add_argument(
 parser.add_argument(
     "--count", action="store_true", help="print the number of sessions and exit"
 )
+parser.add_argument(
+    "--allow-missing",
+    action="store_true",
+    help="with --merge: save even if some sessions have no partial (they are listed)",
+)
 args = parser.parse_args()
 
 PRESET = PRESETS[args.preset]
@@ -290,7 +295,9 @@ if args.merge is not None:
     missing = sorted(set(range(len(EXPS))) - done)
     if missing:
         names = [EXPS[i].sub_name for i in missing]
-        sys.exit(f"Not merging {run_dir}: missing tasks {missing} ({names})")
+        if not args.allow_missing:
+            sys.exit(f"Not merging {run_dir}: missing tasks {missing} ({names})")
+        print(f"Merging without missing tasks {missing} ({names})")
     params_df = pd.concat([pd.read_pickle(f) for f in files], ignore_index=True)
     print(f"Merging {len(files)} partials from {run_dir} -> {SAVE_NAME}")
     save_groupdata(params_df)

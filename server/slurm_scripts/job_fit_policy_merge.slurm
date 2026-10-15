@@ -22,7 +22,7 @@ export PYTHONUNBUFFERED=1
 export PYTHONPATH=/mnt/pve/Homes/bapun/Codes/NeuroPy:/mnt/pve/Homes/bapun/Codes/BanditPy:/mnt/pve/Homes/bapun/Codes/py_adlab_bg:$PYTHONPATH
 
 cd /mnt/pve/Homes/bapun/Codes/py_adlab_bg/server
-python fit_policy_wrapper.py --preset "$1" --merge "$2"
+python fit_policy_wrapper.py --preset "$1" --merge "$2" "${@:3}"  # e.g. --allow-missing
 status=$?  # keep python's exit code so SLURM marks failures FAILED
 echo "Merge finished at: $(date) (exit $status)"
 exit $status
