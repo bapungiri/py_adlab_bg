@@ -15,6 +15,7 @@ class FigPath:
     abstracts: Path = base / "abstracts"
     india_alliance: Path = base / "india_alliance"
     pk: Path = base / "pk"
+    presentations: Path = base / "presentations"
 
 
 class NotesPath:
