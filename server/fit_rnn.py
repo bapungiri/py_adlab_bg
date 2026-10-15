@@ -1,7 +1,8 @@
 """Fit VanillaRNNFit2Arm to animal sessions, one (hidden_size, session) per SLURM array task.
 
 Task list is HIDDEN_SIZES x EXPS; run with '--list' to print the index mapping.
-Submit with 'sbatch --array=0-<n_tasks-1> job_fit_rnn.slurm'.
+Submit with 'sbatch --array=0-<n_tasks-1> job_fit_rnn.slurm'. Extra args pass
+through, e.g. '--segment-starts window --n-epochs 1000'.
 """
 
 import argparse
@@ -26,14 +27,15 @@ TASKS = [(h, exp) for h in HIDDEN_SIZES for exp in EXPS]
 
 # -------- Params ---------
 LR = 1e-3
-SEGMENT_STARTS = "session"
 # -------------------------
 
 
-def model_path(exp: mab_subjects.MABData, hidden_size: int, n_epochs: int):
+def model_path(
+    exp: mab_subjects.MABData, hidden_size: int, n_epochs: int, segment_starts: str
+):
     fp = exp.filePrefix
     return fp.with_name(
-        fp.stem + f"_RNNfit_N{hidden_size}_LR{LR}_E{n_epochs}_S{SEGMENT_STARTS}.pt"
+        fp.stem + f"_RNNfit_N{hidden_size}_LR{LR}_E{n_epochs}_S{segment_starts}.pt"
     )
 
 
@@ -41,10 +43,11 @@ def fit_subject(
     exp: mab_subjects.MABData,
     hidden_size: int,
     n_epochs: int = 500,
+    segment_starts: str = "session",
     n_jobs_inner: int = 5,
     skip_existing: bool = False,
 ):
-    model_filename = model_path(exp, hidden_size, n_epochs)
+    model_filename = model_path(exp, hidden_size, n_epochs, segment_starts)
     if skip_existing and model_filename.is_file():
         print(f"Exists, skipping: {model_filename}")
         return
@@ -64,7 +67,7 @@ def fit_subject(
     rnn_fit = VanillaRNNFit2Arm(
         task=task,
         hidden_size=hidden_size,
-        segment_starts=SEGMENT_STARTS,
+        segment_starts=segment_starts,
         device="cpu",
     )
     # Full-data fit runs in its own process alongside the CV folds, so all
@@ -106,6 +109,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--n-epochs", type=int, default=500)
     parser.add_argument(
+        "--segment-starts",
+        default="session",
+        choices=("session", "window", "block"),
+        help="Where the hidden state is reset in the full-data fit",
+    )
+    parser.add_argument(
         "--n-jobs-inner",
         type=int,
         default=5,
@@ -132,6 +141,7 @@ if __name__ == "__main__":
         exp,
         hidden_size,
         n_epochs=args.n_epochs,
+        segment_starts=args.segment_starts,
         n_jobs_inner=args.n_jobs_inner,
         skip_existing=args.skip_existing,
     )

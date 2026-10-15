@@ -140,15 +140,15 @@ class MABData:
             keep &= ~((dt >= np.datetime64(start)) & (dt <= np.datetime64(stop)))
         return task._filtered(keep)
 
-    def rnn_fit_path(self, n_hidden, reset):
+    def rnn_fit_path(self, n_hidden, reset, n_epochs=500):
         """Path of the RNN fit saved next to the data,
-        '<prefix>_RNNfit_N<n_hidden>_LR0.001_E500_S<reset>.pt' (may not exist)."""
+        '<prefix>_RNNfit_N<n_hidden>_LR0.001_E<n_epochs>_S<reset>.pt' (may not exist)."""
         return self.filePrefix.with_name(
-            f"{self.filePrefix.stem}_RNNfit_N{n_hidden}_LR0.001_E500_S{reset}.pt"
+            f"{self.filePrefix.stem}_RNNfit_N{n_hidden}_LR0.001_E{n_epochs}_S{reset}.pt"
         )
 
-    def _load_rnn_fit(self, n_hidden, reset):
-        file = self.rnn_fit_path(n_hidden, reset)
+    def _load_rnn_fit(self, n_hidden, reset, n_epochs=500):
+        file = self.rnn_fit_path(n_hidden, reset, n_epochs)
         if not file.is_file():
             raise FileNotFoundError(f"No RNN fit file found at {file}")
         return VanillaRNNFit2Arm.load(file, device="cpu")
@@ -167,6 +167,11 @@ class MABData:
     def rnn_fit_n48_session(self):
         """48 hidden units, hidden state reset at session starts (Oct 2026)."""
         return self._load_rnn_fit(48, "session")
+
+    @property
+    def rnn_fit_n48_window(self):
+        """48 hidden units, hidden state reset at window starts, 1000 epochs (Oct 2026)."""
+        return self._load_rnn_fit(48, "window", n_epochs=1000)
 
     @property
     def rnn_fit_n6_session(self):
