@@ -8,3 +8,4 @@
 [2026-09-27 13:50:34] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=41 bytes_transferred=55,649,229 rc=0
 [2026-09-27 14:06:07] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=2 bytes_transferred=2,541,342 rc=0
 [2026-10-02 16:18:09] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=71 bytes_transferred=71,062,960 rc=0
+[2026-10-15 14:59:11] pull-pt dry_run=False triggered_by=manual-rnnfit-only files_transferred=60 bytes_transferred=753,858,464 rc=0
