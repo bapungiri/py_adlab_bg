@@ -140,45 +140,44 @@ class MABData:
             keep &= ~((dt >= np.datetime64(start)) & (dt <= np.datetime64(stop)))
         return task._filtered(keep)
 
-    @property
-    def rnn_fit1(self):
-        file = self.filePrefix.with_name(
-            self.filePrefix.stem + "_RNNfit_N32_LR0.001_E500_Swindow.pt"
+    def rnn_fit_path(self, n_hidden, reset):
+        """Path of the RNN fit saved next to the data,
+        '<prefix>_RNNfit_N<n_hidden>_LR0.001_E500_S<reset>.pt' (may not exist)."""
+        return self.filePrefix.with_name(
+            f"{self.filePrefix.stem}_RNNfit_N{n_hidden}_LR0.001_E500_S{reset}.pt"
         )
-        if file.is_file():
-            return VanillaRNNFit2Arm.load(file, device="cpu")
-        else:
+
+    def _load_rnn_fit(self, n_hidden, reset):
+        file = self.rnn_fit_path(n_hidden, reset)
+        if not file.is_file():
             raise FileNotFoundError(f"No RNN fit file found at {file}")
+        return VanillaRNNFit2Arm.load(file, device="cpu")
 
     @property
-    def rnn_fit2(self):
-        file = self.filePrefix.with_name(
-            self.filePrefix.stem + "_RNNfit_N32_LR0.001_E500_Ssession.pt"
-        )
-        if file.is_file():
-            return VanillaRNNFit2Arm.load(file, device="cpu")
-        else:
-            raise FileNotFoundError(f"No RNN fit file found at {file}")
+    def rnn_fit_n32_window(self):
+        """32 hidden units, hidden state reset at window starts (Jul 2026)."""
+        return self._load_rnn_fit(32, "window")
 
     @property
-    def rnn_fit3(self):
-        file = self.filePrefix.with_name(
-            self.filePrefix.stem + "_RNNfit_N48_LR0.001_E500_Ssession.pt"
-        )
-        if file.is_file():
-            return VanillaRNNFit2Arm.load(file, device="cpu")
-        else:
-            raise FileNotFoundError(f"No RNN fit file found at {file}")
+    def rnn_fit_n32_session(self):
+        """32 hidden units, hidden state reset at session starts (Jul 2026)."""
+        return self._load_rnn_fit(32, "session")
 
     @property
-    def rnn_fit4(self):
-        file = self.filePrefix.with_name(
-            self.filePrefix.stem + "_RNNfit_N6_LR0.001_E500_Ssession.pt"
-        )
-        if file.is_file():
-            return VanillaRNNFit2Arm.load(file, device="cpu")
-        else:
-            raise FileNotFoundError(f"No RNN fit file found at {file}")
+    def rnn_fit_n48_session(self):
+        """48 hidden units, hidden state reset at session starts (Oct 2026)."""
+        return self._load_rnn_fit(48, "session")
+
+    @property
+    def rnn_fit_n6_session(self):
+        """6 hidden units, hidden state reset at session starts (Oct 2026)."""
+        return self._load_rnn_fit(6, "session")
+
+    # Older numbered names, kept for existing notebooks (mab_rnn_fit.ipynb).
+    rnn_fit1 = rnn_fit_n32_window
+    rnn_fit2 = rnn_fit_n32_session
+    rnn_fit3 = rnn_fit_n48_session
+    rnn_fit4 = rnn_fit_n6_session
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.sub_name})\n"
