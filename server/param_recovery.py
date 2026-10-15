@@ -116,9 +116,11 @@ def concat_tasks(tasks):
 # Qlearn variants: params to enable/disable on top of the class defaults.
 # Each variant saves to its own GroupData basename ('_<variant>' suffix),
 # so versions/cleanup of one variant never touch another.
+# Qlearn fits all six params by default; the variants are explicit so their
+# save names keep meaning the same model.
 QLEARN_VARIANTS = {
-    "default": {"enable": [], "disable": []},  # alpha_c, alpha_u, bias, beta
-    "nobias": {"enable": [], "disable": ["bias"]},  # bias fixed at 0
+    "default": {"enable": [], "disable": ["alpha_h", "sticky"]},  # alpha_c, alpha_u, bias, beta
+    "nobias": {"enable": [], "disable": ["bias", "alpha_h", "sticky"]},  # bias fixed at 0
     "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},  # + perseverance
 }
 
