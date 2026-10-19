@@ -9,6 +9,7 @@ The GroupData products themselves are built by mab_builders (see the
 
 import numpy as np
 import matplotlib as mpl
+from scipy.stats import mannwhitneyu
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm, ListedColormap
 from matplotlib.font_manager import FontProperties
@@ -130,6 +131,72 @@ def rich_title(ax, lines, pad=4, linespacing=1.25):
             )
             x += w
     return ax
+
+
+def first_trials_inset(
+    ax,
+    df,
+    value="switch_prob",
+    n_trials=20,
+    bounds=(0.62, 0.58, 0.33, 0.4),
+    hue_order=("unstruc", "struc"),
+    fontsize=5,
+):
+    """Inset box plot (unstruc vs struc, Mann-Whitney) of each subject's mean
+    'value' over trials 1..'n_trials', in the upper right of a trial-curve 'ax'.
+
+    'df' is the curve's long-format data (one row per subject and 'trial_id', with
+    'group' and 'name'). 'bounds' is (x0, y0, width, height) in 'ax' axes fraction.
+    The dots are rasterized (vector markers crash Affinity), so save with dpi=600.
+    Returns the inset axes.
+    """
+    first = (
+        df[df["trial_id"] <= n_trials]
+        .groupby(["group", "name"], as_index=False)[value]
+        .mean()  # NaN trials (e.g. trial 1 of a switch curve) skipped
+        .assign(window=f"1-{n_trials}")
+    )
+    inset = ax.inset_axes(bounds)
+    plotter = (
+        SeabornPlotter(
+            data=first,
+            x="window",
+            y=value,
+            hue="group",
+            hue_order=list(hue_order),
+            ax=inset,
+        )
+        .boxplot_filled(palette=Palette2Arm().as_dict(), sep=0.4)
+        .stripplot(
+            palette=Palette2Arm(lightness_scale=0.7).as_dict(),
+            alpha=0.8,
+            size=1.5,
+            jitter=0.03,
+            offset=0.1,  # dots beside, not on, their box
+            edgecolor="w",
+            rasterized=True,  # vector scatter markers crash Affinity
+        )
+    )
+    ticks = three_yticks(inset, lo=0.0, hi=first[value].max())  # before the bracket
+    # bracket inside the inset; a star (drawn high in its text box) is pulled down
+    # onto it to save height, "ns" kept just above it
+    p = mannwhitneyu(*[first.loc[first["group"] == g, value] for g in hue_order]).pvalue
+    plotter.stat_classical(
+        "Mann-Whitney",
+        fontsize=fontsize,
+        text_offset=-2.5 if p < 0.05 else 0.5,
+        line_offset_to_group=0.03,
+    )
+    inset.spines["left"].set_bounds(ticks[0], ticks[-1])  # axis ends at last tick
+    if inset.get_legend() is not None:
+        inset.get_legend().remove()
+    inset.set_xticks([0], [f"1-{n_trials}"])  # trials; below, clear of the title
+    inset.tick_params(axis="x", length=0)
+    inset.set_xlabel("")
+    inset.set_ylabel("")
+    inset.tick_params(labelsize=fontsize, pad=1)
+    inset.tick_params(axis="y", length=1.5)
+    return inset
 
 
 def get_fig(nrows, ncols, cell_size=CELL_SIZE):

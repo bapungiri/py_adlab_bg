@@ -57,7 +57,9 @@ class GroupData:
         abstract_perf_tier: VersionedAccessor
         abstract_sim_qlearn_sticky_dep_groupmedian_perf_probability_matrix: VersionedAccessor
         abstract_sim_qlearn_sticky_dep_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_dep_perf_tier: VersionedAccessor
         abstract_sim_qlearn_sticky_dep_swapped_perf_probability_matrix: VersionedAccessor
+        abstract_sim_qlearn_sticky_dep_swapped_perf_tier: VersionedAccessor
         abstract_sim_qlearn_sticky_groupmedian_perf_probability_matrix: VersionedAccessor
         abstract_sim_qlearn_sticky_groupmedian_swp_by_prev_best_arm: VersionedAccessor
         abstract_sim_qlearn_sticky_groupmedian_swp_probability_matrix: VersionedAccessor
@@ -68,6 +70,7 @@ class GroupData:
         abstract_sim_qlearn_sticky_swp_by_prev_best_arm: VersionedAccessor
         abstract_sim_qlearn_sticky_swp_probability_matrix: VersionedAccessor
         abstract_swp_around_flip: VersionedAccessor
+        abstract_swp_around_flip_lesion_mPFC: VersionedAccessor
         abstract_swp_around_flip_rnn: VersionedAccessor
         abstract_swp_by_prev_best_arm: VersionedAccessor
         abstract_swp_by_prev_best_arm_rnn: VersionedAccessor
@@ -161,10 +164,12 @@ class GroupData:
         perf_old_vs_new: VersionedAccessor
         perf_per_day: VersionedAccessor
         perf_probability_matrix: VersionedAccessor
+        perf_probability_matrix_8020_9505: VersionedAccessor
         perf_short_blocks: VersionedAccessor
         perf_sliding: VersionedAccessor
         perf_swp_fit_multi_policy: VersionedAccessor
         perf_tier: VersionedAccessor
+        perf_tier_8020_9505: VersionedAccessor
         perf_tier_expert: VersionedAccessor
         perf_tier_mPFC_lesion: VersionedAccessor
         perf_vs_lesion: VersionedAccessor
@@ -181,7 +186,13 @@ class GroupData:
         rnn_fit_accuracy: VersionedAccessor
         rnn_lr_search_perf: VersionedAccessor
         rnn_models_fit_accuracy: VersionedAccessor
+        sim_rnn_n48_perf_probability_matrix: VersionedAccessor
         sim_rnn_n48_perf_tier: VersionedAccessor
+        sim_rnn_n48_swp_around_flip: VersionedAccessor
+        sim_rnn_n48_swp_probability_matrix: VersionedAccessor
+        sim_rnn_n48win_perf_probability_matrix: VersionedAccessor
+        sim_rnn_n48win_swp_around_flip: VersionedAccessor
+        sim_rnn_n48win_swp_probability_matrix: VersionedAccessor
         sim_rnn_n6_perf_tier: VersionedAccessor
         simulated_policies_perf: VersionedAccessor
         state_traj_Qlearn2Regime: VersionedAccessor
@@ -200,10 +211,13 @@ class GroupData:
         swp_AAdataset_Block1: VersionedAccessor
         swp_after_reward: VersionedAccessor
         swp_by_block_expert: VersionedAccessor
+        swp_by_block_expert_lesion_mPFC: VersionedAccessor
         swp_by_prev_best_arm: VersionedAccessor
         swp_by_previous_block_tier: VersionedAccessor
         swp_by_quartiles: VersionedAccessor
         swp_probability_matrix: VersionedAccessor
+        swp_probability_matrix_8020_9505: VersionedAccessor
+        swp_tier_8020_9505: VersionedAccessor
         swp_trial_history: VersionedAccessor
         # === END AUTO-GENERATED BASENAME ANNOTATIONS ===
         pass

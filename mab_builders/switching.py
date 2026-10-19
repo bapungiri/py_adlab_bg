@@ -82,7 +82,8 @@ def swp_by_block(
     assigned on the full session history, before 'require_expert' trimming and
     trial filtering (see 'prep_task'), so dropped sessions don't renumber them.
     """
-    if exp.data_tag != "RNNdataset":  # RNN CSVs carry their own block ids
+    # RNN CSVs and simulated tasks (no datetime) carry their own block ids
+    if exp.data_tag != "RNNdataset" and exp.b2a.datetime is not None:
         exp.b2a.auto_block_window_ids()
     task = prep_task(exp, require_expert, kwargs_trial_filter, kwargs_expert)
 
@@ -159,7 +160,8 @@ def swp_by_prev_best_arm(
     the first post-expertise block still has its previous block.
     """
     task = exp.b2a
-    if exp.data_tag != "RNNdataset":  # RNN CSVs carry their own window ids
+    # RNN CSVs and simulated tasks (no datetime) carry their own window ids
+    if exp.data_tag != "RNNdataset" and task.datetime is not None:
         task.auto_block_window_ids()
     flipped_ids, same_ids = best_arm_transitions(task)
 
@@ -214,7 +216,8 @@ def swp_around_flip(
     'min_blocks' blocks are NaN.
     """
     full = exp.b2a
-    if exp.data_tag != "RNNdataset":  # RNN CSVs carry their own window ids
+    # RNN CSVs and simulated tasks (no datetime) carry their own window ids
+    if exp.data_tag != "RNNdataset" and full.datetime is not None:
         full.auto_block_window_ids()
     flipped_ids, same_ids = best_arm_transitions(full)
     kept_ids = np.unique(

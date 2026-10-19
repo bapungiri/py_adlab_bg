@@ -53,6 +53,18 @@ PRODUCTS = {
     "abstract_swp_tier": (swp_tier, dict(trial_window=10, **ABSTRACT_WINDOWED)),
     # per-trial (no windows) over the first 100 trials of each session
     "abstract_swp_by_trial": (swp_tier, dict(require_expert="auto")),
+    # same per-trial P(High) / P(Switch) tiers, built over 8020 + 9505 good intact
+    # animals for the paradigm comparison (keeps the shared products untouched)
+    "perf_tier_8020_9505": (perf_tier, dict(require_expert="auto")),
+    "swp_tier_8020_9505": (swp_tier, dict(require_expert="auto")),
+    "perf_probability_matrix_8020_9505": (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert="auto"),
+    ),
+    "swp_probability_matrix_8020_9505": (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert="auto"),
+    ),
     "abstract_swp_by_prev_best_arm": (swp_by_prev_best_arm, dict(require_expert="auto")),
     # per-trial, all blocks vs first / second block of each window
     "swp_by_block_expert": (swp_by_block, dict(require_expert="auto")),
@@ -87,6 +99,12 @@ PRODUCTS = {
         swp_probability_matrix,
         dict(trials=(2, 100), require_expert="auto"),
     ),
+    # flip response and block-wise P(Switch), same animals and sessions
+    "abstract_swp_around_flip_lesion_mPFC": (
+        swp_around_flip,
+        dict(require_expert="auto"),
+    ),
+    "swp_by_block_expert_lesion_mPFC": (swp_by_block, dict(require_expert="auto")),
     # same grids, over the 8020 OFC-lesion animals' intact + lesion sessions
     "abstract_perf_probability_matrix_lesion_OFC": (
         perf_probability_matrix,
@@ -133,14 +151,33 @@ for _infix in SIM_PARAM_SOURCES.values():
     PRODUCTS[f"abstract_sim_qlearn_sticky_dep_{_infix}perf_probability_matrix"] = (
         SIM_ANALYSES["perf_probability_matrix"]
     )
+    # P(High) per trial (the simulated task is dependent blocks only: tier "all")
+    PRODUCTS[f"abstract_sim_qlearn_sticky_dep_{_infix}perf_tier"] = (
+        perf_tier,
+        dict(require_expert=False),
+    )
 
 
-# Learning curves of each animal's fitted RNN simulated on the animal's own block
-# schedule (compare with perf_tier_expert). Build with
+# Learning curves, prob grids and flip response of each animal's fitted RNN
+# simulated on the animal's own block schedule (compare with perf_tier_expert and
+# the abstract_* animal products). Build with
 # exps=mab_builders.simulate.rnn_simulated_exps(exps, "rnn_fit_n48_session") etc.;
-# the schedule is already trimmed, so require_expert=False.
-for _n in (48, 6):
+# the schedule is already trimmed, so require_expert=False. "48win": the N48 fit with
+# hidden state reset at window starts (rnn_fit_n48_window).
+for _n in (48, 6, "48win"):
     PRODUCTS[f"sim_rnn_n{_n}_perf_tier"] = (perf_tier, dict(require_expert=False))
+    PRODUCTS[f"sim_rnn_n{_n}_perf_probability_matrix"] = (
+        perf_probability_matrix,
+        dict(n_last_trials=90, require_expert=False),
+    )
+    PRODUCTS[f"sim_rnn_n{_n}_swp_probability_matrix"] = (
+        swp_probability_matrix,
+        dict(trials=(2, 100), require_expert=False),
+    )
+    PRODUCTS[f"sim_rnn_n{_n}_swp_around_flip"] = (
+        swp_around_flip,
+        dict(require_expert=False),
+    )
 
 
 def all_good_sessions(include_rnn=True):

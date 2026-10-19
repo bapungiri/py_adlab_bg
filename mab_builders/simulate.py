@@ -138,7 +138,14 @@ def simulated_exps(
     return out
 
 
-RNN_FITS = ("rnn_fit_n48_session", "rnn_fit_n6_session", "rnn_fit_n32_session")
+RNN_FITS = (
+    "rnn_fit_n48_session",
+    "rnn_fit_n48_window",
+    "rnn_fit_n6_session",
+    "rnn_fit_n32_session",
+)
+# training epochs of fits not trained for the default 500
+RNN_FIT_EPOCHS = {"rnn_fit_n48_window": 1000}
 
 
 def rnn_sim_path(exp, rnn_attr, require_expert="auto", seed=0):
@@ -151,7 +158,9 @@ def rnn_sim_path(exp, rnn_attr, require_expert="auto", seed=0):
     m = re.fullmatch(r"rnn_fit_n(\d+)_(\w+)", rnn_attr)
     if m is None:
         raise ValueError(f"rnn_attr must look like 'rnn_fit_n48_session', got {rnn_attr!r}")
-    fit = exp.rnn_fit_path(int(m.group(1)), m.group(2))
+    fit = exp.rnn_fit_path(
+        int(m.group(1)), m.group(2), n_epochs=RNN_FIT_EPOCHS.get(rnn_attr, 500)
+    )
     model = fit.stem.split("_RNNfit_", 1)[1]
     sim = fit.parent / "rnn_simulated" / model / f"seed{seed}_expert-{require_expert}.csv"
     return fit, sim
