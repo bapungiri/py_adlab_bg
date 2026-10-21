@@ -122,6 +122,8 @@ QLEARN_VARIANTS = {
     "default": {"enable": [], "disable": ["alpha_h", "sticky"]},  # alpha_c, alpha_u, bias, beta
     "nobias": {"enable": [], "disable": ["bias", "alpha_h", "sticky"]},  # bias fixed at 0
     "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},  # + perseverance
+    # + decay of the unchosen Q-value toward 0.5
+    "decay": {"enable": ["alpha_h", "sticky", "decay"], "disable": []},
 }
 
 
