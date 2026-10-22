@@ -137,6 +137,7 @@ class GroupData:
         param_recovery_qlearn_sticky: VersionedAccessor
         param_recovery_si: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn: VersionedAccessor
+        param_recovery_struc_unstruc_tier_qlearn_decay: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn_sticky: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn_sticky_truesticky0to5: VersionedAccessor
         param_recovery_tier_mix_qlearn: VersionedAccessor
