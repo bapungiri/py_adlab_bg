@@ -20,7 +20,7 @@ class FigPath:
 
 class NotesPath:
     base: Path = Path(
-        "C:/Users/asheshlab/Documents/obsidian_vaults/literature_notes"
+        "C:/Users/asheshlab/Documents/Codes/literature_notes"
     )
 
 
