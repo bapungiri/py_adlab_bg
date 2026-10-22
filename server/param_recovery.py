@@ -12,6 +12,7 @@ from banditpy.models.policy import (
     Qlearn,
     ThompsonShared,
     Qlearn2Regime,
+    QlearnHierarchical,
     Qlearn3Regime,
 )
 from banditpy.utils.probs import generate_probs_2arm
@@ -33,6 +34,7 @@ POLICY_REGISTRY = {
     "Qlearn3Regime": Qlearn3Regime,
     "StateInference": StateInference,
     "ThompsonShared": ThompsonShared,
+    "QlearnHierarchical": QlearnHierarchical,
 }
 
 
@@ -274,7 +276,7 @@ def main():
     # draw over-samples large values relative to small ones; log-uniform
     # gives equal weight to equal ratios instead. Used both for the true
     # values and for the Optuna search.
-    LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2"}
+    LOG_SCALE_PARAMS = {"beta", "beta_0", "beta_1", "beta_2", "beta_meta", "beta_option"}
 
     if args.optimizer == "optuna":
         fit_kwargs = {
