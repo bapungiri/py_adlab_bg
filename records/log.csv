@@ -1,0 +1,88 @@
+timestamp,animal_id,category,note,hardware_test
+2025-10-21,BGF2,task,Valve time 15 ms (value from old OpCon sheet; set date unknown),
+2025-10-27,BGM4,task,Valve time 32 ms (value from old OpCon sheet; set date unknown),
+2025-11-04,BGM3,task,Valve time 12 ms (value from old OpCon sheet; set date unknown),
+2025-11-05,BGM0,health,"Lean, water given",
+2025-11-06,BGM5,task,Valve time 32 ms (value from old OpCon sheet; set date unknown),
+2025-11-13,BGF0,software,Testing: RemoteJobSubmission.py and convertAndTransfer.py modified to back up the AutoTrainerModular codebase,
+2025-11-13,BGF1,software,Testing: RemoteJobSubmission.py and convertAndTransfer.py modified to back up the AutoTrainerModular codebase,
+2025-11-14,BGF0,software,Nosepoke pin numbers in SetHardwareConfig.h were flipped (happened while uploading fresh code). Corrected.,
+2025-11-14,BGF2,software,RemoteJobSubmission.py and convertAndTransfer.py modified to back up the AutoTrainerModular codebase,
+2025-11-14,BGM4,software,RemoteJobSubmission.py and convertAndTransfer.py modified to back up the AutoTrainerModular codebase,
+2025-11-16,ALL,software,All Pi codes updated to latest version,
+2025-11-18,BGM4,software,"Could not connect, storage full. Convert&Transfer was deployed.",
+2025-11-19,BGM5,task,"Heavily biased towards port 1. To correct the bias, SM with port1=10, port2=80 was uploaded. Discard this day's data.",
+2025-11-20,BGM5,task,"Reliably chose port 2, so code reverted to original state.",
+2025-11-20 17:30,BGM3,hardware,V2 camera switched with HQ camera. ATM relaunched.,
+2025-11-20 17:30,BGF3,hardware,V2 camera switched with HQ camera. ATM relaunched.,
+2025-11-23,ALL,hardware,"Power outage: all ATMs relaunched from the Pi terminals, NOT via remoteJobSubmission.py. Not all started before the 7 PM tasks, so some first training windows started late (e.g. 7:15 to 7:50).",
+2025-11-24,ALL,software,All Pi ATMs relaunched around 11 AM to 12 noon.,
+2025-11-24 17:30,BGM4,hardware,V2 camera switched with HQ camera. ATM relaunched. (Date missing in source; placed after 2025-11-24.),
+2025-11-25,BGM4,hardware,"Camera mount posts were visible in the camera view, so the HQ camera was moved closer to the subject by shortening the posts.",
+2025-11-28,BGF1,hardware,"ATM relaunched as camera feedback was not present. Task running, but video not being saved.",
+2025-12-08 15:30,BGF0,hardware,Power throttling on right column of F rack boxes. Two power strips and two USB hubs now in use.,
+2025-12-08 15:30,BGF1,hardware,Power throttling on right column of F rack boxes. Two power strips and two USB hubs now in use.,
+2025-12-08 15:30,BGF3,hardware,Power throttling on right column of F rack boxes. Two power strips and two USB hubs now in use.,
+2025-12-08 15:30,BGM5,hardware,Power throttling on right column of F rack boxes. Two power strips and two USB hubs now in use.,
+2025-12-09 16:30,BGF1,hardware,Camera wasn't broadcasting video; camera changed. Didn't help; Pi power cable changed at 17:30.,
+2025-12-10 15:00,BGF1,hardware,"Camera broadcasting still not resolved, changed Pi and camera cable.",
+2026-01-05 11:00,BGM5,health,"Didn't do the task well since 2025-12-31. OpCon looked fine (water delivery ok, nosepoke ok). Free water via bottle. Scrap .dat/.csv files from this day.",
+2026-01-05 12:20,BGF3,software,Found ATM not running since 2026-01-02. ATM re-run.,
+2026-01-06,BGM5,health,Still on free water. Scrap data.,
+2026-01-07,BGM5,health,Still on free water. Scrap data.,
+2026-01-08,BGM5,health,Still on free water. Scrap data.,
+2026-01-09 11:00,BGF3,surgery,Biased towards one port. Taken for bilateral PL/IL lesion surgery; to return to cage after one week.,
+2026-01-09 17:30,BGM5,health,Free water taken away.,
+2026-01-14 16:00,BGM5,health,Didn't do the task properly yesterday (2026-01-13). 15 min free water.,
+2026-01-14 16:27,BGM5,task,Valve time increased from 32 to 42 ms to motivate task.,
+2026-01-15 10:25,BGM5,health,Decent number of trials yesterday. Still recovering from weight loss. 15 min free water.,
+2026-01-15 12:20,BGF2,hardware,Camera wasn't broadcasting for a few days. Restarted ATM.,
+2026-01-15 17:30,BGF3,housing,Lesioned animal returned to OpCon box.,
+2026-01-20 16:00,BGF3,software,ATM was not running. ATM restarted.,
+2026-01-21 15:30,BGF3,housing,"Removed from OpCon cage. Even though biased, it was reliably doing the task post-lesion.",
+2026-01-21 15:40,BGF5,housing,New animal added to 10.36.22.12,
+2026-02-04 16:10,BGM4,housing,Moved to holding room for lesion surgery. Good performer.,
+2026-02-05 16:10,BGM4,surgery,Died during surgery. See surgeries.csv.,
+2026-02-06 11:00,BGM6,housing,New animal added to 10.36.22.17,
+2026-02-22 15:00,BGM6,software,Pi storage full. Ran convertAndTransfer manually.,
+2026-02-22 16:00,BGM6,software,Testing new ATM version: cameras on only during training sessions or on demand via web interface.,
+2026-02-23 11:00,BGM6,software,Camera code improved and kind of working now.,
+2026-02-23 11:00,BGM5,software,New camera code tested. Kind of working.,
+2026-02-25 17:30,BGF2,surgery,Removed from task and given water to prepare for lesion surgery.,
+2026-02-26 18:00,BGF2,surgery,Lesion surgery finished. 8 injection sites.,
+2026-03-01,ALL,hardware,"OpCon interruptions, no task recorded.",
+2026-03-03 12:00,BGM5,health,"Seemed weak; free water for 5 hours, taken out at 5 PM.",
+2026-03-03 12:00,BGF4,health,"Seemed weak; free water for 5 hours, taken out at 5 PM.",
+2026-03-04 11:00,BGM5,health,10 min free water.,
+2026-03-04 11:00,BGF4,health,10 min free water.,
+2026-03-04 16:00,BGF2,housing,Returned to OpCon box after lesion surgery.,
+2026-04-07 17:00,BGF4,task,Block length changed to minimum 30 trials and 5% switch probability.,NotTested
+2026-04-07 17:00,BGM5,task,Block length changed to minimum 30 trials and 5% switch probability.,NotTested
+2026-04-08 12:00,BGM6,health,"Did not do task or drink enough water. Free water for 4 hours. Hardware test on the box, everything fine.",Passed
+2026-04-10 12:10,BGM6,hardware,Did not do task: lick port not detecting licks (loose header-pin connector on PCB). Reseated; works now. Free water for 2 hours.,Passed
+2026-04-14 11:50,BGM5,task,Biased towards port 1. State machine changed to 30/80 to remove bias.,NotTested
+2026-04-14 11:50,BGM5,task,Still biased. State machine changed to 10/80.,NotTested
+2026-04-17 11:00,BGM5,health,"Still biased, looked a little weak; free water provided.",NotTested
+2026-04-20 17:00,BGM5,health,Free water taken away. Still on 10/80.,NotTested
+2026-06-08 11:30,BGF6,housing,New animal added (10.36.22.14),NotTested
+2026-06-10 11:00,BGF5,health,Did not do task in the previous cycle. Water for 30 min.,Passed
+2026-06-10 11:20,BGF0,software,OpCon rebooted for UI bug.,NotTested
+2026-06-12 17:30,BGF0,surgery,Moved to holding room for mPFC lesion surgery.,NotTested
+2026-06-13 15:00,BGF0,surgery,Lesion surgery performed. Animal healthy.,NotTested
+2026-06-14 18:00,BGM7,software,"ATM was not running, watered for 10 min.",Passed
+2026-06-26 17:30,BGF6,housing,"No speaker sound on nosepokes and not progressing to the next training session, so moved from 10.36.22.14 to 10.36.22.10.",Passed
+2026-06-27 17:30,BGF5,task,Reward (valve) time increased from 12 to 13 ms to motivate more trials.,NotTested
+2026-06-30 11:20,BGF6,software,"Serial port error, re-uploaded the code.",NotTested
+2026-07-06 11:00,BGF5,health,Looked a little weak. Water provided.,NotTested
+2026-07-28 16:00,BGM6,surgery,Removed from task to prepare for surgery.,NotRequired
+2026-07-30 13:30,BGM6,surgery,Bilateral mPFC lesions.,NotRequired
+2026-07-31 13:00,BGM8,housing,New animal added to 10.36.22.14 with 9505 unstruc paradigm (source said 9005),Passed
+2026-08-02 15:00,BGF5,surgery,Moved to holding room for mPFC lesion surgery.,NotRequired
+2026-09-12 14:00,BGF7,health,Looked a little weak. Water provided.,NotRequired
+2026-09-12 14:00,Felix,health,Looked a little weak. Moved to holding room.,NotRequired
+2026-09-12 15:00,BGF10,housing,New animal added to 10.36.22.16 with 8020 struc paradigm,Passed
+2026-10-22 17:00,BGM11,housing,New animal added to 10.36.22.10 with 9505 unstruc paradigm,
+2026-10-22 18:45,BGM11,software,"Box 10.36.22.10 code switched to 9505 unstruc (unstrProb 80 to 95) and userInfo.in set to BGM11 / Paradigm_9505. Deploy FAILED: Teensy compile ran out of memory on the Pi (3 leaked lxpanel processes, ~600 MB). Old BGF6 job (8020) still running.",
+2026-10-23 11:37,BGM11,software,"Box 10.36.22.10 rebooted (freed memory), then deployed: 9505 unstruc (unstrProb 95), all training stages enabled from LickTrain, data to Paradigm_9505. PiCam had not been starting (PiCamMain.py had Windows CRLF line endings); fixed and running.",
+2026-10-23 12:25,ALL,software,"Camera now always on (stream always available); clips saved only during recording windows. Fixed: camera schedule used UTC so camera came on 5.5 h after sessions; Video dir owned by root (nightly transfer) so the recorder died; deploy never killed the old PiCamMain. Deployed to .10 .11 .12 .13 .21; .14-.20 pending (low memory, need reboot). Video was likely not recorded on most boxes since Feb 2026.",
+2026-10-23 13:18,ALL,software,"Deployed to 11 boxes (all but .17): new clip timing (clip closes after 5 s without an event; 2 s kept before first and after last event; saved at 50 s), Pi5 (.11) clips now cut by timestamp, warnings go to server1 mail bridge (WD_SMTP 10.36.17.152:2525). .17 not deployed (SSH refused after reboot). .20 camera not detected (detected=0): check cable/module.",

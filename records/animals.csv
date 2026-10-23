@@ -1,0 +1,29 @@
+animal_id,sex,dob,owner,group,paradigm,rig_ip,task_start,task_end,end_date,end_reason,notes
+BGM0,M,2025-01-29,BG,unstruc,8020,10.36.22.10,2025-08-11,2025-11-05,2025-11-21,sacrificed,
+BGM1,M,2025-01-29,BG,struc,8020,10.36.22.11,2025-08-11,2025-11-10,2025-11-21,sacrificed,
+BGM2,M,2025-01-29,BG,unstruc,8020,10.36.22.12,2025-08-11,2025-10-25,2025-11-21,sacrificed,Biased
+BGF0,F,2025-06-20,BG,struc,8020,10.36.22.13,2025-10-04,,,,mPFC lesion 2026-06-13
+BGF1,F,2025-06-20,BG,unstruc,8020,10.36.22.14,2025-10-04,,,,
+BGF2,F,2025-06-21,BG,unstruc,8020,10.36.22.15,2025-10-21,,,,mPFC lesion 2026-02-26
+BGM3,M,2025-06-20,BG,struc,8020,10.36.22.16,2025-11-04,,,,
+BGM4,M,2025-06-21,BG,struc,8020,10.36.22.17,2025-10-27,2026-02-04,2026-02-05,died_in_surgery,
+BGF3,F,2025-06-09,BG,unstruc,8020,10.36.22.12,2025-11-05,2026-01-21,2026-01-18,perfused,Biased. PL/IL lesion 2026-01-09; did the task reliably post-lesion
+BGM5,M,2025-06-20,BG,unstruc,8020,10.36.22.10,2025-11-06,,,,"Also has Paradigm_8020_short data (dates not recorded). Old sheet had ""Died during surgery"" on this row; probably belongs to BGM4 (verify)"
+BGF4,F,2025-08-10,BG,struc,8020,10.36.22.11,2025-11-10,,,,Also has Paradigm_8020_short data (dates not recorded)
+BGF5,F,2025-10-23,BG,unstruc,8020,10.36.22.12,2026-01-21,,,,mPFC lesion (surgery not recorded)
+BGM6,M,2025-10-24,BG,struc,8020,10.36.22.17,2026-02-06,,,,mPFC lesion 2026-07-30
+BGF6,F,2026-02-20,BG,unstruc,8020,10.36.22.14,2026-06-08,,,,Biased
+BGM7,M,2026-02-20,BG,unstruc,8020,10.36.22.15,2026-06-14,,,,mPFC lesion (surgery not recorded)
+BGF7,F,2026-02-20,BG,struc,9505,10.36.22.15,2026-06-14,,,,
+BGM8,M,2025-12-16,BG,unstruc,9505,10.36.22.14,2026-07-31,,,,
+BGM9,M,2025-12-16,BG,unstruc,9505,10.36.22.18,2026-08-17,,,,
+BGF8,F,,BG,struc,9505,,,,,,
+BGF9,F,,BG,unstruc,9505,,,,,,
+BGM10,M,,BG,struc,9505,,,,,,
+BGF10,F,,BG,struc,8020,10.36.22.16,2026-09-12,,,,
+BGF11,F,,BG,struc,9505,,,,,,"Biased: P(port1)=0.98, sensitivity -0.003 (2026-10-02)"
+BGM11,M,2026-05-25,BG,unstruc,9505,10.36.22.10,2026-10-22,,,,
+BGTLF0,F,,BG,,,,,,,,Test lesion animal (histology only)
+BGTLM0,M,,BG,,,,,,2026-01-12,perfused,Test lesion animal (histology only)
+Neymar,,,AC,unstruc,8020,,,,,,"Aarushi's animal; poor performer. Sex: lesion sheet says female, mab_subjects says male (verify)"
+Felix,,,,,,,,,,,Only appears in the log (2026-09-12); details unknown

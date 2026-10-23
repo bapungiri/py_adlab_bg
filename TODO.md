@@ -9,6 +9,14 @@
 - [ ] Check BGM9 on the rig: 100% port-1 choices in its last 3 days (possible port-2 sensor issue). Excluded from the 9505 fit plot in `mab_model_analysis.ipynb`.
 
 ## Next
+- [ ] Fill gaps and conflicts in `records/` found during the 2026-10-22 migration:
+  - Task end dates for BGF1, BGM3, BGM5 (their boxes were reused by BGF6, BGM8, BGF10), start dates for BGF8/BGF9/BGM10/BGF11, and `8020_short` dates of BGM5/BGF4.
+  - BGM7 and BGF7 both listed on 10.36.22.15 from 2026-06-14.
+  - Lesion surgeries of BGF5 and BGM7 not recorded (date, sites); BGF0's surgery sheet is a copy of BGF2's; BGM6 has no surgery sheet.
+  - BGF3: lesion sheet says perfused 2026-01-18, log says removed from OpCon cage 2026-01-21.
+  - BGM4 death: log/old sheet say 2026-02-05, lesion index says 2026-02-06. Old sheet's "Died during surgery" note sat on BGM5's row.
+  - Neymar sex (lesion sheet: female; `mab_subjects`: male). Who is Felix?
+  - BGM5 "scrap data" days 2026-01-05 to 01-08 are not excluded in `mab_subjects.py`; add an `exclude` window if they should be dropped.
 - [ ] Align `fit_blocks` intact trimming (30-day skip) with `perf_tier` (expertise day) so fits and performance curves use the same trials.
 - [ ] mPFC lesion fits: lesion sessions start on the first post-lesion day (may include recovery) — consider skipping early post-lesion days.
 - [ ] Move the remaining builder cells in `mab_choice_performance1.ipynb` into `mab_builders`.
