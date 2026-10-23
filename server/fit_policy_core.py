@@ -187,10 +187,15 @@ def fit_blocks(
     models = {}
     for scope in scopes:
         task_scope = task if scope == "all" else task._filtered(scope_masks[scope])
+        # 'all' keeps every block, so values carry across the blocks of a window and
+        # reset at window starts. A tier subset drops the other blocks, so blocks
+        # that are adjacent in it may not have been adjacent in the session: reset
+        # at every block instead (a session here is one block of fixed probabilities).
+        reset = task_scope.is_window_start if scope == "all" else task_scope.is_session_start
         models[scope] = DecisionModel(
             task_scope,
             policy=policy_ctor(),
-            reset_mode=task_scope.is_window_start,
+            reset_mode=reset,
         )
         models[scope].fit(optimizer=optimizer, **fit_kwargs)
 
