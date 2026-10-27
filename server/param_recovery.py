@@ -13,6 +13,7 @@ from banditpy.models.policy import (
     ThompsonShared,
     Qlearn2Regime,
     QlearnHierarchical,
+    QlearnCost,
     Qlearn3Regime,
 )
 from banditpy.utils.probs import generate_probs_2arm
@@ -35,6 +36,7 @@ POLICY_REGISTRY = {
     "StateInference": StateInference,
     "ThompsonShared": ThompsonShared,
     "QlearnHierarchical": QlearnHierarchical,
+    "QlearnCost": QlearnCost,
 }
 
 
@@ -136,9 +138,21 @@ QLEARN2REGIME_VARIANTS = {
     "sticky": {"enable": ["alpha_h", "sticky", "b_init"], "disable": []},
 }
 
+# QlearnCost: learned average reward rate rho in the RPE. 'default' starts rho
+# at 0 at each reset (nests QlearnSticky at alpha_rho = 0); 'rho0' fits the
+# starting value too.
+QLEARNCOST_VARIANTS = {
+    "default": {"enable": [], "disable": []},
+    "rho0": {"enable": ["rho0"], "disable": []},
+}
+
 
 def make_policy_factory(policy_cls, variant):
-    variants = {Qlearn: QLEARN_VARIANTS, Qlearn2Regime: QLEARN2REGIME_VARIANTS}.get(
+    variants = {
+        Qlearn: QLEARN_VARIANTS,
+        Qlearn2Regime: QLEARN2REGIME_VARIANTS,
+        QlearnCost: QLEARNCOST_VARIANTS,
+    }.get(
         policy_cls, {"default": {"enable": [], "disable": []}}
     )
     if variant not in variants:
@@ -194,7 +208,7 @@ def parse_args():
     )
     parser.add_argument(
         "--variant",
-        choices=list(QLEARN_VARIANTS),
+        choices=sorted({*QLEARN_VARIANTS, *QLEARN2REGIME_VARIANTS, *QLEARNCOST_VARIANTS}),
         default="default",
         help="Qlearn/Qlearn2Regime variant (which params are fitted); non-default adds a suffix to the save name",
     )
@@ -224,6 +238,14 @@ def parse_args():
         type=int,
         default=None,
         help="Optional random seed for reproducible simulations",
+    )
+    parser.add_argument(
+        "--blocks-per-session",
+        type=int,
+        default=1,
+        help="struc_unstruc_tier / tier_mix: blocks per simulated session (window); "
+        "the agent resets only between sessions, as animals reset at window starts. "
+        "The all-blocks fit resets per session, per-tier fits at every block",
     )
     parser.add_argument(
         "--true-range",
@@ -534,6 +556,7 @@ def main():
                 min_trials_per_block=min_trials_per_block,
                 prob_switch=prob_switch,
                 seed=rng.integers(2**32),
+                blocks_per_session=args.blocks_per_session,
             )
 
         dfs = []
@@ -560,8 +583,11 @@ def main():
                     scope_tasks[tier] = task._filtered(trial_n_high == n_high)
 
             for scope, scope_task in scope_tasks.items():
+                # all blocks: reset per session (window). A tier subset drops the
+                # other blocks, so its blocks reset individually (as in fit_blocks)
+                reset = "session" if scope == "all" else "block"
                 model = DecisionModel(
-                    task=scope_task, policy=main_policy(), reset_mode="session"
+                    task=scope_task, policy=main_policy(), reset_mode=reset
                 )
                 model.fit(**fit_kwargs)
                 scope_truth = true_values.get(scope) if per_tier else truth
@@ -570,7 +596,7 @@ def main():
                         "sim_id": sim_id,
                         "task": task_name,
                         "scope": scope,
-                        "n_blocks": len(np.unique(scope_task.session_ids)),
+                        "n_blocks": len(np.unique(scope_task.block_ids)),
                         "n_trials": len(scope_task.choices),
                         "param": param_names,
                         "true_value": (
