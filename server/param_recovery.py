@@ -128,6 +128,8 @@ QLEARN_VARIANTS = {
     "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},  # + perseverance
     # + decay of the unchosen Q-value toward 0.5
     "decay": {"enable": ["alpha_h", "sticky", "decay"], "disable": []},
+    # decay without perseverance: does sticky hide decay?
+    "decay_nosticky": {"enable": ["decay"], "disable": ["alpha_h", "sticky"]},
 }
 
 
@@ -144,6 +146,8 @@ QLEARN2REGIME_VARIANTS = {
 QLEARNCOST_VARIANTS = {
     "default": {"enable": [], "disable": []},
     "rho0": {"enable": ["rho0"], "disable": []},
+    # without perseverance: does sticky hide alpha_rho?
+    "nosticky": {"enable": [], "disable": ["alpha_h", "sticky"]},
 }
 
 
