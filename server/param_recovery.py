@@ -252,6 +252,14 @@ def parse_args():
         "The all-blocks fit resets per session, per-tier fits at every block",
     )
     parser.add_argument(
+        "--window-blocks",
+        metavar="LO,HI",
+        default=None,
+        help="struc_unstruc: group blocks into windows of a random LO..HI blocks "
+        "(e.g. 3,5); the agent resets only at window starts, and so does the fit. "
+        "Default: every block is its own window. Adds '_win<LO>to<HI>' to the save name",
+    )
+    parser.add_argument(
         "--true-range",
         action="append",
         default=[],
@@ -324,6 +332,12 @@ def main():
             cols["nll_true"] = float(model._nll(np.asarray(true_theta)))
         return cols
 
+    window_blocks = None
+    if args.window_blocks:
+        window_blocks = tuple(int(x) for x in args.window_blocks.split(","))
+        if args.design != "struc_unstruc" or len(window_blocks) != 2 or not 1 <= window_blocks[0] <= window_blocks[1]:
+            raise SystemExit("--window-blocks LO,HI (1 <= LO <= HI) is for --design struc_unstruc")
+
     if args.design == "struc_unstruc":
         probs_unstruc, probs_struc = generate_probs_2arm(
             N=n_sessions, frac_impurity=0.2
@@ -388,23 +402,42 @@ def main():
         policy.set_params(param_dict)
         return policy
 
+    def simulate_windows(policy, probs, rng):
+        """Simulate 'probs' in windows of window_blocks[0]..[1] blocks (random
+        sizes); each window is one session, so the agent resets only between
+        windows. Without --window-blocks, every block is its own session."""
+        if window_blocks is None:
+            return DecisionModel.simulate_policy(
+                policy=policy,
+                reward_schedule=probs,
+                min_trials_per_block=min_trials_per_block,
+                prob_switch=prob_switch,
+                seed=rng.integers(2**32),
+            )
+        lo, hi = window_blocks
+        windows, start = [], 0
+        while start < len(probs):
+            n = int(rng.integers(lo, hi + 1))
+            window = probs[start : start + n]
+            windows.append(
+                DecisionModel.simulate_policy(
+                    policy=policy,
+                    reward_schedule=window,
+                    min_trials_per_block=min_trials_per_block,
+                    prob_switch=prob_switch,
+                    seed=rng.integers(2**32),
+                    blocks_per_session=len(window),
+                )
+            )
+            start += n
+        return concat_tasks(windows)
+
     def run_simulation_struc_unstruc(seed_seq):
         rng = default_rng(seed_seq)
         policy1 = sample_true_policy(rng)
 
-        task_unstruc = DecisionModel.simulate_policy(
-            policy=policy1,
-            reward_schedule=probs_unstruc,
-            min_trials_per_block=min_trials_per_block,
-            prob_switch=prob_switch,
-        )
-
-        task_struc = DecisionModel.simulate_policy(
-            policy=policy1,
-            reward_schedule=probs_struc,
-            min_trials_per_block=min_trials_per_block,
-            prob_switch=prob_switch,
-        )
+        task_unstruc = simulate_windows(policy1, probs_unstruc, rng)
+        task_struc = simulate_windows(policy1, probs_struc, rng)
 
         policy2 = main_policy()
         model_unstruc = DecisionModel(
@@ -633,6 +666,8 @@ def main():
         save_name = f"param_recovery_{args.policy.lower()}"
     if args.variant != "default":
         save_name = f"{save_name}_{args.variant}"
+    if window_blocks is not None:
+        save_name = f"{save_name}_win{window_blocks[0]}to{window_blocks[1]}"
     if args.tag:
         save_name = f"{save_name}_{args.tag}"
 
