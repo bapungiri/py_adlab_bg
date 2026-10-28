@@ -46,14 +46,15 @@ MODELS = {
 }
 
 # True values near the 8020 animals' fits (alpha_c ~0.27, alpha_u ~-0.35,
-# beta ~2.5, sticky ~1.7, |bias| < 0.3). alpha_u near +alpha_c gives agents that
+# beta ~2.5, |bias| < 0.3; sticky ~4 now that it sits outside beta, ~1.7 when
+# it was scaled by beta). alpha_u near +alpha_c gives agents that
 # never learn, so it stops at 0.3. Params not listed (alpha_h, decay, alpha_rho)
 # are drawn from their fit bounds. Override with --true-range.
 TRUE_RANGES = {
     "alpha_c": (0.05, 0.9),
     "alpha_u": (-0.9, 0.3),
     "beta": (1.0, 5.0),
-    "sticky": (0.0, 5.0),
+    "sticky": (0.0, 8.0),
     "bias": (-0.3, 0.3),
 }
 LOG_SCALE_PARAMS = {"beta"}
