@@ -153,7 +153,7 @@ QLEARNCOST_VARIANTS = {
 }
 
 
-def make_policy_factory(policy_cls, variant):
+def make_policy_factory(policy_cls, variant, fit_bounds=None):
     variants = {
         Qlearn: QLEARN_VARIANTS,
         Qlearn2Regime: QLEARN2REGIME_VARIANTS,
@@ -171,6 +171,12 @@ def make_policy_factory(policy_cls, variant):
             getattr(policy.params, name).enable()
         for name in spec["disable"]:
             getattr(policy.params, name).disable()
+        # Fit bounds can live on the policy or on its beta schedule ('beta').
+        for name, (lo, hi) in (fit_bounds or {}).items():
+            if name in policy.params:
+                getattr(policy.params, name).set_bounds(lo, hi)
+            else:
+                policy.beta_schedule.set_bounds({name: (lo, hi)})
         return policy
 
     return make_policy
@@ -270,6 +276,14 @@ def parse_args():
         "instead of the fit bounds; repeatable",
     )
     parser.add_argument(
+        "--fit-bound",
+        action="append",
+        default=[],
+        metavar="NAME=LO,HI",
+        help="replace the fit bounds of NAME (e.g. beta=0.1,30); repeatable. "
+        "Adds '_fb<NAME><LO>to<HI>' to the save name ('.' written as 'p')",
+    )
+    parser.add_argument(
         "--tag",
         default="",
         help="suffix for the save name (letters, digits, underscores), e.g. truesticky0to5",
@@ -301,7 +315,14 @@ def parse_args():
 
 def main():
     args = parse_args()
-    main_policy = make_policy_factory(POLICY_REGISTRY[args.policy], args.variant)
+    fit_bounds = {}
+    for spec in args.fit_bound:
+        name, _, rng_txt = spec.partition("=")
+        lo, hi = (float(x) for x in rng_txt.split(","))
+        if lo >= hi:
+            raise SystemExit(f"--fit-bound {spec}: LO must be below HI")
+        fit_bounds[name] = (lo, hi)
+    main_policy = make_policy_factory(POLICY_REGISTRY[args.policy], args.variant, fit_bounds)
 
     n_simulations = args.max_subjects
 
@@ -670,6 +691,8 @@ def main():
         save_name = f"{save_name}_{args.variant}"
     if window_blocks is not None:
         save_name = f"{save_name}_win{window_blocks[0]}to{window_blocks[1]}"
+    for name, (lo, hi) in fit_bounds.items():
+        save_name = f"{save_name}_fb{name}{lo:g}to{hi:g}".replace(".", "p")
     if args.tag:
         save_name = f"{save_name}_{args.tag}"
 
