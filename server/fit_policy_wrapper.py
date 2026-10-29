@@ -31,6 +31,16 @@ def QlearnSticky():
     return policy
 
 
+def QlearnStickyDecay():
+    """Qlearn with sticky (outside beta) and decay of the unchosen value toward
+    0.5: alpha_c, alpha_u, bias, alpha_h, sticky, decay, beta. beta is bounded
+    to [1, 10]: below 1 the value gap (at most 1) barely moves choices."""
+    policy = QlearnSticky()
+    policy.params.decay.enable()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
 def QlearnNoSticky():
     """Qlearn without perseverance (alpha_c, alpha_u, bias, beta), as in the Optuna presets."""
     policy = Qlearn()
@@ -73,6 +83,7 @@ LBFGS_STICKY = dict(
     optimizer=LBFGSOptimizer(),
     fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
 )
+LBFGS_STICKY_DECAY = dict(LBFGS_STICKY, policies=[QlearnStickyDecay])
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
@@ -116,6 +127,14 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearn_sticky_p8020_intact",
+        require_expert=True,
+    ),
+    # Sticky + decay, beta in [1, 10]; same sessions and trimming as above.
+    "sticky_decay_p8020_intact": dict(
+        LBFGS_STICKY_DECAY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn_sticky_decay_p8020_intact",
         require_expert=True,
     ),
     # Lesion sessions only, kept whole.
