@@ -11,3 +11,4 @@
 [2026-10-15 14:59:11] pull-pt dry_run=False triggered_by=manual-rnnfit-only files_transferred=60 bytes_transferred=753,858,464 rc=0
 [2026-10-16 09:37:26] pull-pt dry_run=False triggered_by=manual-rnnfit-n48-window files_transferred=17 bytes_transferred=218,004,164 rc=0
 [2026-10-16 12:58:09] push-csv dry_run=False triggered_by=post-nas-rebuild files_transferred=161 bytes_transferred=402,035,390 rc=0
+[2026-10-27 18:22:40] push-csv dry_run=False triggered_by=all files_transferred=255 bytes_transferred=130,192,558 rc=0

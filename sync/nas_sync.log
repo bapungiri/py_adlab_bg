@@ -31,3 +31,5 @@
 [2026-10-16 12:54:09] rebuild dry_run=False triggered_by=manual rebuilt=1 failed=0
 [2026-10-16 12:54:16] rebuild dry_run=False triggered_by=manual rebuilt=1 failed=0
 [2026-10-16 12:55:11] rebuild dry_run=False triggered_by=manual rebuilt=1 failed=0
+[2026-10-27 18:17:54] pull dry_run=False triggered_by=all copied_files=486 copied_bytes=1700444709 ok=True
+[2026-10-27 18:21:35] rebuild dry_run=False triggered_by=all rebuilt=12 failed=1
