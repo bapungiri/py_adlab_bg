@@ -91,9 +91,11 @@ class GroupData:
         fit_multi_policy: VersionedAccessor
         fit_multi_policy_combinations: VersionedAccessor
         fit_multi_policy_lesion: VersionedAccessor
+        fit_qlearn2regime_p8020_intact: VersionedAccessor
         fit_qlearn2regime_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn2regime_p9505: VersionedAccessor
         fit_qlearn2regime_sticky_p8020_intact: VersionedAccessor
+        fit_qlearn2regime_sticky_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn2regime_sticky_p9505: VersionedAccessor
         fit_qlearnH: VersionedAccessor
         fit_qlearnH_sim: VersionedAccessor
