@@ -83,7 +83,13 @@ LBFGS_STICKY = dict(
     optimizer=LBFGSOptimizer(),
     fit_kwargs={"n_starts": 12, "n_jobs": 6, "early_stop": False, "progress": False},
 )
-LBFGS_STICKY_DECAY = dict(LBFGS_STICKY, policies=[QlearnStickyDecay])
+# 24 starts: with 12 the fits split between two solutions (decay ~0, alpha_u < 0 vs
+# decay ~0.7, alpha_u > 0) and often ended worse than the nested 6-param fit.
+LBFGS_STICKY_DECAY = dict(
+    LBFGS_STICKY,
+    policies=[QlearnStickyDecay],
+    fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
+)
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
