@@ -7,6 +7,7 @@ import mab_subjects
 
 from banditpy.models.policy import (
     Qlearn,
+    QlearnCost,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
     Qlearn2Regime,
@@ -37,6 +38,22 @@ def QlearnStickyDecay():
     to [1, 10]: below 1 the value gap (at most 1) barely moves choices."""
     policy = QlearnSticky()
     policy.params.decay.enable()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
+def QlearnStickyBeta1():
+    """6-param Qlearn (sticky outside beta) with beta in [1, 10], as in
+    QlearnStickyDecay, so the two fits nest and compare directly."""
+    policy = QlearnSticky()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
+def QlearnCostSticky():
+    """QlearnCost default variant: the 6 Qlearn params + alpha_rho (rho0 = 0, so
+    alpha_rho = 0 is QlearnStickyBeta1), sticky outside beta, beta in [1, 10]."""
+    policy = QlearnCost()
     policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
     return policy
 
@@ -90,6 +107,9 @@ LBFGS_STICKY_DECAY = dict(
     policies=[QlearnStickyDecay],
     fit_kwargs={"n_starts": 24, "n_jobs": 6, "early_stop": False, "progress": False},
 )
+# Same 24 starts for the models compared with sticky + decay.
+LBFGS_STICKY_BETA1 = dict(LBFGS_STICKY_DECAY, policies=[QlearnStickyBeta1])
+LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
@@ -141,6 +161,22 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearn_sticky_decay_p8020_intact",
+        require_expert=True,
+    ),
+    # 6-param Qlearn and QlearnCost with sticky outside beta and beta in [1, 10]:
+    # the clean comparison set for sticky_decay_p8020_intact (same sessions).
+    "sticky_b1_p8020_intact": dict(
+        LBFGS_STICKY_BETA1,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn_sticky_b1_p8020_intact",
+        require_expert=True,
+    ),
+    "cost_p8020_intact": dict(
+        LBFGS_COST,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearncost_p8020_intact",
         require_expert=True,
     ),
     # Lesion sessions only, kept whole.
