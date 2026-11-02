@@ -14,6 +14,7 @@ from banditpy.models.policy import (
     Qlearn2Regime,
     QlearnHierarchical,
     QlearnCost,
+    QlearnMVTHybrid,
     Qlearn3Regime,
 )
 from banditpy.utils.probs import generate_probs_2arm
@@ -37,6 +38,7 @@ POLICY_REGISTRY = {
     "ThompsonShared": ThompsonShared,
     "QlearnHierarchical": QlearnHierarchical,
     "QlearnCost": QlearnCost,
+    "QlearnMVTHybrid": QlearnMVTHybrid,
 }
 
 
@@ -153,11 +155,21 @@ QLEARNCOST_VARIANTS = {
 }
 
 
+# QlearnMVTHybrid: the other port valued as w * Q + (1 - w) * rho at choice.
+# 'default' fits w and alpha_rho (rho0 fixed at 0.5); 'norho' fixes alpha_rho
+# at 0, leaving w as shrinkage of the other port's value toward 0.5.
+QLEARNMVTHYBRID_VARIANTS = {
+    "default": {"enable": [], "disable": []},
+    "norho": {"enable": [], "disable": ["alpha_rho"]},
+}
+
+
 def make_policy_factory(policy_cls, variant, fit_bounds=None):
     variants = {
         Qlearn: QLEARN_VARIANTS,
         Qlearn2Regime: QLEARN2REGIME_VARIANTS,
         QlearnCost: QLEARNCOST_VARIANTS,
+        QlearnMVTHybrid: QLEARNMVTHYBRID_VARIANTS,
     }.get(
         policy_cls, {"default": {"enable": [], "disable": []}}
     )
@@ -220,7 +232,9 @@ def parse_args():
     )
     parser.add_argument(
         "--variant",
-        choices=sorted({*QLEARN_VARIANTS, *QLEARN2REGIME_VARIANTS, *QLEARNCOST_VARIANTS}),
+        choices=sorted(
+            {*QLEARN_VARIANTS, *QLEARN2REGIME_VARIANTS, *QLEARNCOST_VARIANTS, *QLEARNMVTHYBRID_VARIANTS}
+        ),
         default="default",
         help="Qlearn/Qlearn2Regime variant (which params are fitted); non-default adds a suffix to the save name",
     )
