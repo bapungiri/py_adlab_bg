@@ -8,6 +8,7 @@ import mab_subjects
 from banditpy.models.policy import (
     Qlearn,
     QlearnCost,
+    MVTForager,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
     Qlearn2Regime,
@@ -110,6 +111,8 @@ LBFGS_STICKY_DECAY = dict(
 # Same 24 starts for the models compared with sticky + decay.
 LBFGS_STICKY_BETA1 = dict(LBFGS_STICKY_DECAY, policies=[QlearnStickyBeta1])
 LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
+# Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
+LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
@@ -177,6 +180,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearncost_p8020_intact",
+        require_expert=True,
+    ),
+    "mvt_p8020_intact": dict(
+        LBFGS_MVT,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforager_p8020_intact",
         require_expert=True,
     ),
     # Lesion sessions only, kept whole.
