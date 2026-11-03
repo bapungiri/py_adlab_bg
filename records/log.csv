@@ -103,3 +103,11 @@ timestamp,animal_id,category,note,hardware_test
 2026-10-29 14:49,BGF12,hardware,"Box 10.36.22.22 (C05) hardware tested before starting BGF12; valve time 26 ms found appropriate.",Passed
 2026-10-29 14:55,BGF5,health,"Looked weak, gave free water.",
 2026-10-29 15:08,ALL,software,"Deployed all 13 boxes: WeeklyWater now resets the daily water count, so Tuesday's 05:00 top-up and low-water alert see Monday's own intake (Monday averaged 4.6 ml over 14-28 Oct; BGM9 0.5-0.7, BGM8 0.1, BGM7 0.0 ml).",NotRequired
+2026-10-30 11:20,ALL,software,"Deployed all 13 boxes: sensor active levels (Nosepoke_Active=LOW, Lick_Active=HIGH) and NOSEPOKE L/R / LICK video text, previously only on .14.",NotRequired
+2026-10-30 11:41,ALL,software,"Deployed the 12 Pi 3B boxes: video text size 16; stream page live events panel (trial, lick, reward, counts). Shown in the dashboard camera popup too.",NotRequired
+2026-10-30 13:23,BGF11,software,"Box 10.36.22.11 (Pi 5): live events panel on the stream page. Restarted.",NotRequired
+2026-10-30 13:47,ALL,software,"Deployed all 13 boxes: Monday weekly water now ends at 04:55 (was 05:00, whose stop alarm overrode the 05:00 DailyWater alarm), so DailyWater runs on Mondays; the 2026-10-29 daily-count reset in WeeklyWater is removed again.",NotRequired
+2026-10-30 15:23,BGM7,health,Gave free water.,
+2026-10-30 15:23,BGF5,health,Gave free water.,
+2026-10-30 15:23,BGF9,health,Gave free water.,
+2026-11-02 11:31,BGF12,hardware,"Box .22: swapped nosepoke pins so port 1 = left (Nosepoke1DI 21->20, Nosepoke2DI 20->21), matching the other boxes. Before this, port 1 in BGF12 data was the RIGHT port. At stage 5 (NosepokeProb40, either port).",
