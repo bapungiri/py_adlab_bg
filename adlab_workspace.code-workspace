@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../OpConDashboard"
+		},
+		{
+			"path": "../literature_notes"
 		}
 	],
 	"settings": {
