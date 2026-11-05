@@ -18,6 +18,7 @@ from banditpy.models.policy import (
     Qlearn3Regime,
     MVTForager,
     QlearnAdaptiveLR,
+    QlearnAdaptiveBeta,
 )
 from banditpy.utils.probs import generate_probs_2arm
 from banditpy.models.optim import LBFGSOptimizer, OptunaOptimizer
@@ -43,6 +44,7 @@ POLICY_REGISTRY = {
     "QlearnMVTHybrid": QlearnMVTHybrid,
     "MVTForager": MVTForager,
     "QlearnAdaptiveLR": QlearnAdaptiveLR,
+    "QlearnAdaptiveBeta": QlearnAdaptiveBeta,
 }
 
 

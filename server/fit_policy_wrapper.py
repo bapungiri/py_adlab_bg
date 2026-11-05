@@ -15,6 +15,7 @@ from banditpy.models.policy import (
     # MoARegime,
     # QlearnHierarchical,
     QlearnAdaptiveLR,
+    QlearnAdaptiveBeta,
     StateInference,
     # ThompsonSplit,
     # ThompsonShared,
@@ -64,6 +65,14 @@ def QlearnAdaptiveLRSticky():
     scaling of both learning rates (kappa_c, kappa_u, w_r); kappa_c = kappa_u = 0
     is QlearnStickyBeta1. beta in [1, 10]."""
     policy = QlearnAdaptiveLR()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
+def QlearnAdaptiveBetaSticky():
+    """QlearnAdaptiveBeta: the 6 Qlearn params (sticky outside beta) + a reward-rate gain on
+    the whole decision (kappa_beta, w_r); kappa_beta = 0 is QlearnStickyBeta1. beta in [1, 10]."""
+    policy = QlearnAdaptiveBeta()
     policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
     return policy
 
@@ -123,6 +132,7 @@ LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 # Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
+LBFGS_ADAPTBETA = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveBetaSticky])
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
@@ -204,6 +214,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearnadaptivelr_p8020_intact",
+        require_expert=True,
+    ),
+    "adaptbeta_p8020_intact": dict(
+        LBFGS_ADAPTBETA,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearnadaptivebeta_p8020_intact",
         require_expert=True,
     ),
     # Lesion sessions only, kept whole.
