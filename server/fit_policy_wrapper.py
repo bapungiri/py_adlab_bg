@@ -16,6 +16,7 @@ from banditpy.models.policy import (
     # QlearnHierarchical,
     QlearnAdaptiveLR,
     QlearnAdaptiveBeta,
+    QlearnDynamicPerseveration,
     StateInference,
     # ThompsonSplit,
     # ThompsonShared,
@@ -86,6 +87,14 @@ def MVTForagerSticky():
     return policy
 
 
+def QlearnDynamicPerseverationSticky():
+    """QlearnDynamicPerseveration: the 6 Qlearn params (sticky outside beta) + a within-window
+    ramp of the perseverance weight (k0, tau); k0 = 1 is QlearnStickyBeta1. beta in [1, 10]."""
+    policy = QlearnDynamicPerseveration()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
 def QlearnNoSticky():
     """Qlearn without perseverance (alpha_c, alpha_u, bias, beta), as in the Optuna presets."""
     policy = Qlearn()
@@ -143,6 +152,7 @@ LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
 LBFGS_ADAPTBETA = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveBetaSticky])
+LBFGS_DYNPERS = dict(LBFGS_STICKY_DECAY, policies=[QlearnDynamicPerseverationSticky])
 LBFGS_Q2R_STICKY = dict(
     policies=[Qlearn2RegimeSticky],
     optimizer=LBFGSOptimizer(),
@@ -238,6 +248,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearnadaptivebeta_p8020_intact",
+        require_expert=True,
+    ),
+    "dynpers_p8020_intact": dict(
+        LBFGS_DYNPERS,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearndynamicperseveration_p8020_intact",
         require_expert=True,
     ),
     # Lesion sessions only, kept whole.
