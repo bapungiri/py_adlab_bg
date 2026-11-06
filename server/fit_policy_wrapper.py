@@ -77,6 +77,15 @@ def QlearnAdaptiveBetaSticky():
     return policy
 
 
+def MVTForagerSticky():
+    """MVTForager + a choice (perseverance) trace on the switch logit (alpha_h, sticky);
+    sticky = 0 is the six-parameter MVTForager."""
+    policy = MVTForager()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
+    return policy
+
+
 def QlearnNoSticky():
     """Qlearn without perseverance (alpha_c, alpha_u, bias, beta), as in the Optuna presets."""
     policy = Qlearn()
@@ -131,6 +140,7 @@ LBFGS_STICKY_BETA1 = dict(LBFGS_STICKY_DECAY, policies=[QlearnStickyBeta1])
 LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 # Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
+LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
 LBFGS_ADAPTBETA = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveBetaSticky])
 LBFGS_Q2R_STICKY = dict(
@@ -207,6 +217,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforager_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtsticky_p8020_intact": dict(
+        LBFGS_MVT_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagersticky_p8020_intact",
         require_expert=True,
     ),
     "adaptlr_p8020_intact": dict(

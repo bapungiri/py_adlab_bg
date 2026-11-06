@@ -170,12 +170,21 @@ QLEARNMVTHYBRID_VARIANTS = {
 }
 
 
+# MVTForager: 'sticky' adds the choice (perseverance) trace on the switch logit
+# (alpha_h, sticky); sticky = 0 nests the default six-parameter forager.
+MVTFORAGER_VARIANTS = {
+    "default": {"enable": [], "disable": []},
+    "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},
+}
+
+
 def make_policy_factory(policy_cls, variant, fit_bounds=None):
     variants = {
         Qlearn: QLEARN_VARIANTS,
         Qlearn2Regime: QLEARN2REGIME_VARIANTS,
         QlearnCost: QLEARNCOST_VARIANTS,
         QlearnMVTHybrid: QLEARNMVTHYBRID_VARIANTS,
+        MVTForager: MVTFORAGER_VARIANTS,
     }.get(
         policy_cls, {"default": {"enable": [], "disable": []}}
     )
@@ -239,7 +248,8 @@ def parse_args():
     parser.add_argument(
         "--variant",
         choices=sorted(
-            {*QLEARN_VARIANTS, *QLEARN2REGIME_VARIANTS, *QLEARNCOST_VARIANTS, *QLEARNMVTHYBRID_VARIANTS}
+            {*QLEARN_VARIANTS, *QLEARN2REGIME_VARIANTS, *QLEARNCOST_VARIANTS, *QLEARNMVTHYBRID_VARIANTS,
+             *MVTFORAGER_VARIANTS}
         ),
         default="default",
         help="Qlearn/Qlearn2Regime variant (which params are fitted); non-default adds a suffix to the save name",
