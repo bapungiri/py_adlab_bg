@@ -9,6 +9,7 @@ from banditpy.models.policy import (
     Qlearn,
     QlearnCost,
     MVTForager,
+    MVTForagerSatiety,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
     Qlearn2Regime,
@@ -150,6 +151,8 @@ LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 # Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
+# rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
+LBFGS_MVT_SATIETY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSatiety])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
 LBFGS_ADAPTBETA = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveBetaSticky])
 LBFGS_DYNSTICKY = dict(LBFGS_STICKY_DECAY, policies=[QlearnDynamicStickyFit])
@@ -234,6 +237,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagersticky_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtsatiety_p8020_intact": dict(
+        LBFGS_MVT_SATIETY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagersatiety_p8020_intact",
         require_expert=True,
     ),
     "adaptlr_p8020_intact": dict(
