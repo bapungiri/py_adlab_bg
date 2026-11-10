@@ -88,6 +88,15 @@ def MVTForagerSticky():
     return policy
 
 
+def MVTForagerR0Fixed():
+    """MVTForager with r0 fixed at 0 (a newly chosen port starts from r_hat = 0): five
+    fitted params. The animals' r0 fits sat at 0 and r0 recovered poorly."""
+    policy = MVTForager()
+    policy.params.r0.default = 0.0
+    policy.params.r0.disable()
+    return policy
+
+
 def QlearnDynamicStickyFit():
     """QlearnDynamicSticky: the 6 Qlearn params (sticky outside beta) + a within-window
     ramp of the perseverance weight (k0, tau); k0 = 1 is QlearnStickyBeta1. beta in [1, 10]."""
@@ -151,6 +160,7 @@ LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 # Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
+LBFGS_MVT_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerR0Fixed])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
 LBFGS_MVT_SATIETY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSatiety])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
@@ -230,6 +240,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforager_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtr0fixed_p8020_intact": dict(
+        LBFGS_MVT_R0FIXED,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforager_r0fixed_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(

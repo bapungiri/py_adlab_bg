@@ -178,9 +178,12 @@ QLEARNMVTHYBRID_VARIANTS = {
 
 # MVTForager: 'sticky' adds the choice (perseverance) trace on the switch logit
 # (alpha_h, sticky); sticky = 0 nests the default six-parameter forager.
+# 'r0fixed': a newly chosen port starts from r_hat = 0 (r0 not fitted; the
+# animals' fits sit at that bound and it recovered poorly).
 MVTFORAGER_VARIANTS = {
     "default": {"enable": [], "disable": []},
     "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},
+    "r0fixed": {"enable": [], "disable": [], "fix": {"r0": 0.0}},
 }
 
 
@@ -204,6 +207,10 @@ def make_policy_factory(policy_cls, variant, fit_bounds=None):
             getattr(policy.params, name).enable()
         for name in spec["disable"]:
             getattr(policy.params, name).disable()
+        for name, value in spec.get("fix", {}).items():  # not fitted, held at value
+            fixed = getattr(policy.params, name)
+            fixed.default = value
+            fixed.disable()
         # Fit bounds can live on the policy or on its beta schedule ('beta').
         for name, (lo, hi) in (fit_bounds or {}).items():
             if name in policy.params:
