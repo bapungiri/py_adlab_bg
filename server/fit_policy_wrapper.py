@@ -97,6 +97,21 @@ def MVTForagerR0Fixed():
     return policy
 
 
+def MVTForagerConstRho():
+    """MVTForager with a constant environment rate: alpha_rho = 0, gamma = 0, r0 = 0, so
+    three fitted params (alpha_l, beta, rho0). P(switch) = sigmoid(beta * (rho0 - r_hat)),
+    so rho0 is the leave threshold (P(switch) = 0.5 where r_hat = rho0). With rho constant,
+    a free gamma would only trade off with beta * rho0, so gamma is dropped. rho0 may be
+    negative (bounds -1 to 1): a threshold below 0 means switching never reaches 0.5."""
+    policy = MVTForagerR0Fixed()
+    policy.params.alpha_rho.default = 0.0
+    policy.params.alpha_rho.disable()
+    policy.params.gamma.default = 0.0
+    policy.params.gamma.disable()
+    policy.params.rho0.set_bounds(-1.0, 1.0)
+    return policy
+
+
 def QlearnDynamicStickyFit():
     """QlearnDynamicSticky: the 6 Qlearn params (sticky outside beta) + a within-window
     ramp of the perseverance weight (k0, tau); k0 = 1 is QlearnStickyBeta1. beta in [1, 10]."""
@@ -161,6 +176,7 @@ LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_MVT_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerR0Fixed])
+LBFGS_MVT_CONSTRHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerConstRho])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
 LBFGS_MVT_SATIETY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSatiety])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
@@ -247,6 +263,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforager_r0fixed_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtconstrho_p8020_intact": dict(
+        LBFGS_MVT_CONSTRHO,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforager_constrho_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
