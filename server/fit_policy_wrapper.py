@@ -9,6 +9,7 @@ from banditpy.models.policy import (
     Qlearn,
     QlearnCost,
     MVTForager,
+    MVTForagerKappa,
     MVTForagerSatiety,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
@@ -97,6 +98,16 @@ def MVTForagerR0Fixed():
     return policy
 
 
+def MVTForagerKappaR0Fixed():
+    """MVTForagerKappa (switch logit kappa * rho - beta * r_hat + gamma) with r0 fixed
+    at 0, as in MVTForagerR0Fixed: six fitted params (alpha_l, alpha_rho, beta, kappa,
+    gamma, rho0). kappa = beta is MVTForagerR0Fixed."""
+    policy = MVTForagerKappa()
+    policy.params.r0.default = 0.0
+    policy.params.r0.disable()
+    return policy
+
+
 def MVTForagerConstRho():
     """MVTForager with a constant environment rate: alpha_rho = 0, gamma = 0, r0 = 0, so
     three fitted params (alpha_l, beta, rho0). P(switch) = sigmoid(beta * (rho0 - r_hat)),
@@ -177,6 +188,7 @@ LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
 LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_MVT_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerR0Fixed])
 LBFGS_MVT_CONSTRHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerConstRho])
+LBFGS_MVT_KAPPA = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaR0Fixed])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
 LBFGS_MVT_SATIETY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSatiety])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
@@ -270,6 +282,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforager_constrho_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtkappa_p8020_intact": dict(
+        LBFGS_MVT_KAPPA,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagerkappa_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
