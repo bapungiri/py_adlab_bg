@@ -8,6 +8,7 @@ import mab_subjects
 from banditpy.models.policy import (
     Qlearn,
     QlearnCost,
+    BayesForager,
     MVTForager,
     MVTForagerKappa,
     MVTForagerSatiety,
@@ -189,6 +190,8 @@ LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_MVT_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerR0Fixed])
 LBFGS_MVT_CONSTRHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerConstRho])
 LBFGS_MVT_KAPPA = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaR0Fixed])
+# Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
+LBFGS_BAYES_FORAGER = dict(LBFGS_STICKY_DECAY, policies=[BayesForager])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
 LBFGS_MVT_SATIETY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSatiety])
 LBFGS_ADAPTLR = dict(LBFGS_STICKY_DECAY, policies=[QlearnAdaptiveLRSticky])
@@ -289,6 +292,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagerkappa_p8020_intact",
+        require_expert=True,
+    ),
+    "bayesforager_p8020_intact": dict(
+        LBFGS_BAYES_FORAGER,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_bayesforager_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
