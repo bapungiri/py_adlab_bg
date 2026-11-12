@@ -111,3 +111,16 @@ timestamp,animal_id,category,note,hardware_test
 2026-10-30 15:23,BGF5,health,Gave free water.,
 2026-10-30 15:23,BGF9,health,Gave free water.,
 2026-11-02 11:31,BGF12,hardware,"Box .22: swapped nosepoke pins so port 1 = left (Nosepoke1DI 21->20, Nosepoke2DI 20->21), matching the other boxes. Before this, port 1 in BGF12 data was the RIGHT port. At stage 5 (NosepokeProb40, either port).",
+2026-11-03 16:30,BGF11,hardware,"Box .11 right nosepoke sensor (pin 21) faulty from ~2026-09-21 (few edges, stuck 'in' for hours): from 24 Sep nearly every trial was a left-hole poke, and trial.csv chosenPort flipped 1->2 without the rat changing hole. Hand test today: both sensors register normal in/out pokes again. Data 2026-09-21 to 2026-11-03 excluded (mab_subjects.py).",
+2026-11-03 16:40,BGF11,hardware,"Box .11: swapped nosepoke pins so port 1 = left (Nosepoke1DI 21->20, Nosepoke2DI 20->21), matching the other boxes. Before this, port 1 on .11 was the RIGHT hole. At stage 6 (NosepokeImpure).",
+2026-11-03 16:00,BGF9,hardware,"Box .20: BGF9 escaped (~2 Nov; only 2 trials the night of 2 Nov, normal 1660 on 1 Nov), chewed the water tubing and the power cable. Box fixed and camera replaced. No usable task data 2026-11-02 13:45 to 2026-11-03.",
+2026-11-03 17:20,BGM9,hardware,"Box .18: right nosepoke sensor (pin 21, port 2) fixed (was ~3 pokes/day vs ~1000 left; hand test 3 Nov OK). Better camera installed, box rebooted and redeployed (stage 6). BGM9 still uses only the left hole; check whether it resamples the right.",
+2026-11-06 17:06,ALL,hardware,"Hand-tested nosepoke sensors on the boxes of the possibly biased animals (BGF5 .12, BGM9 .18 and others flagged in the 15 Oct-2 Nov scan): all working. BGF5's one-sided poking (no right pokes since 22 Oct) is therefore behavioural. BGM9's right sensor was stuck 'in' 22:16 4 Nov - 06:01 5 Nov despite passing; recheck its overnight data.",Passed
+2026-11-06 17:06,BGM7,health,"Gave a little water (health). Near-zero trials since 26 Oct (0-8/day vs ~2500), still licking.",
+2026-11-08 15:59,BGM6,hardware,"Box .17: replaced water tubing (algae growth).",
+2026-11-08 15:59,BGF9,health,"Gave free water (health).",
+2026-11-08 15:59,BGF5,health,"Gave free water (health).",
+2026-11-09 16:26,BGM9,software,"Box .18: camera stream dead (no frames since 03:36 9 Nov; last clip 03:36, stream accepted connections but sent nothing). PiCamMain alone restarted (MainCode untouched); stream OK. Pi still under-voltage (throttled=0x50005), likely cause.",
+2026-11-09 16:29,BGF12,software,"Box .22 disk at 88%: nightly convertAndTransfer had failed every day since BGF12 started (29 Oct) because the mount point /home/pi/NASMount did not exist, so no BGF12 data (7.5 GB incl. video) reached BGdataset/Paradigm_8020/intact. Created the folder; test mount OK. Other 12 boxes transfer fine.",
+2026-11-10 15:27,BGM6,software,"Box .17: no sessions 8 Nov 15:40 - 10 Nov 13:25 (Teensy dropped off USB during box work, came back as ttyACM1; MainCode kept waiting on the dead ttyACM0, no task water 2 nights). Redeployed 13:25.",
+2026-11-10 15:27,ALL,software,"Deployed all 13 boxes: MainCode restarts itself (reflashing the Teensy from state.json) when the Teensy is lost: port gone/recreated, serial read error, or Serial_TimeOut silence; max 5 restarts per deploy. Tested on .17 with a simulated USB disconnect.",NotRequired

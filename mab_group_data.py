@@ -88,9 +88,16 @@ class GroupData:
         compressibility_ratio: VersionedAccessor
         fit_MoARegime_policy_combinations: VersionedAccessor
         fit_Qlearn2Regime_policy_combinations: VersionedAccessor
+        fit_bayesforager_p8020_intact: VersionedAccessor
         fit_multi_policy: VersionedAccessor
         fit_multi_policy_combinations: VersionedAccessor
         fit_multi_policy_lesion: VersionedAccessor
+        fit_mvtforager_constrho_p8020_intact: VersionedAccessor
+        fit_mvtforager_p8020_intact: VersionedAccessor
+        fit_mvtforager_r0fixed_p8020_intact: VersionedAccessor
+        fit_mvtforagerkappa_p8020_intact: VersionedAccessor
+        fit_mvtforagersatiety_p8020_intact: VersionedAccessor
+        fit_mvtforagersticky_p8020_intact: VersionedAccessor
         fit_qlearn2regime_p8020_intact: VersionedAccessor
         fit_qlearn2regime_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn2regime_p9505: VersionedAccessor
@@ -117,7 +124,10 @@ class GroupData:
         fit_qlearn_sticky_p8020_lesion_OFC: VersionedAccessor
         fit_qlearn_sticky_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn_sticky_p9505: VersionedAccessor
+        fit_qlearnadaptivebeta_p8020_intact: VersionedAccessor
+        fit_qlearnadaptivelr_p8020_intact: VersionedAccessor
         fit_qlearncost_p8020_intact: VersionedAccessor
+        fit_qlearndynamicsticky_p8020_intact: VersionedAccessor
         fit_si: VersionedAccessor
         fit_si_sim: VersionedAccessor
         fit_state_inference_p8020_intact: VersionedAccessor
@@ -135,6 +145,13 @@ class GroupData:
         nll_fit_multi_policy: VersionedAccessor
         nll_history_rnn_fit: VersionedAccessor
         optimizer_benchmark_qlearn: VersionedAccessor
+        param_recovery_bayesforager_bayes: VersionedAccessor
+        param_recovery_mvtforager_r0fixed_win3to5_r0fixed: VersionedAccessor
+        param_recovery_mvtforager_sticky_win3to5_animalrange: VersionedAccessor
+        param_recovery_mvtforager_win3to5_animalrange: VersionedAccessor
+        param_recovery_mvtforagerkappa_r0fixed_kappa: VersionedAccessor
+        param_recovery_mvtforagersatiety_win3to5_rewardclock: VersionedAccessor
+        param_recovery_mvtforagerthirst_win3to5_thirst: VersionedAccessor
         param_recovery_qlearn: VersionedAccessor
         param_recovery_qlearn2regime: VersionedAccessor
         param_recovery_qlearn2regime_narrowtrue_24starts: VersionedAccessor
@@ -143,18 +160,25 @@ class GroupData:
         param_recovery_qlearn_decay_nosticky_win3to5: VersionedAccessor
         param_recovery_qlearn_decay_qinit_win3to5_stickyout: VersionedAccessor
         param_recovery_qlearn_decay_win3to5: VersionedAccessor
+        param_recovery_qlearn_decay_win3to5_fbbeta0p1to30_stickyout_bias0p3_b1to5: VersionedAccessor
         param_recovery_qlearn_decay_win3to5_fbbeta1to10_stickyout_trueb1to10: VersionedAccessor
         param_recovery_qlearn_decay_win3to5_stickyout: VersionedAccessor
         param_recovery_qlearn_sticky: VersionedAccessor
         param_recovery_qlearn_sticky_win3to5: VersionedAccessor
         param_recovery_qlearn_sticky_win3to5_fbbeta0p1to30_stickyout: VersionedAccessor
+        param_recovery_qlearn_sticky_win3to5_fbbeta0p1to30_stickyout_bias0p3_b1to5: VersionedAccessor
         param_recovery_qlearn_sticky_win3to5_stickyout: VersionedAccessor
+        param_recovery_qlearnadaptivebeta_win3to5_fbbeta0p1to30_stickyout_bias0p3_b1to5: VersionedAccessor
+        param_recovery_qlearnadaptivelr_win3to5_fbbeta0p1to30_stickyout_bias0p3_b1to5: VersionedAccessor
         param_recovery_qlearncost: VersionedAccessor
         param_recovery_qlearncost_nosticky_win3to5: VersionedAccessor
         param_recovery_qlearncost_win3to5: VersionedAccessor
         param_recovery_qlearncost_win3to5_fbbeta0p1to30_stickyout: VersionedAccessor
         param_recovery_qlearncost_win3to5_fbbeta0p1to30_stickyout_rhoclip: VersionedAccessor
+        param_recovery_qlearncost_win3to5_fbbeta0p1to30_stickyout_rhoclip_bias0p3_b1to5: VersionedAccessor
+        param_recovery_qlearndynamicsticky_win3to5_fbbeta0p1to30_stickyout_bias0p3_b1to5: VersionedAccessor
         param_recovery_qlearnmvthybrid_win3to5_fbbeta0p1to30_stickyout_rho0to0p2: VersionedAccessor
+        param_recovery_qlearnmvthybrid_win3to5_fbbeta0p1to30_stickyout_rho0to0p2_bias0p3_b1to5: VersionedAccessor
         param_recovery_si: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearn_decay: VersionedAccessor

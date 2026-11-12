@@ -43,7 +43,19 @@ class Struc(AnimalGroup):
         Animal("BGF7", Datasets.BG.P9505_intact, "female"),
         Animal("BGF8", Datasets.BG.P9505_intact, "female"),
         Animal("BGM10", Datasets.BG.P9505_intact, "male"),
-        # Animal("BGF11", Datasets.BG.P9505_intact, "female"),
+        # BGF11 still out: nothing usable until sessions from 2026-11-03 on
+        # Animal(
+        #     "BGF11",
+        #     Datasets.BG.P9505_intact,
+        #     "female",
+        #     exclude=(
+        #         (
+        #             "2026-09-21T00:00",
+        #             "2026-11-03T18:00",
+        #             "box .11 right nosepoke sensor faulty (stuck 'in'); fixed 2026-11-03",
+        #         ),
+        #     ),
+        # ),
         # ............
         Animal("BGM1", Datasets.BG.P8020_intact, "male"),
         Animal("BGF0", Datasets.BG.P8020_intact, "female"),
@@ -144,7 +156,18 @@ class Unstruc(AnimalGroup):
         # --- BG dataset ---
         Animal("BGM8", Datasets.BG.P9505_intact, "male"),
         Animal("BGM9", Datasets.BG.P9505_intact, "male"),
-        Animal("BGF9", Datasets.BG.P9505_intact, "female"),
+        Animal(
+            "BGF9",
+            Datasets.BG.P9505_intact,
+            "female",
+            exclude=(
+                (
+                    "2026-11-02T13:45",
+                    "2026-11-03T18:00",
+                    "escaped from box .20 (chewed water tubing, power cable)",
+                ),
+            ),
+        ),
         # ............
         Animal("BGM0", Datasets.BG.P8020_intact, "male"),
         # BGM2 excluded -- bad animal
