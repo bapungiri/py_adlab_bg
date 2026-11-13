@@ -188,6 +188,7 @@ MVTFORAGER_VARIANTS = {
     "default": {"enable": [], "disable": []},
     "sticky": {"enable": ["alpha_h", "sticky"], "disable": []},
     "r0fixed": {"enable": [], "disable": [], "fix": {"r0": 0.0}},
+    "stickyr0fixed": {"enable": ["alpha_h", "sticky"], "disable": [], "fix": {"r0": 0.0}},
 }
 
 
