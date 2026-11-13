@@ -108,6 +108,23 @@ def MVTForagerKappaR0Fixed():
     policy.params.r0.disable()
     return policy
 
+def MVTForagerStickyR0Fixed():
+    """MVTForagerR0Fixed + the choice (perseverance) trace (alpha_h, sticky): seven fitted
+    params. sticky = 0 is MVTForagerR0Fixed."""
+    policy = MVTForagerR0Fixed()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
+    return policy
+
+
+def MVTForagerKappaSticky():
+    """MVTForagerKappaR0Fixed + the choice (perseverance) trace (alpha_h, sticky): eight
+    fitted params. sticky = 0 is MVTForagerKappaR0Fixed."""
+    policy = MVTForagerKappaR0Fixed()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
+    return policy
+
 
 def MVTForagerConstRho():
     """MVTForager with a constant environment rate: alpha_rho = 0, gamma = 0, r0 = 0, so
@@ -190,6 +207,8 @@ LBFGS_MVT_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerSticky])
 LBFGS_MVT_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerR0Fixed])
 LBFGS_MVT_CONSTRHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerConstRho])
 LBFGS_MVT_KAPPA = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaR0Fixed])
+LBFGS_MVT_STICKY_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerStickyR0Fixed])
+LBFGS_MVT_KAPPA_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaSticky])
 # Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
 LBFGS_BAYES_FORAGER = dict(LBFGS_STICKY_DECAY, policies=[BayesForager])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
@@ -299,6 +318,20 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_bayesforager_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtstickyr0fixed_p8020_intact": dict(
+        LBFGS_MVT_STICKY_R0FIXED,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagersticky_r0fixed_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtkappasticky_p8020_intact": dict(
+        LBFGS_MVT_KAPPA_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagerkappasticky_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
