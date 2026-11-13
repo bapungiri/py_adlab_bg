@@ -19,6 +19,7 @@ from banditpy.models.policy import (
     BayesForager,
     MVTForager,
     MVTForagerKappa,
+    MVTForagerKappaKernel,
     MVTForagerSatiety,
     MVTForagerThirst,
     QlearnAdaptiveLR,
@@ -50,6 +51,7 @@ POLICY_REGISTRY = {
     "BayesForager": BayesForager,
     "MVTForager": MVTForager,
     "MVTForagerKappa": MVTForagerKappa,
+    "MVTForagerKappaKernel": MVTForagerKappaKernel,
     "MVTForagerSatiety": MVTForagerSatiety,
     "MVTForagerThirst": MVTForagerThirst,
     "QlearnAdaptiveLR": QlearnAdaptiveLR,
@@ -200,6 +202,7 @@ def make_policy_factory(policy_cls, variant, fit_bounds=None):
         QlearnMVTHybrid: QLEARNMVTHYBRID_VARIANTS,
         MVTForager: MVTFORAGER_VARIANTS,
         MVTForagerKappa: MVTFORAGER_VARIANTS,
+        MVTForagerKappaKernel: MVTFORAGER_VARIANTS,
     }.get(
         policy_cls, {"default": {"enable": [], "disable": []}}
     )

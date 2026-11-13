@@ -11,6 +11,7 @@ from banditpy.models.policy import (
     BayesForager,
     MVTForager,
     MVTForagerKappa,
+    MVTForagerKappaKernel,
     MVTForagerSatiety,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
@@ -126,6 +127,16 @@ def MVTForagerKappaSticky():
     return policy
 
 
+def MVTForagerKappaKernelR0Fixed():
+    """MVTForagerKappaKernel (MVTForagerKappa + a stay kernel s, cleared on a switch, weight
+    omega) with r0 fixed at 0: eight fitted params (alpha_l, alpha_rho, beta, kappa, alpha_s,
+    omega, gamma, rho0). omega = 0 is MVTForagerKappaR0Fixed."""
+    policy = MVTForagerKappaKernel()
+    policy.params.r0.default = 0.0
+    policy.params.r0.disable()
+    return policy
+
+
 def MVTForagerConstRho():
     """MVTForager with a constant environment rate: alpha_rho = 0, gamma = 0, r0 = 0, so
     three fitted params (alpha_l, beta, rho0). P(switch) = sigmoid(beta * (rho0 - r_hat)),
@@ -209,6 +220,7 @@ LBFGS_MVT_CONSTRHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerConstRho])
 LBFGS_MVT_KAPPA = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaR0Fixed])
 LBFGS_MVT_STICKY_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerStickyR0Fixed])
 LBFGS_MVT_KAPPA_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaSticky])
+LBFGS_MVT_KAPPA_KERNEL = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaKernelR0Fixed])
 # Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
 LBFGS_BAYES_FORAGER = dict(LBFGS_STICKY_DECAY, policies=[BayesForager])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
@@ -332,6 +344,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagerkappasticky_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtkappakernel_p8020_intact": dict(
+        LBFGS_MVT_KAPPA_KERNEL,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagerkappakernel_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
