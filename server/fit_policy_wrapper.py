@@ -24,6 +24,7 @@ from banditpy.models.policy import (
     StateInference,
     # ThompsonSplit,
     # ThompsonShared,
+    ThompsonSticky,
     # BayesianUCB,
     StaticBeta,
 )
@@ -235,6 +236,8 @@ LBFGS_MVT_STICKY_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerStickyR0
 LBFGS_MVT_KAPPA_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaSticky])
 LBFGS_MVT_KAPPA_KERNEL = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaKernelR0Fixed])
 LBFGS_MVT_KERNEL_NORHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKernelNoRho])
+# Thompson sampling, exact choice probabilities + bias + choice trace (8 params, NoBeta).
+LBFGS_THOMPSON_STICKY = dict(LBFGS_STICKY_DECAY, policies=[ThompsonSticky])
 # Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
 LBFGS_BAYES_FORAGER = dict(LBFGS_STICKY_DECAY, policies=[BayesForager])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
@@ -358,6 +361,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagerkappasticky_p8020_intact",
+        require_expert=True,
+    ),
+    "thompsonsticky_p8020_intact": dict(
+        LBFGS_THOMPSON_STICKY,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_thompsonsticky_p8020_intact",
         require_expert=True,
     ),
     "mvtkernelnorho_p8020_intact": dict(
