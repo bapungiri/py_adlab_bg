@@ -137,6 +137,19 @@ def MVTForagerKappaKernelR0Fixed():
     return policy
 
 
+def MVTForagerKernelNoRho():
+    """MVTForagerKappaKernelR0Fixed without the environment rate: kappa fixed at 0, so rho
+    drops out of the switch logit (x = -beta * r_hat - omega * s + gamma) and alpha_rho, rho0
+    are fixed too. Five fitted params (alpha_l, beta, gamma, alpha_s, omega); kappa * rho0 is
+    absorbed into gamma. Nested in MVTForagerKappaKernelR0Fixed."""
+    policy = MVTForagerKappaKernelR0Fixed()
+    for name, value in (("kappa", 0.0), ("alpha_rho", 0.0), ("rho0", 0.0)):
+        p = getattr(policy.params, name)
+        p.default = value
+        p.disable()
+    return policy
+
+
 def MVTForagerConstRho():
     """MVTForager with a constant environment rate: alpha_rho = 0, gamma = 0, r0 = 0, so
     three fitted params (alpha_l, beta, rho0). P(switch) = sigmoid(beta * (rho0 - r_hat)),
@@ -221,6 +234,7 @@ LBFGS_MVT_KAPPA = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaR0Fixed])
 LBFGS_MVT_STICKY_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerStickyR0Fixed])
 LBFGS_MVT_KAPPA_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaSticky])
 LBFGS_MVT_KAPPA_KERNEL = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaKernelR0Fixed])
+LBFGS_MVT_KERNEL_NORHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKernelNoRho])
 # Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
 LBFGS_BAYES_FORAGER = dict(LBFGS_STICKY_DECAY, policies=[BayesForager])
 # rho = rho0 * exp(-n / tau_rho), n = rewards earned in the window (clock='rewards').
@@ -344,6 +358,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagerkappasticky_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtkernelnorho_p8020_intact": dict(
+        LBFGS_MVT_KERNEL_NORHO,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagerkernelnorho_p8020_intact",
         require_expert=True,
     ),
     "mvtkappakernel_p8020_intact": dict(
