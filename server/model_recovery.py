@@ -25,8 +25,9 @@ from numpy.random import default_rng
 import mab_subjects
 from banditpy.models import DecisionModel
 from banditpy.models.optim import LBFGSOptimizer
-from banditpy.models.policy import Qlearn, QlearnCost
+from banditpy.models.policy import MVTForagerKappaKernel, Qlearn, QlearnCost, ThompsonSticky
 from banditpy.utils.probs import generate_probs_2arm
+from param_recovery import concat_tasks
 
 PARTIALS_ROOT = Path(
     os.environ.get(
@@ -35,7 +36,8 @@ PARTIALS_ROOT = Path(
 )
 
 # Candidate models: policy class plus params to enable/disable on top of the
-# class defaults (Qlearn fits alpha_c, alpha_u, bias, alpha_h, sticky by default).
+# class defaults (Qlearn fits alpha_c, alpha_u, bias, alpha_h, sticky by default),
+# params fixed at a value (not fitted), and fit bounds to replace.
 MODELS = {
     "base": (Qlearn, [], ["alpha_h", "sticky"]),
     "sticky": (Qlearn, [], []),
@@ -43,6 +45,11 @@ MODELS = {
     "sticky_decay": (Qlearn, ["decay"], []),
     "cost": (QlearnCost, [], ["alpha_h", "sticky"]),
     "sticky_cost": (QlearnCost, [], []),
+    # The animals' fits (fit_policy_wrapper presets): 6-param Qlearn with beta in
+    # [1, 10] (QlearnStickyBeta1), MVTForagerKappaKernelR0Fixed and ThompsonSticky.
+    "qlearn6": (Qlearn, [], [], {}, {"beta": (1.0, 10.0)}),
+    "kernel": (MVTForagerKappaKernel, [], [], {"r0": 0.0}),
+    "thompson": (ThompsonSticky, [], []),
 }
 
 # True values near the 8020 animals' fits (alpha_c ~0.27, alpha_u ~-0.35,
@@ -57,16 +64,52 @@ TRUE_RANGES = {
     "sticky": (0.0, 8.0),
     "bias": (-0.3, 0.3),
 }
-LOG_SCALE_PARAMS = {"beta"}
+# Models outside the Qlearn family: the true ranges of their parameter recovery
+# runs (param_recovery_mvtforagerkappakernel_r0fixed_kernelfitrange,
+# param_recovery_thompsonsticky_simrange), which cover the animals' fits.
+MODEL_TRUE_RANGES = {
+    "kernel": {
+        "alpha_l": (0.1, 0.5),
+        "alpha_rho": (0.002, 0.05),
+        "beta": (4.0, 10.0),
+        "kappa": (0.5, 6.0),
+        "alpha_s": (0.002, 0.1),
+        "omega": (0.5, 8.0),
+        "gamma": (-5.0, 0.0),
+        "rho0": (0.3, 1.0),
+    },
+    "thompson": {
+        "alpha0": (0.5, 20.0),
+        "beta0": (1.0, 100.0),
+        "tau": (0.5, 0.95),
+        "lr_chosen": (0.2, 5.0),
+        "lr_unchosen": (0.0, 1.0),
+        "bias": (-0.5, 0.5),
+        "alpha_h": (0.1, 0.9),
+        "sticky": (1.5, 5.0),
+    },
+}
+# As in param_recovery: rate/scale-like params drawn log-uniformly.
+LOG_SCALE_PARAMS = {"beta", "alpha0", "beta0", "lr_chosen"}
 
 
 def make_policy(model):
-    cls, enable, disable = MODELS[model]
+    cls, enable, disable, *rest = MODELS[model]
+    fix, bounds = (list(rest) + [{}, {}])[:2]
     policy = cls()
     for name in enable:
         getattr(policy.params, name).enable()
     for name in disable:
         getattr(policy.params, name).disable()
+    for name, value in fix.items():
+        param = getattr(policy.params, name)
+        param.default = value
+        param.disable()
+    for name, (lo, hi) in bounds.items():
+        if name in policy.params:
+            getattr(policy.params, name).set_bounds(lo, hi)
+        else:
+            policy.beta_schedule.set_bounds({name: (lo, hi)})
     return policy
 
 
@@ -95,6 +138,13 @@ def parse_args():
         help="blocks per simulated session (window); the agent resets between sessions",
     )
     parser.add_argument(
+        "--window-blocks",
+        metavar="LO,HI",
+        default=None,
+        help="windows of a random LO..HI blocks (e.g. 3,5) instead of --blocks-per-session; "
+        "the agent and the fit reset at window starts. Adds '_win<LO>to<HI>' to the save name",
+    )
+    parser.add_argument(
         "--true-range",
         action="append",
         default=[],
@@ -114,14 +164,30 @@ def parse_args():
 def main():
     args = parse_args()
 
-    true_ranges = dict(TRUE_RANGES)
+    # --true-range overrides apply to every generating model that has the param.
+    overrides = {}
     for spec in args.true_range:
         name, _, rng_txt = spec.partition("=")
         if rng_txt == "bounds":
-            true_ranges.pop(name, None)
+            overrides[name] = None
         else:
             lo, hi = (float(x) for x in rng_txt.split(","))
-            true_ranges[name] = (lo, hi)
+            overrides[name] = (lo, hi)
+
+    def model_true_ranges(model):
+        ranges = dict(MODEL_TRUE_RANGES.get(model, TRUE_RANGES))
+        for name, rng_ in overrides.items():
+            if rng_ is None:
+                ranges.pop(name, None)
+            else:
+                ranges[name] = rng_
+        return ranges
+
+    window_blocks = None
+    if args.window_blocks:
+        window_blocks = tuple(int(x) for x in args.window_blocks.split(","))
+        if len(window_blocks) != 2 or not 1 <= window_blocks[0] <= window_blocks[1]:
+            raise SystemExit("--window-blocks LO,HI needs 1 <= LO <= HI")
 
     n_tasks = len(args.models) * args.n_subjects
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_tasks)
@@ -135,6 +201,7 @@ def main():
     def sample_true_policy(model, rng):
         policy = make_policy(model)
         bounds = policy.get_bounds()
+        true_ranges = model_true_ranges(model)
         values = {}
         for name in policy.active_parameter_names():
             lo, hi = bounds[name]
@@ -153,16 +220,33 @@ def main():
         probs_unstruc, probs_struc = generate_probs_2arm(
             N=args.n_blocks_per_task, frac_impurity=0.2
         )
+        def simulate(probs):
+            if window_blocks is None:
+                windows = [probs]
+            else:
+                windows, start = [], 0
+                while start < len(probs):
+                    n = int(rng.integers(window_blocks[0], window_blocks[1] + 1))
+                    windows.append(probs[start : start + n])
+                    start += n
+            tasks = [
+                DecisionModel.simulate_policy(
+                    policy=policy,
+                    reward_schedule=w,
+                    min_trials_per_block=100,
+                    prob_switch=0.02,
+                    seed=rng.integers(2**32),
+                    blocks_per_session=(
+                        args.blocks_per_session if window_blocks is None else len(w)
+                    ),
+                )
+                for w in windows
+            ]
+            return tasks[0] if len(tasks) == 1 else concat_tasks(tasks)
+
         rows = []
         for task_name, probs in (("unstruc", probs_unstruc), ("struc", probs_struc)):
-            task = DecisionModel.simulate_policy(
-                policy=policy,
-                reward_schedule=probs,
-                min_trials_per_block=100,
-                prob_switch=0.02,
-                seed=rng.integers(2**32),
-                blocks_per_session=args.blocks_per_session,
-            )
+            task = simulate(probs)
             n_trials = len(task.choices)
             switch = float(np.mean(task.choices[1:] != task.choices[:-1]))
             for fit_model in args.models:
@@ -192,10 +276,14 @@ def main():
                     )
                 rows.append(row)
         df = pd.DataFrame(rows)
-        df["true_ranges"] = ", ".join(f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in true_ranges.items())
+        df["true_ranges"] = ", ".join(
+            f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in model_true_ranges(gen_model).items()
+        )
         return df
 
     save_name = "model_recovery_" + "_".join(args.models)
+    if window_blocks is not None:
+        save_name = f"{save_name}_win{window_blocks[0]}to{window_blocks[1]}"
     if args.tag:
         save_name = f"{save_name}_{args.tag}"
     partials_dir = PARTIALS_ROOT / save_name

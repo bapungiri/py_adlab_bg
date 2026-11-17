@@ -4,7 +4,9 @@
 #
 # usage: ./submit_model_recovery_array.sh "<models>" [n_subjects=100] [n_starts=12] [cpus=6] [mem=1200M]
 #   e.g. ./submit_model_recovery_array.sh "base sticky decay sticky_decay"
-#   models: base sticky decay sticky_decay cost sticky_cost (see model_recovery.MODELS)
+#   models: base sticky decay sticky_decay cost sticky_cost qlearn6 kernel thompson
+#   (see model_recovery.MODELS)
+#   e.g. EXTRA_ARGS='--window-blocks 3,5' ./submit_model_recovery_array.sh "qlearn6 kernel thompson"
 #   mem: Qlearn-family fits peak at ~840M MaxRSS; check sacct before raising it.
 # Optional environment: EXTRA_ARGS passed to model_recovery.py,
 #   e.g. EXTRA_ARGS='--blocks-per-session 5 --tag window5'
