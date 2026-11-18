@@ -190,7 +190,18 @@ class Unstruc(AnimalGroup):
         Animal("BGM7", Datasets.BG.P8020_intact, "male"),
         Animal("BGF2", Datasets.BG.P8020_lesion_mPFC_post, "female"),
         Animal("BGF5", Datasets.BG.P8020_lesion_mPFC_post, "female"),
-        Animal("BGM7", Datasets.BG.P8020_lesion_mPFC_post, "male"),
+        Animal(
+            "BGM7",
+            Datasets.BG.P8020_lesion_mPFC_post,
+            "male",
+            exclude=(
+                (
+                    "2026-10-26T13:00",
+                    "2026-11-17T23:59",
+                    "stopped doing the task (8 trials total), weak; perfused 17 Nov",
+                ),
+            ),
+        ),
     ]
 
     @property
