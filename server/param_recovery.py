@@ -330,6 +330,14 @@ def parse_args():
         "instead of the fit bounds; repeatable",
     )
     parser.add_argument(
+        "--true-from",
+        metavar="CSV",
+        default=None,
+        help="struc_unstruc: take true values from rows of CSV (one row per animal fit; a 'name' column "
+        "plus one column per fitted parameter) instead of drawing them; subject i uses row i mod n_rows, "
+        "so the parameters keep the animals' joint distribution. Overrides --true-range",
+    )
+    parser.add_argument(
         "--fit-bound",
         action="append",
         default=[],
@@ -456,6 +464,19 @@ def main():
     true_ranges_txt = ", ".join(
         f"{n}: [{lo:g}, {hi:g}]" for n, (lo, hi) in sample_ranges.items()
     )
+    true_rows = None
+    if args.true_from is not None:
+        if args.design != "struc_unstruc":
+            raise SystemExit("--true-from is for --design struc_unstruc")
+        true_rows = pd.read_csv(args.true_from)
+        missing_cols = sorted(set(policy1_bounds) - set(true_rows.columns))
+        if missing_cols:
+            raise SystemExit(f"--true-from {args.true_from}: no column for {missing_cols}")
+        for name, (lo, hi) in policy1_bounds.items():
+            out = true_rows[(true_rows[name] < lo) | (true_rows[name] > hi)]
+            if len(out):
+                raise SystemExit(f"--true-from: {name} outside fit bounds [{lo}, {hi}] in rows {list(out.index)}")
+        true_ranges_txt = f"rows of {os.path.basename(args.true_from)} ({len(true_rows)} fits)"
     print("true values drawn from:", true_ranges_txt)
     child_seed_seqs = np.random.SeedSequence(args.seed).spawn(n_simulations)
 
@@ -472,8 +493,12 @@ def main():
         except KeyError:
             return policy.beta_schedule.params[name]
 
-    def sample_true_policy(rng):
+    def sample_true_policy(rng, sim_id=None):
         policy = main_policy()
+        if true_rows is not None:
+            row = true_rows.iloc[sim_id % len(true_rows)]
+            policy.set_params({p: float(row[p]) for p in policy1_bounds})
+            return policy
         param_dict = {}
         for param, (lower, upper) in sample_ranges.items():
             param_dict[param] = sample_true_param(rng, param, lower, upper)
@@ -510,9 +535,9 @@ def main():
             start += n
         return concat_tasks(windows)
 
-    def run_simulation_struc_unstruc(seed_seq):
+    def run_simulation_struc_unstruc(seed_seq, sim_id=None):
         rng = default_rng(seed_seq)
-        policy1 = sample_true_policy(rng)
+        policy1 = sample_true_policy(rng, sim_id)
 
         task_unstruc = simulate_windows(policy1, probs_unstruc, rng)
         task_struc = simulate_windows(policy1, probs_struc, rng)
@@ -739,7 +764,10 @@ def main():
     else:
 
         def simulate_one(i, seed_seq):
-            return run_simulation_struc_unstruc(seed_seq).assign(sim_id=i)
+            df = run_simulation_struc_unstruc(seed_seq, i).assign(sim_id=i)
+            if true_rows is not None and "name" in true_rows:
+                df["true_source"] = true_rows["name"].iloc[i % len(true_rows)]
+            return df
 
         save_name = f"param_recovery_{args.policy.lower()}"
     if args.variant != "default":
