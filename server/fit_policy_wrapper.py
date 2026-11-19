@@ -12,6 +12,7 @@ from banditpy.models.policy import (
     MVTForager,
     MVTForagerKappa,
     MVTForagerKappaKernel,
+    MVTForagerKappaKernelOutcome,
     MVTForagerSatiety,
     # QlearnDiff,
     # QlearnRegimeDiffStays,
@@ -138,6 +139,17 @@ def MVTForagerKappaKernelR0Fixed():
     return policy
 
 
+def MVTForagerKappaKernelOutcomeR0Fixed():
+    """MVTForagerKappaKernelR0Fixed with the stay kernel growing at alpha_s_rew after a rewarded
+    stay and alpha_s_unrew after an unrewarded one: nine fitted params (alpha_l, alpha_rho, beta,
+    kappa, alpha_s_rew, alpha_s_unrew, omega, gamma, rho0). Equal rates are
+    MVTForagerKappaKernelR0Fixed."""
+    policy = MVTForagerKappaKernelOutcome()
+    policy.params.r0.default = 0.0
+    policy.params.r0.disable()
+    return policy
+
+
 def MVTForagerKernelNoRho():
     """MVTForagerKappaKernelR0Fixed without the environment rate: kappa fixed at 0, so rho
     drops out of the switch logit (x = -beta * r_hat - omega * s + gamma) and alpha_rho, rho0
@@ -236,6 +248,7 @@ LBFGS_MVT_STICKY_R0FIXED = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerStickyR0
 LBFGS_MVT_KAPPA_STICKY = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaSticky])
 LBFGS_MVT_KAPPA_KERNEL = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaKernelR0Fixed])
 LBFGS_MVT_KERNEL_NORHO = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKernelNoRho])
+LBFGS_MVT_KAPPA_KERNEL_OUTCOME = dict(LBFGS_STICKY_DECAY, policies=[MVTForagerKappaKernelOutcomeR0Fixed])
 # Thompson sampling, exact choice probabilities + bias + choice trace (8 params, NoBeta).
 LBFGS_THOMPSON_STICKY = dict(LBFGS_STICKY_DECAY, policies=[ThompsonSticky])
 # Stay/leave on the Beta belief that the current port pays less than rho (tau, n0, alpha_rho, beta, gamma, rho0).
@@ -382,6 +395,13 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_mvtforagerkappakernel_p8020_intact",
+        require_expert=True,
+    ),
+    "mvtkappakerneloutcome_p8020_intact": dict(
+        LBFGS_MVT_KAPPA_KERNEL_OUTCOME,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_mvtforagerkappakerneloutcome_p8020_intact",
         require_expert=True,
     ),
     "mvtsticky_p8020_intact": dict(
