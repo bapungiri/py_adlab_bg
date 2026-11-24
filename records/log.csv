@@ -130,3 +130,11 @@ timestamp,animal_id,category,note,hardware_test
 2026-11-17 16:00,BGM7,surgery,"Perfused; brain extracted.",
 2026-11-18 12:23,ALL,software,"Deployed 12 boxes (all but .15, BGM7 perfused): MainCode serial idle check now counts newly read bytes, so a half line left by a hung Teensy no longer blocks the Serial_TimeOut restart (BGM7 .15, 16 Nov).",NotRequired
 2026-11-18 16:53,BGF13,software,"New animal on box .15 (was BGM7): 9505 structured (unstrProb 5), NAS dest Paradigm_9505/intact, valve rewardTime 15 -> 20 ms. Started at stage 0.",NotRequired
+2026-11-19 11:03,BGM9,hardware,"Box .18: VideoCore interface hung since 18 Nov 12:30 (vcgencmd stuck in D state, vchiq_release in dmesg; likely under-voltage): camera recorded nothing after 18 Nov 03:40 and 114 dashboard probes piled up (load 113), so the dashboard poll timed out. Task itself kept running (615 trials overnight). Rebooted by user, redeployed (stage 6). Still under-voltage right after boot (throttled=0x50005): replace the power supply.",
+2026-11-19 18:30,BGF9,hardware,"Box .20 being fixed; camera replaced with Raspberry Pi HQ camera. BGF9 given free water during the fix.",
+2026-11-20 12:00,BGF5,surgery,"Perfused; brain extracted. Last task poke 19 Nov 16:37 (box .12); one-sided (left only) since 22 Oct and weak.",
+2026-11-23 10:45,BGM12,housing,"New animal added to box .12 (was BGF5). Box still running as BGF5 at 10:53, so its first pokes (10:00-10:53) went into BGF5 files.",
+2026-11-23 10:57,BGM12,software,"Box .12 reconfigured and deployed for BGM12: 8020 unstructured (unstrProb 80), NAS dest Paradigm_8020/intact, valve rewardTime unchanged at 13 ms. Started at stage 0.",NotRequired
+2026-11-24 11:44,ALL,software,"Deployed all 13 boxes: Teensy now logs raw sensor levels hourly after the 97 heartbeat as code 98 (value = pin*10 + level: 201/211 = nose-poke beam clear, 200/210 = beam broken or stuck, 25x = lick). Lets a stuck/dead sensor be told apart from an avoided port.",NotRequired
+2026-11-24 11:44,BGF9,task,"Box .20 valve rewardTime 30 -> 28 ms to raise trial counts (declining since Oct, ~1,550/day in Nov).",NotTested
+2026-11-24 11:44,BGM10,task,"Box .21 valve rewardTime 28 -> 26 ms to raise trial counts (declining since Oct, ~1,000/day in Nov).",NotTested
