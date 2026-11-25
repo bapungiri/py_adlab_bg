@@ -7,6 +7,7 @@ import mab_subjects
 
 from banditpy.models.policy import (
     Qlearn,
+    QlearnH0,
     QlearnCost,
     BayesForager,
     MVTForager,
@@ -55,6 +56,16 @@ def QlearnStickyBeta1():
     """6-param Qlearn (sticky outside beta) with beta in [1, 10], as in
     QlearnStickyDecay, so the two fits nest and compare directly."""
     policy = QlearnSticky()
+    policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
+    return policy
+
+
+def QlearnStickyBeta1H0():
+    """QlearnStickyBeta1 with the choice trace reset to h = 0 instead of 0.5 at each window
+    start (QlearnH0); same six params and bounds, so it compares directly with sticky_b1."""
+    policy = QlearnH0()
+    policy.params.alpha_h.enable()
+    policy.params.sticky.enable()
     policy.beta_schedule.set_bounds(beta=(1.0, 10.0))
     return policy
 
@@ -237,6 +248,7 @@ LBFGS_STICKY_DECAY = dict(
 )
 # Same 24 starts for the models compared with sticky + decay.
 LBFGS_STICKY_BETA1 = dict(LBFGS_STICKY_DECAY, policies=[QlearnStickyBeta1])
+LBFGS_STICKY_BETA1_H0 = dict(LBFGS_STICKY_DECAY, policies=[QlearnStickyBeta1H0])
 LBFGS_COST = dict(LBFGS_STICKY_DECAY, policies=[QlearnCostSticky])
 # Stay/leave forager, all six params (alpha_l, alpha_rho, beta, gamma, r0, rho0).
 LBFGS_MVT = dict(LBFGS_STICKY_DECAY, policies=[MVTForager])
@@ -318,6 +330,14 @@ PRESETS = {
         exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
         + mab_subjects.struc.p8020_good_intact_sess,
         save_name="fit_qlearn_sticky_b1_p8020_intact",
+        require_expert=True,
+    ),
+    # As sticky_b1_p8020_intact, with the choice trace reset to h = 0 at each window start.
+    "sticky_b1_h0_p8020_intact": dict(
+        LBFGS_STICKY_BETA1_H0,
+        exps=lambda: mab_subjects.unstruc.p8020_good_intact_sess
+        + mab_subjects.struc.p8020_good_intact_sess,
+        save_name="fit_qlearn_sticky_b1_h0_p8020_intact",
         require_expert=True,
     ),
     "cost_p8020_intact": dict(
