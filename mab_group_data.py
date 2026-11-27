@@ -96,8 +96,13 @@ class GroupData:
         fit_mvtforager_p8020_intact: VersionedAccessor
         fit_mvtforager_r0fixed_p8020_intact: VersionedAccessor
         fit_mvtforagerkappa_p8020_intact: VersionedAccessor
+        fit_mvtforagerkappakernel_p8020_intact: VersionedAccessor
+        fit_mvtforagerkappakerneloutcome_p8020_intact: VersionedAccessor
+        fit_mvtforagerkappasticky_p8020_intact: VersionedAccessor
+        fit_mvtforagerkernelnorho_p8020_intact: VersionedAccessor
         fit_mvtforagersatiety_p8020_intact: VersionedAccessor
         fit_mvtforagersticky_p8020_intact: VersionedAccessor
+        fit_mvtforagersticky_r0fixed_p8020_intact: VersionedAccessor
         fit_qlearn2regime_p8020_intact: VersionedAccessor
         fit_qlearn2regime_p8020_lesion_mPFC: VersionedAccessor
         fit_qlearn2regime_p9505: VersionedAccessor
@@ -115,6 +120,7 @@ class GroupData:
         fit_qlearn_low_high_combinations: VersionedAccessor
         fit_qlearn_per_prob: VersionedAccessor
         fit_qlearn_policy: VersionedAccessor
+        fit_qlearn_sticky_b1_h0_p8020_intact: VersionedAccessor
         fit_qlearn_sticky_b1_p8020_intact: VersionedAccessor
         fit_qlearn_sticky_decay_p8020_intact: VersionedAccessor
         fit_qlearn_sticky_dependent_p8020_intact: VersionedAccessor
@@ -129,11 +135,13 @@ class GroupData:
         fit_qlearncost_p8020_intact: VersionedAccessor
         fit_qlearndynamicsticky_p8020_intact: VersionedAccessor
         fit_si: VersionedAccessor
+        fit_si2: VersionedAccessor
         fit_si_sim: VersionedAccessor
         fit_state_inference_p8020_intact: VersionedAccessor
         fit_state_inference_p8020_lesion_mPFC: VersionedAccessor
         fit_state_inference_p9505: VersionedAccessor
         fit_thompson_split: VersionedAccessor
+        fit_thompsonsticky_p8020_intact: VersionedAccessor
         fit_ucb: VersionedAccessor
         gcca_meta_rnn: VersionedAccessor
         gcca_rnn_fit: VersionedAccessor
@@ -142,14 +150,20 @@ class GroupData:
         logreg_AAdataset: VersionedAccessor
         model_recovery: VersionedAccessor
         model_recovery_base_sticky_decay_sticky_decay: VersionedAccessor
+        model_recovery_qlearn6_kernel_thompson_win3to5: VersionedAccessor
         nll_fit_multi_policy: VersionedAccessor
         nll_history_rnn_fit: VersionedAccessor
         optimizer_benchmark_qlearn: VersionedAccessor
         param_recovery_bayesforager_bayes: VersionedAccessor
         param_recovery_mvtforager_r0fixed_win3to5_r0fixed: VersionedAccessor
         param_recovery_mvtforager_sticky_win3to5_animalrange: VersionedAccessor
+        param_recovery_mvtforager_stickyr0fixed_trace: VersionedAccessor
         param_recovery_mvtforager_win3to5_animalrange: VersionedAccessor
         param_recovery_mvtforagerkappa_r0fixed_kappa: VersionedAccessor
+        param_recovery_mvtforagerkappa_stickyr0fixed_trace: VersionedAccessor
+        param_recovery_mvtforagerkappakernel_r0fixed_kernel: VersionedAccessor
+        param_recovery_mvtforagerkappakernel_r0fixed_kernelfitrange: VersionedAccessor
+        param_recovery_mvtforagerkappakernel_r0fixed_win3to5_ratfits: VersionedAccessor
         param_recovery_mvtforagersatiety_win3to5_rewardclock: VersionedAccessor
         param_recovery_mvtforagerthirst_win3to5_thirst: VersionedAccessor
         param_recovery_qlearn: VersionedAccessor
@@ -189,6 +203,7 @@ class GroupData:
         param_recovery_struc_unstruc_tier_qlearncost_rho0_window5: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearncost_window5: VersionedAccessor
         param_recovery_struc_unstruc_tier_qlearnhierarchical: VersionedAccessor
+        param_recovery_thompsonsticky_simrange: VersionedAccessor
         param_recovery_tier_mix_qlearn: VersionedAccessor
         param_recovery_tier_mix_qlearn_sticky: VersionedAccessor
         param_recovery_tier_params_qlearn: VersionedAccessor
@@ -231,6 +246,8 @@ class GroupData:
         poster_perf_vs_ofc_lesion: VersionedAccessor
         prob_combinations: VersionedAccessor
         qlearnH: VersionedAccessor
+        qlearn_2alphaH_fit_1stBlock25trials: VersionedAccessor
+        qlearn_2alphaH_fit_impure: VersionedAccessor
         reward_prob: VersionedAccessor
         reward_probability_matrix: VersionedAccessor
         rnn_fit_accuracy: VersionedAccessor
@@ -269,6 +286,10 @@ class GroupData:
         swp_probability_matrix_8020_9505: VersionedAccessor
         swp_tier_8020_9505: VersionedAccessor
         swp_trial_history: VersionedAccessor
+        thomp_params_impure_lr_split: VersionedAccessor
+        thomp_params_lr_shared_1stBlock: VersionedAccessor
+        thomp_params_lr_split_1stBlock: VersionedAccessor
+        ucb_fitting_results: VersionedAccessor
         # === END AUTO-GENERATED BASENAME ANNOTATIONS ===
         pass
 
